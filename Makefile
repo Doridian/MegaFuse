@@ -3,32 +3,22 @@
 #
 #   make setup                 once: GNU binutils for m68k-elf in tools/binutils,
 #                              Genesis Plus GX and tools/mdtrace (tracing)
-#   make VERSION=us extract    baserom.us.bin -> asm/ (tools/disasm.py)
+#   make extract               baserom.us.bin and baserom.eu.bin -> asm/
+#                              (tools/disasm.py), one source for both
 #   make VERSION=us            assemble, link, check
 #   make test                  ROM-free self-tests (CI)
 #   make VERSION=us SHIFT=1    the shifted build (below), in build/us-shift
 #   make VERSION=us shift-check   the shifted and the matching ROM run side by
 #                              side (tools/shift_check.py)
 #
-# VERSION is us or eu.  asm/ holds one version at a time (.version names
-# it): `make clean` before switching.
+# VERSION is us or eu: asm/ builds both (`.if VERSION_EU` where they
+# differ), each into build/VERSION.
 
 BASENAME  = mbm
 VERSION  ?= us
 VERSIONS  = us eu
 ifeq ($(filter $(VERSION),$(VERSIONS)),)
 $(error Unknown VERSION '$(VERSION)'; expected one of $(VERSIONS))
-endif
-
-# asm/ holds one version; another version's leftovers would only show up
-# as a sha1 mismatch
-ifneq ($(filter-out clean distclean setup test extract shift-check tools/mdtrace,$(or $(MAKECMDGOALS),all)),)
-TREE_VERSION := $(shell cat .version 2>/dev/null)
-ifneq ($(TREE_VERSION),)
-ifneq ($(TREE_VERSION),$(VERSION))
-$(error asm/ holds $(TREE_VERSION); run 'make clean' first)
-endif
-endif
 endif
 
 PYTHON   ?= python3
@@ -38,6 +28,7 @@ AS        = $(CROSS)as
 LD        = $(CROSS)ld
 OBJCOPY   = $(CROSS)objcopy
 ASFLAGS   = -m68000 --register-prefix-optional -no-pad-sections -I include \
+	    --defsym VERSION_EU=$(if $(filter eu,$(VERSION)),1,0) \
 	    $(if $(filter-out 0,$(SHIFT)),--defsym SHIFT=1)
 
 # SHIFT=1: every object in the code gets SHIFT_PAD zero bytes after it, so
@@ -87,13 +78,12 @@ LIBRETRO_H = tools/gpgx/src/libretro/libretro-common/include
 tools/mdtrace: tools/src/mdtrace.c
 	$(HOSTCC) -O2 -Wall -Wextra -I $(LIBRETRO_H) -o $@ $< -ldl -lz
 
-extract: $(BASEROM)
-	@sha1sum --quiet --check <(sed 's|build/$(VERSION)/$(BASENAME).$(VERSION).bin|$(BASEROM)|' $(BASENAME).$(VERSION).sha1) || \
-	    { echo "$(BASEROM) is not the expected ROM ($(BASENAME).$(VERSION).sha1)"; exit 1; }
-	@if [ -f .version ] && [ "$$(cat .version)" != "$(VERSION)" ]; then \
-	    echo "asm/ holds $$(cat .version); run 'make clean' first"; exit 1; fi
+extract:
+	@for v in $(VERSIONS); do \
+	    sha1sum --quiet --check <(sed "s|build/$$v/$(BASENAME).$$v.bin|baserom.$$v.bin|" $(BASENAME).$$v.sha1) || \
+	    { echo "baserom.$$v.bin is not the expected ROM ($(BASENAME).$$v.sha1)"; exit 1; }; done
 	rm -rf asm
-	$(PYTHON) tools/disasm.py $(VERSION)
+	$(PYTHON) tools/disasm.py
 
 SHELL = /bin/bash
 
@@ -129,7 +119,7 @@ test:
 	$(PYTHON) tools/test_m68k.py --as $(AS)
 
 clean:
-	rm -rf asm build .version
+	rm -rf asm build
 
 distclean: clean
 	rm -rf tools/binutils

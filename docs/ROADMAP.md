@@ -34,7 +34,7 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
 
 ## Phase 1: matching disassembly (done)
 
-`make VERSION=us extract && make VERSION=us` rebuilds each ROM from
+`make extract && make VERSION=us` rebuilds each ROM from
 `asm/`, sha1-checked, for us and eu. Code is found statically
 (docs/LAYOUT.md, "Finding code"); what isn't found stays data.
 
@@ -75,11 +75,10 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   for now; moving it too needs its formats (phase 3) and the Z80's bank
   pointers. `tools/find_abs.py` lists what may still be an address left
   as a number.
-- **eu from us (map and names done).** `tools/vermap.py` maps us to eu,
-  eu's `asm/` takes us's names, and immediates the two versions agree on
-  while their target moves are numbers (docs/LAYOUT.md, "US and EU").
-  Still to do: one source tree that builds both with `.if` (two places),
-  with `shift_pad`s planned for both versions at once.
+- **eu from us (done).** `tools/vermap.py` maps us to eu, eu takes us's
+  names, and `asm/` is one source for both (`.if VERSION_EU` in three
+  places). Comparing the versions through the map also tells numbers
+  from pointers both ways (docs/LAYOUT.md, "US and EU").
 
 ## Phase 3: assets
 

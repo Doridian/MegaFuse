@@ -45,21 +45,24 @@ difflib, and runs at a fixed distance made ranges. It comes out as
 
 - **eu takes us's names**: a label is named after the address of the
   same thing in us (`Disasm.tag`; one with no counterpart in us would be
-  `D_XXXXXX_eu`; there are none), and so are the files. eu's `asm/` reads
-  as us's but for the `movem.l`, us's stray bytes and a few
-  `shift_pad`s;
+  `D_XXXXXX_eu`; there are none), and so are the files;
 - **numbers**: a long immediate that stays the same in both versions
   while what it would point at moves is a number
   (`vermap.numbers`): `move.l #0xFE00,(0x8A5E).w` sets the counter at
   `0x8A60` to 0xFE, it doesn't point at 0xFE00.
 
-`tools/disasm.py` analyses both versions every time (a second each) for
-this. `tools/shift_check.py` pairs the two builds' symbols by name, so it
-doesn't read addresses out of names.
+**One source.** `tools/disasm.py` analyses both versions (a second
+each), writes each with us's names, and merges the two texts file by
+file: what they share as it is, the rest under `.if VERSION_EU` (make
+passes `--defsym VERSION_EU=0/1`). Three places differ: the header's
+checksum, the `movem.l`, and us's stray bytes (`01E756.s`, empty in eu).
+`shift_pad`s go where they fit in both versions. `tools/shift_check.py`
+pairs the two builds' symbols by name, so it doesn't read addresses out
+of names.
 
 ## The matching build
 
-`tools/disasm.py VERSION` writes `asm/`:
+`tools/disasm.py` writes `asm/`, one source for us and eu ("US and EU"):
 
 - `asm/header.s`: the vectors (as symbols) and the header bytes.
 - `asm/NNNNNN.s`: the ROM from `0xNNNNNN` on. A file is cut where 256 or
@@ -69,7 +72,8 @@ doesn't read addresses out of names.
 - `asm/link.ld`: the objects in order, which the Makefile puts into
   `mbm.ld`, and `. = 0x040000;` before the data: the zeros between the
   code and the data aren't in any file, so the data stays at its address
-  in a SHIFT build; `asm/symbols.txt`: every global label.
+  in a SHIFT build; `asm/symbols.<v>.txt`: every global label and its
+  address in that version.
 
 Code is written as instructions with labels, and everything else as
 `.byte` (with `.space` for long zero runs). The build matches however much

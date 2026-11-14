@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Disassemble a Mega Bomberman ROM into asm/ that GNU as rebuilds exactly.
+"""Disassemble Mega Bomberman into asm/ that GNU as rebuilds exactly.
 
-    tools/disasm.py VERSION            (reads baserom.VERSION.bin)
+    tools/disasm.py                    (reads baserom.us.bin, baserom.eu.bin)
+
+Both versions are disassembled, named after us (tools/vermap.py) and
+written as one source: `.if VERSION_EU` where they differ.
 
 Code is found by tracing from the vector table (tools/m68k.py decodes):
 calls, branches, and the indirect forms whose targets are fixed in the code
@@ -28,12 +31,13 @@ Everything else is data.  Every word is accounted for either way, so the
 build matches no matter how much is found; what is found decides how much
 is symbolic (and so can move, SHIFT=1) and readable.
 
-Output (one version at a time; .version names it):
+Output (both versions; NNNNNN is us's address):
   asm/header.s        the vector table and the cartridge header
   asm/NNNNNN.s        the ROM from NNNNNN on, cut where long data starts
   asm/link.ld         the objects in ROM order, and `. = ADDR;` where
                       the data starts after the zeros that follow the code
-  asm/symbols.txt     every global label: address, name, kind
+  asm/symbols.V.txt   every global label of version V: its address
+                      there, name, kind
 """
 
 import argparse
@@ -1157,10 +1161,12 @@ class Writer:
             a = b
         return cuts + [end]
 
-    def write(self, outdir):
+    def write(self, outdir, pads=None):
+        """Write the files to outdir; pads: where shift_pad goes, if
+        not plan_pads' (tools/disasm.py plans them for every version)."""
         os.makedirs(outdir, exist_ok=True)
         cuts = self.files()
-        self.pads = self.plan_pads(cuts)
+        self.pads = self.plan_pads(cuts) if pads is None else pads
         # the zeros between the code and the data aren't written: the
         # data is placed at its address (`. = 0x40000` in link.ld), so a
         # SHIFT build that pads the code doesn't move it
@@ -1315,66 +1321,149 @@ def load_known(version):
 VERSIONS = ('us', 'eu')
 
 
-def analyze(version, speculate=True, versions=True):
-    """The whole analysis of baserom.VERSION.bin, ready to write.  With
-    versions, the other version is analysed too and compared through the
-    version map (tools/vermap.py): outside us, names come from us
-    (Disasm.tag), and immediates that stay put where their target moves
-    are numbers."""
-    def core(v):
-        rom = open(os.path.join(TOP, 'baserom.%s.bin' % v), 'rb').read()
-        extra, data, longs = load_known(v)
-        d = Disasm(rom, extra, data, longs)
-        d.version = v
-        d.biased = dict(BIASED.get(v, {}))
-        d.scripts = SCRIPTS.get(v, [])
-        d.records = RECORDS.get(v, [])
-        d.trace_all()
-        if speculate:
-            d.speculate_all()
-        return d
-    d = core(version)
-    if versions and speculate:
-        import vermap
-        other = [v for v in VERSIONS if v != version][0]
-        od = core(other)
-        ref, oth = (d, od) if version == vermap.REF else (od, d)
-        vm = vermap.VerMap(vermap.build(oth.version, ref, oth))
-        vermap.numbers(ref, oth, vm)
-        vermap.moved_longs(ref, oth, vm)
-        if d is oth:
-            d.vmap = vm
-    d.collect_refs()
+def core(version, speculate=True):
+    """Code and data found in baserom.VERSION.bin, references not yet
+    collected."""
+    rom = open(os.path.join(TOP, 'baserom.%s.bin' % version), 'rb').read()
+    extra, data, longs = load_known(version)
+    d = Disasm(rom, extra, data, longs)
+    d.version = version
+    d.biased = dict(BIASED.get(version, {}))
+    d.scripts = SCRIPTS.get(version, [])
+    d.records = RECORDS.get(version, [])
+    d.trace_all()
+    if speculate:
+        d.speculate_all()
     return d
+
+
+def analyze_all(speculate=True):
+    """Both versions, compared through the version map (tools/vermap.py):
+    outside us, names come from us (Disasm.tag), immediates that stay put
+    where their target moves are numbers, and longs that move with the
+    code are pointers.  Returns ({version: Disasm}, the map)."""
+    import vermap
+    ds = {v: core(v, speculate) for v in VERSIONS}
+    ref = ds[vermap.REF]
+    vms = {}
+    for v, d in ds.items():
+        if d is ref:
+            continue
+        vm = vermap.VerMap(vermap.build(v, ref, d))
+        if speculate:
+            vermap.numbers(ref, d, vm)
+            vermap.moved_longs(ref, d, vm)
+        d.vmap = vms[v] = vm
+    for d in ds.values():
+        d.collect_refs()
+    return ds, vms
+
+
+def analyze(version, speculate=True, versions=True):
+    """The whole analysis of baserom.VERSION.bin, ready to write
+    (analyze_all's; without versions, this version alone)."""
+    if not versions:
+        d = core(version, speculate)
+        d.collect_refs()
+        return d
+    return analyze_all(speculate)[0][version]
+
+
+def merge(texts, versions):
+    """One source from each version's text of a file: what they share as
+    it is, the rest under `.if VERSION_EU` (versions: (us, eu))."""
+    import difflib
+    us, eu = texts
+    out = []
+    sm = difflib.SequenceMatcher(None, us, eu, autojunk=False)
+    for t, a1, a2, b1, b2 in sm.get_opcodes():
+        if t == 'equal':
+            out += us[a1:a2]
+            continue
+        if b2 == b1:
+            out.append('\t.if VERSION_EU == 0')
+            out += us[a1:a2]
+        else:
+            out.append('\t.if VERSION_EU')
+            out += eu[b1:b2]
+            if a2 > a1:
+                out.append('\t.else')
+                out += us[a1:a2]
+        out.append('\t.endif')
+    return out
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    ap.add_argument('version')
     ap.add_argument('--out', default=os.path.join(TOP, 'asm'))
     ap.add_argument('--stats', action='store_true')
     ap.add_argument('--no-speculate', action='store_true',
                     help='only what tracing from the vectors finds')
     a = ap.parse_args()
-    d = analyze(a.version, not a.no_speculate)
-    rom = d.rom
-    w = Writer(d, rom, a.version)
-    objs = w.write(a.out)
-    with open(os.path.join(TOP, '.version'), 'w') as f:
-        f.write(a.version + '\n')
-    code = sum(i.size for i in d.insns.values())
-    print('%s: %d instructions, %d bytes of code (%.1f%% of 0x%X), '
-          '%d functions, %d files, %d conflicts' % (
-              a.version, len(d.insns), code, 100.0 * code / len(rom),
-              len(rom), len([f for f in d.funcs if f in d.insns]),
-              len(objs), len(d.conflicts)))
-    print('    %d roots by speculation, code area below 0x%X' % (
-        len(d.probable), d.code_limit))
-    print('    %d pointer longs in data (%d read by a trace, %d in scripts)'
-          % (len(d.ptrs), len(d.longs & set(d.ptrs)), len(d.script_ptrs)))
-    if a.stats:
-        for c in sorted(set(d.conflicts))[:40]:
-            print('  conflict at %06X' % c)
+    import shutil
+    import tempfile
+    import vermap
+    ds, vms = analyze_all(not a.no_speculate)
+    ref = ds[vermap.REF]
+    ws = {v: Writer(d, d.rom, v) for v, d in ds.items()}
+    # shift_pad where it fits in every version (us's addresses)
+    pads = ws[vermap.REF].plan_pads(ws[vermap.REF].files())
+    for v, w in ws.items():
+        if v != vermap.REF:
+            pads &= set(vms[v].to_ref(x) for x in w.plan_pads(w.files()))
+    tmp = tempfile.mkdtemp(prefix='disasm-', dir=os.path.dirname(a.out))
+    try:
+        stats = {}
+        for v, w in ws.items():
+            own = pads if v == vermap.REF else \
+                set(vms[v].to_other(x) for x in pads)
+            stats[v] = w.write(os.path.join(tmp, v), own)
+        os.makedirs(a.out, exist_ok=True)
+        dirs = [os.path.join(tmp, v) for v in VERSIONS]
+        names = sorted(set().union(*(os.listdir(x) for x in dirs)))
+        for name in names:
+            if name == 'symbols.txt':
+                for v, x in zip(VERSIONS, dirs):
+                    shutil.copy(os.path.join(x, name), os.path.join(
+                        a.out, 'symbols.%s.txt' % v))
+                continue
+            texts = []
+            for x in dirs:
+                path = os.path.join(x, name)
+                texts.append(open(path).read().split('\n')
+                             if os.path.exists(path) else [])
+            if name == 'link.ld':
+                # objects: every version's, in order (an object one
+                # version lacks is empty there)
+                out = merge(texts, VERSIONS)
+                out = [x for x in out if not x.startswith('\t.')]
+                assert len(set(x for x in out if x.startswith('. ='))) == \
+                    len([x for x in out if x.startswith('. =')]), name
+            else:
+                if not texts[1]:
+                    texts[1] = texts[0][:3]      # the prologue alone
+                out = merge(texts, VERSIONS)
+            with open(os.path.join(a.out, name), 'w') as f:
+                f.write('\n'.join(out))
+    finally:
+        shutil.rmtree(tmp)
+    for v, d in ds.items():
+        rom = d.rom
+        code = sum(i.size for i in d.insns.values())
+        print('%s: %d instructions, %d bytes of code (%.1f%% of 0x%X), '
+              '%d functions, %d files, %d conflicts' % (
+                  v, len(d.insns), code, 100.0 * code / len(rom),
+                  len(rom), len([f for f in d.funcs if f in d.insns]),
+                  len(stats[v]), len(d.conflicts)))
+        print('    %d roots by speculation, code area below 0x%X' % (
+            len(d.probable), d.code_limit))
+        print('    %d pointer longs in data (%d read by a trace, %d in '
+              'scripts)' % (len(d.ptrs), len(d.longs & set(d.ptrs)),
+                            len(d.script_ptrs)))
+        if a.stats:
+            for c in sorted(set(d.conflicts))[:40]:
+                print('  conflict at %06X' % c)
+    print('    %d shift_pads (where they fit in every version)' % len(pads))
 
 
 if __name__ == '__main__':

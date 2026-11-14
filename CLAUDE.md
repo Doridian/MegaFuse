@@ -18,7 +18,7 @@ Rust (ROADMAP, phase 4). The port is Rust, not C (decided at the start).
 
 ```
 make setup                   # binutils (m68k-elf), Genesis Plus GX, tools/mdtrace
-make VERSION=us extract      # tools/disasm.py: baserom.us.bin -> asm/
+make extract                 # tools/disasm.py: baserom.us.bin, baserom.eu.bin -> asm/
 make VERSION=us              # assemble, link, sha1-checked
 make test                    # tools/test_m68k.py: the decoder against gas
 tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/data/longs lists
@@ -31,9 +31,10 @@ Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`
 are the quickest way to see where a script got to. Run emulator batches
 under `nice`.
 
-`VERSION` is `us` or `eu`; `asm/` holds one at a time (`.version`),
-`make clean` before switching. `baserom.<v>.bin` are copies of the no-intro
-files in this directory.
+`VERSION` is `us` or `eu`; `asm/` is one source for both (`.if VERSION_EU`
+where they differ, names from us through `tools/vermap.py`), built into
+`build/<v>`. `baserom.<v>.bin` are copies of the no-intro files in this
+directory.
 
 ## Rules
 

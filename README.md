@@ -29,7 +29,7 @@ You need Python 3, a C compiler, `git`, `curl` and zlib.
 
 ```
 make setup                 # once: GNU binutils for m68k-elf, Genesis Plus GX, tools/mdtrace
-make VERSION=us extract    # baserom.us.bin (sha1-checked) -> asm/
+make extract               # baserom.us.bin, baserom.eu.bin (sha1-checked) -> asm/
 make VERSION=us            # assemble, link, sha1-checked
 make test                  # the decoder against gas, no ROM needed
 tools/trace_all.sh us      # play tools/inputs/ headless, regenerate code/data/longs.us.txt
@@ -39,8 +39,8 @@ make VERSION=us shift-check   # the shifted build against the matching one, head
 On Debian/Ubuntu, `apt install binutils-m68k-linux-gnu` and
 `make CROSS=m68k-linux-gnu-` instead of `make setup` works too.
 
-`VERSION` is `us` (the default) or `eu`. `asm/` holds one version at a
-time, so run `make clean` before you switch.
+`VERSION` is `us` (the default) or `eu`. `asm/` builds both (it needs
+both ROMs to extract), each into `build/VERSION`.
 
 ## Layout
 
