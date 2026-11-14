@@ -1,6 +1,7 @@
 # Mega Bomberman: the ROM rebuilt from asm/, sha1-checked.
 #
-#   make setup                 once: GNU binutils for m68k-elf in tools/binutils
+#   make setup                 once: GNU binutils for m68k-elf in tools/binutils,
+#                              Genesis Plus GX and tools/mdtrace (tracing)
 #   make VERSION=us extract    baserom.us.bin -> asm/ (tools/disasm.py)
 #   make VERSION=us            assemble, link, check
 #   make test                  ROM-free self-tests (CI)
@@ -27,6 +28,7 @@ endif
 endif
 
 PYTHON   ?= python3
+HOSTCC   ?= cc
 CROSS    ?= tools/binutils/bin/m68k-elf-
 AS        = $(CROSS)as
 LD        = $(CROSS)ld
@@ -51,6 +53,13 @@ check: $(TARGET).bin
 
 setup:
 	tools/get_binutils.sh
+	tools/get_gpgx.sh
+	$(MAKE) tools/mdtrace
+
+# the headless tracer over Genesis Plus GX's libretro core (tools/get_gpgx.sh)
+LIBRETRO_H = tools/gpgx/src/libretro/libretro-common/include
+tools/mdtrace: tools/src/mdtrace.c
+	$(HOSTCC) -O2 -Wall -Wextra -I $(LIBRETRO_H) -o $@ $< -ldl -lz
 
 extract: $(BASEROM)
 	@sha1sum --quiet --check <(sed 's|build/$(VERSION)/$(BASENAME).$(VERSION).bin|$(BASEROM)|' $(BASENAME).$(VERSION).sha1) || \

@@ -13,8 +13,11 @@ calls, branches, and the indirect forms whose targets are fixed in the code
     `movea.l #x,an`) and called or jumped through in the same block;
   - a long stored into a RAM slot (`move.l #x,(slot)`) where a slot is any
     RAM long some block loads into an address register and jumps through;
-  - code.VERSION.txt: addresses known to be code by other evidence, one
-    per line (`ADDR  # comment`, in VERSION's addresses).
+  - code.VERSION.txt: addresses a runtime trace ran that nothing here
+    reaches (tools/coverage.py --write), one per line.
+
+data.VERSION.txt lists ranges a trace read as data; speculation leaves
+them alone.
 
 Then speculation (Disasm.speculate_all): candidate addresses the code or
 the data between code names, and unclaimed addresses after a jump or
@@ -74,7 +77,7 @@ def code_limit(rom):
 
 
 class Disasm:
-    def __init__(self, rom, extra=()):
+    def __init__(self, rom, extra=(), data=()):
         self.rom = rom
         self.end = len(rom)
         self.insns = {}          # addr -> Insn
@@ -87,6 +90,12 @@ class Disasm:
         self.slots = set()       # RAM longs jumped through
         self.slot_stores = collections.defaultdict(set)
         self.extra = set(extra)
+        # bytes known to be data (read as data in a trace): speculation
+        # must not claim them
+        self.known_data = bytearray(len(rom))
+        for lo, hi in data:
+            for k in range(lo, min(hi, len(rom))):
+                self.known_data[k] = 1
         self.code_limit = code_limit(rom)
         self.journal = None      # list of undo steps while speculating
         self.failed = False
@@ -256,6 +265,7 @@ class Disasm:
                 self._fail(a)
                 return
             if self.journal is not None and (
+                    any(self.known_data[a + k] for k in range(ins.size)) or
                     ins.raw or ins.mn in ('illegal', 'reset', 'stop') or
                     self.rom[a:a + 4] == bytes(4) or
                     ins.mn.startswith('trap') or a >= self.code_limit):
@@ -562,6 +572,23 @@ class Writer:
                 a = b
 
 
+def load_known(version):
+    """code.VERSION.txt (`ADDR`) and data.VERSION.txt (`LO HI`, hi
+    exclusive): what runtime traces proved (tools/coverage.py --write)."""
+    def lines(name):
+        path = os.path.join(TOP, '%s.%s.txt' % (name, version))
+        if not os.path.exists(path):
+            return []
+        out = []
+        for line in open(path):
+            t = line.split('#')[0].split()
+            if t:
+                out.append([int(x, 16) for x in t])
+        return out
+    return ([t[0] for t in lines('code')],
+            [(t[0], t[1]) for t in lines('data')])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('version')
@@ -571,14 +598,8 @@ def main():
                     help='only what tracing from the vectors finds')
     a = ap.parse_args()
     rom = open(os.path.join(TOP, 'baserom.%s.bin' % a.version), 'rb').read()
-    extra = []
-    known = os.path.join(TOP, 'code.%s.txt' % a.version)
-    if os.path.exists(known):
-        for line in open(known):
-            line = line.split('#')[0].split()
-            if line:
-                extra.append(int(line[0], 16))
-    d = Disasm(rom, extra)
+    extra, data = load_known(a.version)
+    d = Disasm(rom, extra, data)
     d.trace_all()
     if not a.no_speculate:
         d.speculate_all()

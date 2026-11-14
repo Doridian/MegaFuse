@@ -102,9 +102,44 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    - addresses right after a `rts`/`jmp`/`bra` that nothing claims,
      with the same minimum.
 
-The result in us: 1,399 functions, 109 KB of code, about 21 KB of the code
-area left as data. What is left is mostly tables: pointer tables (to data
-records), palettes, sine and step tables, text, and a few blocks that look
-like code copied into RAM (`0x81C8` stores code addresses at
-`0xFFF000`). Speculation can be wrong in both directions. A runtime trace
-in an emulator (ROADMAP, phase 2) will settle it.
+3. **Evidence from runtime traces**, which outranks both:
+   `code.<v>.txt` (entry points a trace ran that nothing reaches
+   directly: indirect targets) are traced like the vectors, before any
+   speculation, and `data.<v>.txt` (ranges of the code area a trace read as
+   data) are off limits to speculation. Both are regenerated from the
+   traces (below), not edited.
+
+The result in us: 1,433 functions, 110 KB of code, of which the traces ran
+17,656 instructions (66%); every instruction that ran is in the
+disassembly, and nothing the disassembly calls code was read as data
+except the block below. What is left of the code area is mostly tables:
+pointer tables, palettes, sine and step tables, text.
+
+Open: from `0x1906E` on, code that runs is also read word by word (`0x522`
+is called just before it: copied or scanned?), and `0x81C8` stores code
+addresses at `0xFFF000`, which may be code run from RAM.
+
+## Runtime traces
+
+`tools/mdtrace` (`tools/src/mdtrace.c`) runs a ROM headless in Genesis
+Plus GX's libretro core, built with its CPU hooks by `tools/get_gpgx.sh`
+(`make setup`; a pinned commit, a development tool only, never in the
+port). It plays a pad script, records for every ROM byte whether an
+instruction started there and whether it was read as data (and at what
+width), and takes screenshots and RAM dumps. The boot checksum's
+`add.w (a0)+,d0` (`0x7BE2`) reads the whole ROM, so its reads are ignored
+(`--ignore-reads`).
+
+`tools/gen_inputs.py` writes the scripts in `tools/inputs/` (seeded, so
+runs repeat): `normal` (random play from stage 1-1), `battle` (two pads)
+and `battle4` (four, on the Team Player), cycling through the setup screens
+and random matches, `password`, `idle`, and `stage-*`: one per password,
+every stage, boss and the final area (Sega Retro's list, all checked in
+the emulator). `tools/trace_all.sh <v>` runs them all (about half a
+minute) into `build/<v>/trace/` and regenerates `code.<v>.txt` and
+`data.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
+alone reports how a trace and the disassembly disagree.
+`tools/sheet.py` tiles screenshots into one picture.
+
+There is no TAS of Mega Bomberman (TASVideos lists the us ROM, with no
+movies, submissions or user files), so the passwords stand in for one.

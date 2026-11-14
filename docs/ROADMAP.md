@@ -40,16 +40,15 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
 
 ## Phase 2: complete and symbolic
 
-- **A runtime trace.** A headless emulator with execution and memory
-  hooks marks every ROM byte that runs as an instruction start or is read
-  as data (and at what width). It covers attract mode, the menus, normal
-  game and battle mode from scripted inputs (B64's `tools/inputs`). Traced
-  code goes to `code.<v>.txt`; where speculation disagrees with the trace,
-  the trace wins. Planned tool: Genesis Plus GX's libretro core built with
-  `HOOK_CPU` (`tools/get_gpgx.sh`) and a small libretro frontend
-  (`tools/src/mdtrace.c`). It is a development tool only: fetched, never
-  vendored, and nothing of it goes into the port (its license forbids
-  commercial use).
+- **A runtime trace (done).** `tools/mdtrace` over Genesis Plus GX
+  marks what runs and what is read; scripted inputs cover the intro,
+  menus, battle mode with two and four pads, and every normal-game stage
+  through the passwords (docs/LAYOUT.md, "Runtime traces"). The evidence
+  is `code.<v>.txt`/`data.<v>.txt`, and the trace wins over speculation.
+  Still to cover: the endings, the continue and game-over paths, the
+  options a password can't reach. A human playthrough recorded as a pad
+  script would do (BizHawk's Mega Drive core is Genesis Plus GX too, so
+  its `.bk2` input logs should play back in mdtrace).
 - **Data words become symbols.** Pointer tables, records with pointers
   (scene and object scripts), the PC-relative and `(xxx).w` tables. RAM
   gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed addresses.

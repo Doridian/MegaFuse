@@ -6,7 +6,8 @@ over WebRTC. The models are `../BlastCorps` and `../Bomberman64` (same
 goals, same rules; look at their tools before writing a new one) and, for
 the Rust port and its netplay, `../HolidayIsland` (winit, wgpu, cpal,
 `crates/net` with matchbox). docs/ROADMAP.md has the phases: 0 and 1 are
-done (both ROMs rebuild from `asm/`, sha1-checked).
+done (both ROMs rebuild from `asm/`, sha1-checked), and phase 2's runtime
+trace is in place (docs/LAYOUT.md, "Runtime traces").
 
 The game is handwritten 68000 asm, not compiled C. Nothing gets compiled to
 match: the asm is the source, and the port is a translation of it into
@@ -19,7 +20,12 @@ make setup                   # GNU binutils for m68k-elf into tools/binutils
 make VERSION=us extract      # tools/disasm.py: baserom.us.bin -> asm/
 make VERSION=us              # assemble, link, sha1-checked
 make test                    # tools/test_m68k.py: the decoder against gas
+tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/data lists
 ```
+
+Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`
+are the quickest way to see where a script got to. Run emulator batches
+under `nice`.
 
 `VERSION` is `us` or `eu`; `asm/` holds one at a time (`.version`),
 `make clean` before switching. `baserom.<v>.bin` are copies of the no-intro
@@ -42,7 +48,11 @@ files in this directory.
   evidence. Matching doesn't depend on it, shifting will.
 - **Don't guess names.** Labels are `func_`/`loc_`/`D_`/`jtbl_` plus the
   address (us's addresses in both versions, once there is a us↔eu map).
-- **Downloaded code is a dependency decision.** The emulator for tracing
-  (Genesis Plus GX, `tools/get_gpgx.sh`) needs the user's go-ahead before
-  it is fetched and built.
+- **Traces are evidence, speculation is a guess.** `code.<v>.txt` and
+  `data.<v>.txt` come from `tools/trace_all.sh <v>` (never hand-edited);
+  rerun it after changing `tools/inputs/` (`tools/gen_inputs.py`) and
+  commit the lists. Genesis Plus GX (`tools/get_gpgx.sh`) is a dev tool
+  only: nothing of it goes into the repo or the port.
+- New dependencies (downloaded code, crates, libraries) are the user's
+  call: ask first.
 - Drafts worth keeping go in `scratch/` (git-ignored), not `/tmp`.

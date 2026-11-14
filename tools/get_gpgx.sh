@@ -32,7 +32,9 @@ cat > "$SRC/libretro/link.T" <<'EOF'
    local: *;
 };
 EOF
-make -s -C "$SRC" -f Makefile.libretro HOOK_CPU=1 -j"$(nproc)" >/dev/null
+# -fcommon: core/debug/cpuhook.h defines cpu_hook in a header (no extern),
+# which GCC 10+ and clang reject as multiple definitions by default
+CFLAGS=-fcommon make -s -C "$SRC" -f Makefile.libretro HOOK_CPU=1 -j"$(nproc)" >/dev/null
 cp "$SRC/genesis_plus_gx_libretro.so" "$SO"
 echo "$COMMIT" > "$DEST/COMMIT"
 echo "Genesis Plus GX ($COMMIT) with HOOK_CPU in $SO"

@@ -14,3 +14,4 @@ __pycache__/
 # drafts kept across sessions
 /scratch/
 .claude/worktrees/
+tools/mdtrace
