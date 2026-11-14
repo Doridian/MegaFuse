@@ -44,6 +44,7 @@ def main():
     d = disasm.Disasm(rom, extra, data, longs)
     d.biased = dict(disasm.BIASED.get(a.version, {}))
     d.scripts = disasm.SCRIPTS.get(a.version, [])
+    d.records = disasm.RECORDS.get(a.version, [])
     d.trace_all()
     d.speculate_all()
     d.collect_refs()

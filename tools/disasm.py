@@ -90,6 +90,18 @@ SCRIPT_OPS = {
 SCRIPT_SIZE = {'x': 1, 'b': 1, 'w': 2, 'l': 4, 'c': 4, 's': 4}
 
 
+# Tables of records holding pointers, by what the code does with each
+# field: `table` is a table of record pointers (it ends where the first
+# record it points at starts), a record is longs of these kinds: d data
+# (a pointer), c a table of code pointers the code calls through, f a
+# function.  func_001030 copies the record (D_00A04A, by (0x953A).w) to
+# 0x9E78-0x9E87: func_005336 calls through 0x9E80 (index & 0x3F),
+# func_000E98 jumps to 0x9E84; nothing reads 0x9E78 or 0x9E7C by name.
+RECORDS = {
+    'us': [dict(table=0xA04A, fields='ddcf')],
+    'eu': [dict(table=0xA044, fields='ddcf')],
+}
+
 class Unknown(Exception):
     """What a function reads from a script can't be told from its code."""
 
@@ -176,6 +188,7 @@ class Disasm:
         self.call_tables = set()
         self.table_longs = set() # their entries (find_pointers' seeds)
         self.scripts = []        # SCRIPTS[version]
+        self.records = []        # RECORDS[version]
         self.script_ptrs = {}    # pointer longs in scripts -> target
         self.script_bytes = set()  # every byte a script walk covered
         self.dlabels = set()     # data addresses the code names
@@ -400,6 +413,42 @@ class Disasm:
                 out.append(b)
         return sorted(out)
 
+    def record_fields(self):
+        """Walk RECORDS: their pointer longs go to table_longs (seeds
+        of find_pointers), their call tables to call_tables.  Returns
+        the functions they name."""
+        def long_at(a):
+            if a + 4 > self.code_limit or \
+                    any(a + k in self.owner for k in range(4)):
+                return None
+            v = struct.unpack_from('>I', self.rom, a)[0]
+            if v & 1 or not HEADER_END <= v < self.end:
+                return None
+            return v
+        out = []
+        for rt in self.records:
+            t = rt['table']
+            end = self.code_limit
+            a = t
+            while a < end:
+                r = long_at(a)
+                if r is None:
+                    break
+                self.table_longs.add(a)
+                if r > t:
+                    end = min(end, r)
+                for k, c in enumerate(rt['fields']):
+                    v = long_at(r + 4 * k)
+                    if v is None:
+                        continue
+                    self.table_longs.add(r + 4 * k)
+                    if c == 'c':
+                        self._add(self.call_tables, v)
+                    elif c == 'f' and v not in self.insns:
+                        out.append(v)
+                a += 4
+        return out
+
     def call_table(self, t):
         """The entries of a table of code pointers at base t, as
         (address, target).  The base may be biased (func_015FAE's table:
@@ -561,6 +610,10 @@ class Disasm:
     def _speculate_named(self):
         n = 0
         for a in self.candidates():
+            if self.speculate(a):
+                n += 1
+        # tables of records (RECORDS)
+        for a in self.record_fields():
             if self.speculate(a):
                 n += 1
         # tables the code calls through: each entry code, else the table
@@ -1208,6 +1261,7 @@ def main():
     d = Disasm(rom, extra, data, longs)
     d.biased = dict(BIASED.get(a.version, {}))
     d.scripts = SCRIPTS.get(a.version, [])
+    d.records = RECORDS.get(a.version, [])
     d.trace_all()
     if not a.no_speculate:
         d.speculate_all()

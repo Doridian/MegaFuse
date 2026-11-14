@@ -178,12 +178,21 @@ What `tools/disasm.py` writes as a symbol rather than a number
   interpreter so far, `func_015FAE` (`0xAD5E`): its one script,
   `D_016FFA`, holds 51 pointers; the `ending` trace runs all of it. Its
   pointer ends one past the script, so no object starts there (no pad in
-  a SHIFT build).
+  a SHIFT build);
+- **tables of records** (`RECORDS`, `Disasm.record_fields`): a table of
+  record pointers (it ends where the first record starts) and what the
+  code does with each long of a record: a pointer, a call table (its
+  entries speculated as code, like any table the code calls through) or
+  a function. `D_00A04A`, by `(0x953A).w`, is copied to
+  `0x9E78`-`0x9E87` by `func_001030`: `func_005336` calls through
+  `0x9E80`, `func_000E98` jumps to `0x9E84`. This reaches what no trace
+  has run (the tenth record, `D_00A41E`, and its table `D_00A442`).
 
 What a target is called: `D_` in data, `func_` for an instruction start
-nothing branches to. Not handled yet: pointers at other offsets in
-records (other scripts: `0xA0AA` holds `FF 00 0D 8F EC 5A` entries, a
-long at an odd offset), word pointers, and the data's own pointers. `tools/find_abs.py` lists what may still be an address written
+nothing branches to. Not handled yet: the lists a `D_00A04A` record's
+first long points at (`D_00A0AA`: a count, `FF`, then `00 0D 8F EC 5A FF`
+entries, a long at an odd offset into the data; nothing reads them by
+name, so their format is a guess), word pointers, and the data's own pointers. `tools/find_abs.py` lists what may still be an address written
 as a number.
 
 The tracer didn't see PC-relative reads at first (Musashi reads them like

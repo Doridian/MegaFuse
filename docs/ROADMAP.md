@@ -54,9 +54,10 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
 - **Data words become symbols (started).** Long immediates used as
   addresses, pointer longs the traces read and the rest of their tables,
   table addresses used as displacements (docs/LAYOUT.md, "Pointers").
-  Bytecode scripts are walked op by op (`func_015FAE`'s, so far).
-  Still to do: records with pointers at other offsets (other scripts:
-  0xA0AA's entries hold a long at odd offsets), word pointers,
+  Bytecode scripts are walked op by op (`func_015FAE`'s, so far), and
+  tables of records by what the code does with each field (`D_00A04A`).
+  Still to do: the lists those records point at (0xA0AA's entries hold
+  a long at odd offsets), word pointers,
   `tools/find_abs.py`'s list, and the data's own pointers (0x40000 on).
   RAM gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed
   addresses.
