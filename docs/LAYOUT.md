@@ -97,6 +97,13 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    code area. Otherwise it is rolled back. Candidates, strongest first:
    - addresses the code names as addresses: absolute and PC-relative
      operands, `movea.l #x`, `move.l #x` to memory or the stack;
+   - the entries of a table the code calls through
+     (`movea.l (tbl,pc,dn.w),an` then `jsr`/`jmp (an)`,
+     `Disasm.call_table`), up to the first target after the table or the
+     first entry that isn't code. The base may be biased: `func_015FAE`'s
+     opcodes start at 1, so its base is the `bra.s` before the table, and
+     up to 2 leading slots that can't be a code address are skipped. Its
+     handlers are 3 or 4 instructions, too short for the next kind;
    - other long immediates and longs in the data between code (pointer
      tables), which must reach at least 6 instructions. Short closures
      are rejected because the tail of a real instruction often decodes as
@@ -111,7 +118,7 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,560 functions (counting entries only pointers name),
+The result in us: 1,589 functions (counting entries only pointers name),
 110 KB of code, of which the traces ran 17,656 instructions (66%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:

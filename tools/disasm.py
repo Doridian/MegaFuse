@@ -51,6 +51,7 @@ HEADER_END = 0x200
 DATA_SPLIT = 0x100
 ZERO_RUN = 32        # zero runs this long become .space
 DATA_MIN_INSNS = 6   # see Disasm.speculate_all
+CALL_TABLE_BIAS = 2  # leading slots of a call table no index reaches
 STRIDE_MAX = 0x20    # longest record a pointer table extends over
 SHIFT_FUNC_PAD = 2   # shift_pad's size (include/macros.inc)
 # Absolute operands that are a table's address minus the smallest index
@@ -140,6 +141,9 @@ class Disasm:
         self.branch = set()      # branch targets
         self.jtbl = set()        # jump table starts
         self.jtbl_entries = set()
+        # bases of `movea.l (tbl,pc,dn),an; jsr (an)` tables of longs
+        self.call_tables = set()
+        self.table_longs = set() # their entries (find_pointers' seeds)
         self.dlabels = set()     # data addresses the code names
         self.conflicts = []
         self.slots = set()       # RAM longs jumped through
@@ -289,11 +293,53 @@ class Disasm:
                 out.append(b)
         return sorted(out)
 
+    def call_table(self, t):
+        """The entries of a table of code pointers at base t, as
+        (address, target).  The base may be biased (func_015FAE's table:
+        opcode 0 never indexes it, so its first slot is the code before):
+        up to CALL_TABLE_BIAS longs that can't be a code address are
+        skipped.  The table ends at what isn't one, at an instruction, or
+        where the first of its targets after it starts."""
+        def code_addr(a):
+            if a + 4 > self.code_limit or \
+                    any(a + k in self.owner for k in range(4)):
+                return None
+            v = struct.unpack_from('>I', self.rom, a)[0]
+            if v & 1 or not HEADER_END <= v < self.code_limit:
+                return None
+            return v
+        a = t
+        for _ in range(CALL_TABLE_BIAS):
+            if code_addr(a) is not None:
+                break
+            a += 4
+        out = []
+        end = self.code_limit
+        while a < end:
+            v = code_addr(a)
+            if v is None:
+                break
+            out.append((a, v))
+            if v > a:
+                end = min(end, v)
+            a += 4
+        return out
+
     def _speculate_named(self):
         n = 0
         for a in self.candidates():
             if self.speculate(a):
                 n += 1
+        # tables the code calls through: each entry code, else the table
+        # ends before it
+        for t in sorted(self.call_tables):
+            for a, v in self.call_table(t):
+                if v not in self.insns:
+                    if not self.speculate(v):
+                        break
+                    n += 1
+                if v in self.insns:
+                    self.table_longs.add(a)
         # slot stores the new code made
         more = set()
         for slot in self.slots:
@@ -368,6 +414,8 @@ class Disasm:
                     elif p.mn == 'movea.l' and src.kind in ('absw', 'absl') \
                             and is_ram(src.addr):
                         self._add(self.slots, src.addr)
+                    elif p.mn == 'movea.l' and src.kind == 'pcindex':
+                        self._add(self.call_tables, src.addr)
                     break
             return
         if mn == 'move.l' and ins.ops[0].kind == 'imm' and \
@@ -444,7 +492,8 @@ class Disasm:
                 return False
             return self.target_ok(t)
         stops = set()
-        seeds = sorted(a for a in self.longs if ok(a, True))
+        seeds = sorted(a for a in self.longs | self.table_longs
+                       if ok(a, True))
         for a in seeds:
             self.ptrs[a] = struct.unpack_from('>I', self.rom, a)[0]
         # the strides: 4, and the distance from each seed to the others
