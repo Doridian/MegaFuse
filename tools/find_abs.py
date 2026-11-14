@@ -18,7 +18,8 @@ reports, by kind:
             value is a label in the code area
   data-word the same for a word: a function's address below 0x10000
 
-Not everything listed is an address (a number can equal a label by
+Bytes a script walk decoded (SCRIPTS in tools/disasm.py) aren't listed:
+their pointers are known.  Not everything listed is an address (a number can equal a label by
 chance); each needs a look.  Addresses into the data (0x40000 on) aren't
 listed: the data doesn't move in a SHIFT build yet.
 """
@@ -42,6 +43,7 @@ def main():
     extra, data, longs = disasm.load_known(a.version)
     d = disasm.Disasm(rom, extra, data, longs)
     d.biased = disasm.BIASED.get(a.version, {})
+    d.scripts = disasm.SCRIPTS.get(a.version, [])
     d.trace_all()
     d.speculate_all()
     d.collect_refs()
@@ -59,7 +61,7 @@ def main():
                     o.val in named and not d.disp_pointer(o.val):
                 found['disp'].append('%06X  %s' % (at, ins.format()))
     funcs = set(f for f in d.funcs if f in d.insns)
-    covered = set()
+    covered = set(d.script_bytes)   # decoded: its longs are known
     for p in d.ptrs:
         covered.update(range(p, p + 4))
     for k in range(disasm.HEADER_END, lim - 3, 2):

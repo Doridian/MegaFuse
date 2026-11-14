@@ -118,7 +118,7 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,589 functions (counting entries only pointers name),
+The result in us: 1,590 functions (counting entries only pointers name),
 110 KB of code, of which the traces ran 17,656 instructions (66%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
@@ -150,13 +150,23 @@ What `tools/disasm.py` writes as a symbol rather than a number
 - a displacement off an address register that lands on data a trace read
   (`move.b (0x17A6,a0),d0` with an index in `a0`);
 - `BIASED`: a table's address minus its smallest index, which only a
-  trace shows (`lea (D_00EFB8-0x86).l,a0`).
+  trace shows (`lea (D_00EFB8-0x86).l,a0`);
+- **longs in bytecode scripts** (`SCRIPTS`, `Disasm.walk_scripts`): a
+  script is read a byte at a time through a pointer in RAM, so its longs
+  sit wherever the ops put them. The walk starts at the long immediates
+  stored into that pointer and decodes op by op (`SCRIPT_OPS`, checked
+  against what each handler in the interpreter's table reads). A call
+  op's callee may read on: what it reads is found from its code
+  (`Disasm.script_reads`: every path to its return reads the same sizes,
+  calls followed), so `func_0174BA` takes a palette address after it. A
+  script's call targets are speculated as code (`0x16D8A`). One
+  interpreter so far, `func_015FAE` (`0xAD5E`): its one script,
+  `D_016FFA`, holds 51 pointers. No trace has run it yet.
 
 What a target is called: `D_` in data, `func_` for an instruction start
 nothing branches to. Not handled yet: pointers at other offsets in
-records (scene and object scripts: `0xA0AA` holds `FF 00 0D 8F EC 5A`
-entries, a long at an odd offset), word pointers, and the data's own
-pointers. `tools/find_abs.py` lists what may still be an address written
+records (other scripts: `0xA0AA` holds `FF 00 0D 8F EC 5A` entries, a
+long at an odd offset), word pointers, and the data's own pointers. `tools/find_abs.py` lists what may still be an address written
 as a number.
 
 The tracer didn't see PC-relative reads at first (Musashi reads them like

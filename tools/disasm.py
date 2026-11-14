@@ -63,6 +63,37 @@ BIASED = {
     'eu': {0xEF2C: 0xEFB2, 0xEF2D: 0xEFB2},
 }
 
+# Bytecode scripts (scene and object scripts) whose longs are pointers.
+# A script is read a byte at a time through a pointer in RAM (`slot`) by
+# `readers` (a byte, a word and a long; each reads bytes one by one); its
+# roots are the long immediates stored into the slot.  `func_015FAE` runs
+# one op per call: the op's byte, then its operands as below
+# (SCRIPT_OPS, checked against what the handlers in its table at `ops`
+# read).  What an op 0x0F call reads after it is found from the
+# callee's code (Disasm.script_reads).
+SCRIPTS = {
+    'us': [dict(slot=0xFFAD5E, readers=(0x15F54, 0x15F62, 0x15F80),
+                ops=0x16004)],
+    'eu': [dict(slot=0xFFAD5E, readers=(0x15F4E, 0x15F5C, 0x15F7A),
+                ops=0x15FFE)],
+}
+# func_015FAE's ops: x a pad byte (the operand after it is even),
+# b a byte, w a word, l a long (a pointer where it can be one: op 0x0E's
+# goes to (0x4,a6)), c a function called (it may read on), s a script
+# address (op 0x11: n times back to it, then on).  0x00 waits a frame;
+# 0x80 and up yields with carry, and the walk stops there.
+SCRIPT_OPS = {
+    0x00: 'b', 0x01: 'xw', 0x02: 'b', 0x03: 'b', 0x04: 'xw', 0x05: 'b',
+    0x06: 'b', 0x07: 'b', 0x08: 'b', 0x09: 'xw', 0x0A: 'b', 0x0B: 'b',
+    0x0C: 'xw', 0x0D: 'b', 0x0E: 'xl', 0x0F: 'xc', 0x10: 'b', 0x11: 'bs',
+}
+SCRIPT_SIZE = {'x': 1, 'b': 1, 'w': 2, 'l': 4, 'c': 4, 's': 4}
+
+
+class Unknown(Exception):
+    """What a function reads from a script can't be told from its code."""
+
+
 # Reads past a table into the code after it (the game's own bugs) that a
 # SHIFT build must leave alone: no pad in [lo, hi].  The same addresses in
 # us and eu (before 0x7C4A).
@@ -144,6 +175,9 @@ class Disasm:
         # bases of `movea.l (tbl,pc,dn),an; jsr (an)` tables of longs
         self.call_tables = set()
         self.table_longs = set() # their entries (find_pointers' seeds)
+        self.scripts = []        # SCRIPTS[version]
+        self.script_ptrs = {}    # pointer longs in scripts -> target
+        self.script_bytes = set()  # every byte a script walk covered
         self.dlabels = set()     # data addresses the code names
         self.conflicts = []
         self.slots = set()       # RAM longs jumped through
@@ -325,6 +359,132 @@ class Disasm:
             a += 4
         return out
 
+    def script_reads(self, f, readers, memo, stack=()):
+        """The sizes of what the function at f reads from a script, in
+        order: every path from f to its return reads the same, a loop
+        that comes back reads nothing more, calls are followed.  Raises
+        Unknown otherwise (an indirect call, code not found)."""
+        if f in readers:
+            return [readers[f]]
+        if f in memo:
+            return memo[f]
+        if f in stack or len(stack) > 32:
+            raise Unknown(f)
+        stack += (f,)
+
+        def walk(a, seen):
+            out = []
+            while True:
+                if a in seen:
+                    return None      # back to a loop: nothing new
+                seen.add(a)
+                ins = self.insns.get(a)
+                if ins is None:
+                    raise Unknown(a)
+                if ins.flow in ('call', 'jump') and ins.target is None:
+                    raise Unknown(a)
+                if ins.flow == 'call':
+                    out += self.script_reads(ins.target, readers, memo, stack)
+                elif ins.flow == 'ret':
+                    return out
+                elif ins.flow == 'jump':
+                    if ins.target in self.funcs:
+                        return out + self.script_reads(ins.target, readers,
+                                                       memo, stack)
+                    a = ins.target
+                    continue
+                elif ins.flow == 'branch':
+                    x = walk(ins.target, set(seen))
+                    y = walk(a + ins.size, set(seen))
+                    if x is None and y is None:
+                        return None
+                    if x is not None and y is not None and x != y:
+                        raise Unknown(a)
+                    return out + (y if x is None else x)
+                a += ins.size
+        r = walk(f, set())
+        if r is None:
+            raise Unknown(f)
+        memo[f] = r
+        return r
+
+    def check_script_ops(self, sc, readers, memo):
+        """SCRIPT_OPS against the handlers in the interpreter's table:
+        each reads its operands (a call reads a long, then calls)."""
+        for op, fmt in SCRIPT_OPS.items():
+            a = sc['ops'] + 4 * op
+            if not 0 < op < 0x11 or a not in self.ptrs and \
+                    a not in self.table_longs:
+                continue
+            h = struct.unpack_from('>I', self.rom, a)[0]
+            if h not in self.insns or fmt.endswith('c'):
+                continue         # not code yet; a call reads on
+            want = [SCRIPT_SIZE[c] for c in fmt]
+            try:
+                got = self.script_reads(h, readers, memo)
+            except Unknown:
+                got = None
+            if got != want:
+                raise ValueError('script op %02X: handler %06X reads %s, '
+                                 'SCRIPT_OPS says %s' % (op, h, got, want))
+
+    def walk_scripts(self):
+        """Walk every script from its roots (SCRIPTS): its pointer longs
+        go to script_ptrs.  Returns the functions scripts call that
+        aren't code yet; a walk stops at such a call (what it reads is
+        unknown until it is code), at an op it doesn't know, at a yield
+        (0x80 and up) and where it has been."""
+        self.script_ptrs = {}
+        self.script_bytes = set()
+        calls = set()
+        for sc in self.scripts:
+            readers = dict(zip(sc['readers'], (1, 2, 4)))
+            memo = {}
+            self.check_script_ops(sc, readers, memo)
+            todo = sorted(self.slot_stores.get(sc['slot'], ()))
+            seen = set()
+            while todo:
+                a = todo.pop()
+                while self.in_rom(a) and a not in seen and \
+                        a not in self.owner:
+                    seen.add(a)
+                    fmt = SCRIPT_OPS.get(self.rom[a])
+                    if fmt is None:
+                        break
+                    b = a + 1
+                    more = []
+                    for c in fmt:
+                        if c in 'lcs':
+                            t = struct.unpack_from('>I', self.rom, b)[0]
+                            if c == 's':
+                                todo.append(t)
+                            if c == 'c':
+                                if t not in self.insns:
+                                    calls.add(t)
+                                    more = None
+                                else:
+                                    try:
+                                        more = self.script_reads(
+                                            t, readers, memo)
+                                    except Unknown:
+                                        more = None
+                            if c != 'l' or self.target_ok(t):
+                                self.script_ptrs[b] = t
+                        b += SCRIPT_SIZE[c]
+                    if more is None:
+                        self.script_bytes.update(range(a, b))
+                        break
+                    for k in more:
+                        if k == 4:
+                            t = struct.unpack_from('>I', self.rom, b)[0]
+                            if self.target_ok(t):
+                                self.script_ptrs[b] = t
+                        b += k
+                    self.script_bytes.update(range(a, b))
+                    a = b
+        return sorted(a for a in calls
+                      if HEADER_END <= a < self.code_limit and not a & 1)
+
     def _speculate_named(self):
         n = 0
         for a in self.candidates():
@@ -340,6 +500,10 @@ class Disasm:
                     n += 1
                 if v in self.insns:
                     self.table_longs.add(a)
+        # functions scripts call
+        for a in self.walk_scripts():
+            if self.speculate(a):
+                n += 1
         # slot stores the new code made
         more = set()
         for slot in self.slots:
@@ -491,6 +655,8 @@ class Disasm:
                     t not in self.funcs and t not in self.branch:
                 return False
             return self.target_ok(t)
+        self.walk_scripts()
+        self.ptrs.update(self.script_ptrs)
         stops = set()
         seeds = sorted(a for a in self.longs | self.table_longs
                        if ok(a, True))
@@ -936,6 +1102,7 @@ def main():
     extra, data, longs = load_known(a.version)
     d = Disasm(rom, extra, data, longs)
     d.biased = BIASED.get(a.version, {})
+    d.scripts = SCRIPTS.get(a.version, [])
     d.trace_all()
     if not a.no_speculate:
         d.speculate_all()
@@ -952,8 +1119,8 @@ def main():
               len(objs), len(d.conflicts)))
     print('    %d roots by speculation, code area below 0x%X' % (
         len(d.probable), d.code_limit))
-    print('    %d pointer longs in data (%d read by a trace)' % (
-        len(d.ptrs), len(d.longs & set(d.ptrs))))
+    print('    %d pointer longs in data (%d read by a trace, %d in scripts)'
+          % (len(d.ptrs), len(d.longs & set(d.ptrs)), len(d.script_ptrs)))
     if a.stats:
         for c in sorted(set(d.conflicts))[:40]:
             print('  conflict at %06X' % c)
