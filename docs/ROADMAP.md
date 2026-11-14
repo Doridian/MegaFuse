@@ -75,8 +75,11 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   for now; moving it too needs its formats (phase 3) and the Z80's bank
   pointers. `tools/find_abs.py` lists what may still be an address left
   as a number.
-- **eu from us.** A us↔eu map; eu's `asm/` takes us's names, and one
-  source tree builds both with `.if` (two places).
+- **eu from us (map and names done).** `tools/vermap.py` maps us to eu,
+  eu's `asm/` takes us's names, and immediates the two versions agree on
+  while their target moves are numbers (docs/LAYOUT.md, "US and EU").
+  Still to do: one source tree that builds both with `.if` (two places),
+  with `shift_pad`s planned for both versions at once.
 
 ## Phase 3: assets
 

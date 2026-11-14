@@ -30,12 +30,33 @@ identical, at the same offsets. The code differs in two places only:
 - `0x7C4A`: us has `movem.l (0).w,sp` (reload the stack pointer from the
   vector) before enabling interrupts; eu doesn't, so everything after it
   is 6 bytes earlier in eu.
-- `0x1A444`: us has a `subi.w`/`add.w` pair eu doesn't.
+- After the code (`0x1E756` in us), us has 14 more bytes, a copy of the
+  last 14 (`9F06 023C 00FE 4E75 003C 0001 4E75`, the tail of the
+  functions before): left over in the build. eu has zeros there.
 
-The other ~83,000 differing bytes are absolute addresses moved by those
-shifts (and the checksum). The header doesn't name a region, so whether eu
+The other ~83,000 differing bytes are absolute addresses moved by the
+first (and the checksum). The header doesn't name a region, so whether eu
 behaves differently on a 50 Hz console is something to find in the code.
-A us↔eu address map (B64's `vermap`) will be simple: two insertions.
+
+**The version map** (`tools/vermap.py eu` prints it) is found from the
+two disassemblies: their instructions, numbers masked, aligned with
+difflib, and runs at a fixed distance made ranges. It comes out as
+`0-0x7C4A +0`, `0x7C50-0x1E756 -6`, and the data `+0`. Through it:
+
+- **eu takes us's names**: a label is named after the address of the
+  same thing in us (`Disasm.tag`; one with no counterpart in us would be
+  `D_XXXXXX_eu`; there are none), and so are the files. eu's `asm/` reads
+  as us's but for the `movem.l`, us's stray bytes, the bytes of pointers
+  still written as `.byte` (which the diff of the two finds: each is an
+  address left to symbolize) and a few `shift_pad`s;
+- **numbers**: a long immediate that stays the same in both versions
+  while what it would point at moves is a number
+  (`vermap.numbers`): `move.l #0xFE00,(0x8A5E).w` sets the counter at
+  `0x8A60` to 0xFE, it doesn't point at 0xFE00.
+
+`tools/disasm.py` analyses both versions every time (a second each) for
+this. `tools/shift_check.py` pairs the two builds' symbols by name, so it
+doesn't read addresses out of names.
 
 ## The matching build
 

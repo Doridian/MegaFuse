@@ -24,6 +24,7 @@ make test                    # tools/test_m68k.py: the decoder against gas
 tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/data/longs lists
 make VERSION=us shift-check  # SHIFT=1 build run against the matching one (tools/shift_check.py)
 tools/find_abs.py us         # what may still be a ROM address written as a number
+tools/vermap.py eu           # where each us address is in eu (eu takes us's names)
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`

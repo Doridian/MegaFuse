@@ -38,16 +38,8 @@ def main():
     ap.add_argument('version')
     ap.add_argument('--list', type=int, default=10)
     a = ap.parse_args()
-    rom = open(os.path.join(disasm.TOP, 'baserom.%s.bin' % a.version),
-               'rb').read()
-    extra, data, longs = disasm.load_known(a.version)
-    d = disasm.Disasm(rom, extra, data, longs)
-    d.biased = dict(disasm.BIASED.get(a.version, {}))
-    d.scripts = disasm.SCRIPTS.get(a.version, [])
-    d.records = disasm.RECORDS.get(a.version, [])
-    d.trace_all()
-    d.speculate_all()
-    d.collect_refs()
+    d = disasm.analyze(a.version)
+    rom = d.rom
     labels = d.labels() if hasattr(d, 'labels') else {}
     named = set(k for k in labels if k >= disasm.HEADER_END)
     lim = d.code_limit

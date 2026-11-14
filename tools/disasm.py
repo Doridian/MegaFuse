@@ -191,6 +191,12 @@ class Disasm:
         self.read_longs = set()
         self.scripts = []        # SCRIPTS[version]
         self.records = []        # RECORDS[version]
+        self.version = None
+        self.vmap = None         # tools/vermap.py's, outside us
+        # instructions whose long immediate is a number although it
+        # equals an address: the other version has the same number where
+        # that address moved (tools/vermap.py, numbers())
+        self.numbers = set()
         self.script_ptrs = {}    # pointer longs in scripts -> target
         self.script_bytes = set()  # every byte a script walk covered
         self.dlabels = set()     # data addresses the code names
@@ -883,6 +889,8 @@ class Disasm:
         """Is the long immediate v of ins an address?  Where ins uses it
         as one (address_imm), or wherever it is a function's entry
         (`move.l #func,d0` hands a callback over in a register)."""
+        if ins.addr in self.numbers:
+            return False
         if address_imm(ins):
             return self.target_ok(v)
         return v in self.funcs and v in self.insns and \
@@ -927,24 +935,36 @@ class Disasm:
             for a in bad:
                 del self.ptrs[a]
 
+    def tag(self, a):
+        """What a label at a is called after: its address in us (the
+        version map, tools/vermap.py), or its own with the version
+        appended where us has nothing there (`D_00A07E_eu`)."""
+        if self.vmap is None:
+            return '%06X' % a
+        r = self.vmap.to_ref(a)
+        if r is None:
+            return '%06X_%s' % (a, self.version)
+        return '%06X' % r
+
     def labels(self):
         """addr -> (name, kind) for every label emitted."""
         out = {}
+        t = self.tag
         for a in self.dlabels:
             if a in self.owner and self.owner[a] != a:
                 continue         # inside an instruction: named relative
-            out[a] = ('D_%06X' % a, 'data')
+            out[a] = ('D_' + t(a), 'data')
         for a in self.jtbl:
-            out[a] = ('jtbl_%06X' % a, 'jtbl')
+            out[a] = ('jtbl_' + t(a), 'jtbl')
         for a in self.branch:
             if a in self.insns:
                 if a in self.absref or a in self.extra:
-                    out[a] = ('loc_%06X' % a, 'loc')
+                    out[a] = ('loc_' + t(a), 'loc')
                 else:
-                    out[a] = ('.L%06X' % a, 'branch')
+                    out[a] = ('.L' + t(a), 'branch')
         for a in self.funcs:
             if a in self.insns:
-                out[a] = ('func_%06X' % a, 'func')
+                out[a] = ('func_' + t(a), 'func')
         return out
 
 
@@ -1132,7 +1152,7 @@ class Writer:
             if lo in fixed:
                 lines.append('. = 0x%06X;' % hi)
                 continue
-            name = '%06X' % lo
+            name = self.d.tag(lo)    # us's address in every version
             objs.append(name)
             lines.append('BUILD_DIR/asm/%s.o(.text)' % name)
             self.write_file(os.path.join(outdir, name + '.s'), lo, hi)
@@ -1265,6 +1285,41 @@ def load_known(version):
             [t[0] for t in lines('longs')])
 
 
+VERSIONS = ('us', 'eu')
+
+
+def analyze(version, speculate=True, versions=True):
+    """The whole analysis of baserom.VERSION.bin, ready to write.  With
+    versions, the other version is analysed too and compared through the
+    version map (tools/vermap.py): outside us, names come from us
+    (Disasm.tag), and immediates that stay put where their target moves
+    are numbers."""
+    def core(v):
+        rom = open(os.path.join(TOP, 'baserom.%s.bin' % v), 'rb').read()
+        extra, data, longs = load_known(v)
+        d = Disasm(rom, extra, data, longs)
+        d.version = v
+        d.biased = dict(BIASED.get(v, {}))
+        d.scripts = SCRIPTS.get(v, [])
+        d.records = RECORDS.get(v, [])
+        d.trace_all()
+        if speculate:
+            d.speculate_all()
+        return d
+    d = core(version)
+    if versions and speculate:
+        import vermap
+        other = [v for v in VERSIONS if v != version][0]
+        od = core(other)
+        ref, oth = (d, od) if version == vermap.REF else (od, d)
+        vm = vermap.VerMap(vermap.build(oth.version, ref, oth))
+        vermap.numbers(ref, oth, vm)
+        if d is oth:
+            d.vmap = vm
+    d.collect_refs()
+    return d
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('version')
@@ -1273,16 +1328,8 @@ def main():
     ap.add_argument('--no-speculate', action='store_true',
                     help='only what tracing from the vectors finds')
     a = ap.parse_args()
-    rom = open(os.path.join(TOP, 'baserom.%s.bin' % a.version), 'rb').read()
-    extra, data, longs = load_known(a.version)
-    d = Disasm(rom, extra, data, longs)
-    d.biased = dict(BIASED.get(a.version, {}))
-    d.scripts = SCRIPTS.get(a.version, [])
-    d.records = RECORDS.get(a.version, [])
-    d.trace_all()
-    if not a.no_speculate:
-        d.speculate_all()
-    d.collect_refs()
+    d = analyze(a.version, not a.no_speculate)
+    rom = d.rom
     w = Writer(d, rom, a.version)
     objs = w.write(a.out)
     with open(os.path.join(TOP, '.version'), 'w') as f:

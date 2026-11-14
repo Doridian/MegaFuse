@@ -13,9 +13,8 @@ scripts (tools/inputs/, all by default), and every --every frames their
 screenshots must be identical and their work RAM the same, but for ROM
 addresses: a long (or a word, an address below 0x10000) that in the
 original points at `label + off` must, in the shifted build, point at
-that label's new address + off.  Labels are named after their address in
-the original (func_00XXXX, D_0XXXXX, ...), so the map from the original to
-the shifted build is the shifted ELF's symbol table.
+that label's new address + off.  The map from the original to the
+shifted build pairs the two ELFs' symbol tables by name.
 
 --first narrows down where a run first goes wrong: RAM every frame up to
 the first checkpoint that differs, and the first frame whose RAM differs,
@@ -46,25 +45,33 @@ from concurrent.futures import ThreadPoolExecutor
 
 TOP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NM = os.path.join(TOP, 'tools/binutils/bin/m68k-elf-nm')
-LABEL = re.compile(r'^(?:func|loc|D|jtbl)_([0-9A-F]{6})$')
+LABEL = re.compile(r'^(?:func|loc|D|jtbl)_([0-9A-F]{6})(?:_[a-z]+)?$')
+
+
+def symbols(elf):
+    """The labels' addresses in an ELF (by name: eu's are named after
+    their address in us)."""
+    out = {}
+    text = subprocess.run([NM, elf], capture_output=True, text=True,
+                          check=True).stdout
+    for line in text.splitlines():
+        t = line.split()
+        if len(t) == 3 and LABEL.match(t[2]):
+            out[t[2]] = int(t[0], 16)
+    return out
 
 
 class AddrMap:
     """Original ROM address -> shifted, through the nearest label at or
     before it."""
 
-    def __init__(self, elf, rom_len):
+    def __init__(self, orig_elf, elf, rom_len):
         self.pairs = set()     # see PAST_TABLE
+        old, new = symbols(orig_elf), symbols(elf)
         pairs = {0: 0}
-        out = subprocess.run([NM, elf], capture_output=True, text=True,
-                             check=True).stdout
-        for line in out.splitlines():
-            t = line.split()
-            if len(t) != 3:
-                continue
-            m = LABEL.match(t[2])
-            if m:
-                pairs[int(m.group(1), 16)] = int(t[0], 16)
+        for name, a in old.items():
+            if name in new:
+                pairs[a] = new[name]
         self.orig = sorted(pairs)
         self.new = [pairs[a] for a in self.orig]
         self.rom_len = rom_len
@@ -227,7 +234,8 @@ def main():
     if a.pcs:
         name, frame = a.pcs.split(':')
         v = a.version
-        amap = AddrMap(os.path.join(TOP, 'build', v + '-shift',
+        amap = AddrMap(os.path.join(TOP, 'build', v, 'mbm.%s.elf' % v),
+                       os.path.join(TOP, 'build', v + '-shift',
                                     'mbm.%s.elf' % v), os.path.getsize(
             os.path.join(TOP, 'build', v, 'mbm.%s.bin' % v)))
         amap.pairs = past_table_pairs(amap, tuple(open(os.path.join(
@@ -241,7 +249,7 @@ def main():
     orig = os.path.join(TOP, 'build', v, 'mbm.%s.bin' % v)
     shift = os.path.join(TOP, 'build', v + '-shift', 'mbm.%s.bin' % v)
     elf = os.path.join(TOP, 'build', v + '-shift', 'mbm.%s.elf' % v)
-    amap = AddrMap(elf, os.path.getsize(orig))
+    amap = AddrMap(orig[:-4] + '.elf', elf, os.path.getsize(orig))
     amap.pairs = past_table_pairs(amap, (open(orig, 'rb').read(),
                                          open(shift, 'rb').read()))
     names = a.input or sorted(
