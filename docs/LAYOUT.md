@@ -100,16 +100,28 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    - the entries of a table the code calls through
      (`movea.l (tbl,pc,dn.w),an` then `jsr`/`jmp (an)`,
      `Disasm.call_table`), up to the first target after the table or the
-     first entry that isn't code. The base may be biased: `func_015FAE`'s
+     first entry that isn't code; also `lea (x).l,a0; movea.l
+     (0,a0,dn.w),a0; jsr (a0)`. The base may be biased: `func_015FAE`'s
      opcodes start at 1, so its base is the `bra.s` before the table, and
-     up to 2 leading slots that can't be a code address are skipped. Its
+     up to 2 leading slots that can't be a code address are skipped. A
+     biased base inside an instruction is written `table-off` (0x22B8's
+     table, based at 0x22B4). Its
      handlers are 3 or 4 instructions, too short for the next kind;
    - other long immediates and longs in the data between code (pointer
      tables), which must reach at least 6 instructions. Short closures
      are rejected because the tail of a real instruction often decodes as
      code: `4CDF 7070` (`movem.l (sp)+,...`) holds `moveq #0x70,d0; rts`;
    - addresses right after a `rts`/`jmp`/`bra` that nothing claims,
-     with the same minimum.
+     with the same minimum;
+   - last, the same gaps however short, if they decode into closures
+     that fill them exactly: each ends in a jump or a return, the last
+     right where the known code starts, nothing reaches outside the gap
+     and the code names nothing in it as data (`Disasm.fill_gap`). These
+     are dead functions nothing calls (0x868E and 0x86A4, siblings of
+     `func_00867E`), the `rte` after each exception handler's loop, and
+     a stray `rts` here and there. Gaps that run into the code after
+     without a return (`subq.l #8,d0; sf d0; ...` before `func_00CB2C`)
+     stay data.
 
 3. **Evidence from runtime traces**, which outranks both:
    `code.<v>.txt` (entry points a trace ran that nothing reaches
@@ -118,7 +130,7 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,588 functions (counting entries only pointers name),
+The result in us: 1,629 functions (counting entries only pointers name),
 110 KB of code, of which the traces ran 21,275 instructions (79%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:

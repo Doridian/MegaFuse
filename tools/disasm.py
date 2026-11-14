@@ -313,8 +313,81 @@ class Disasm:
             for a in self.gap_starts():
                 if self.speculate(a, DATA_MIN_INSNS):
                     n += 1
+            if n:
+                continue
+            named = self.named_data()
+            for a in self.gap_starts():
+                if self.fill_gap(a, named):
+                    n += 1
             if not n:
                 break
+
+    def named_data(self):
+        """ROM addresses the code names other than as a branch or call
+        target: what it reads (absolute, pc-relative, table bases)."""
+        out = set()
+        for ins in self.insns.values():
+            for t, kind in ins.refs():
+                if kind not in ('label', 'imm'):
+                    out.add(t)
+            out.update(self.disp_refs(ins))
+        return out
+
+    def fill_gap(self, a, named):
+        """Take the gap from a (right after a jump or a return) to the
+        next known code as code, however short, if it is closures that
+        fill it exactly: each ends in a jump or a return, the next starts
+        right after, the last ends where the known code starts, nothing
+        reaches outside the gap and the code names nothing in it as data
+        (named_data).  Dead functions nothing names (0x868E: two siblings
+        of func_00867E) are found this way; data seldom ends with a
+        return right at code."""
+        if a in self.owner or a & 1 or not HEADER_END <= a < self.code_limit:
+            return False
+        e = a
+        while e < self.code_limit and e not in self.owner:
+            e += 1
+        if e >= self.code_limit or e not in self.insns or \
+                any(k in named for k in range(a, e)):
+            return False
+        self.journal = []
+        self.failed = False
+        starts = []
+        b = a
+        while b < e and not self.failed:
+            starts.append(b)
+            todo = [b]
+            while todo and not self.failed:
+                self.trace(todo.pop(), todo)
+            if self.failed:
+                break
+            # the next unclaimed byte must follow a jump or a return
+            while b < e and b in self.owner:
+                b += 1
+            if b < e:
+                p = self.owner.get(b - 2)
+                if p is None or p + self.insns[p].size != b or \
+                        self.insns[p].flow not in ('jump', 'ret'):
+                    self.failed = True
+        journal, self.journal = self.journal, None
+        if not self.failed:
+            added = [k for undo, k in journal if undo == self.insns.pop]
+            p = self.owner.get(e - 1)
+            # nothing outside the gap; it ends in a jump or a return (not
+            # a few bytes that run into the code after)
+            if any(not a <= k < e for k in added) or p is None or \
+                    p + self.insns[p].size != e or \
+                    self.insns[p].flow not in ('jump', 'ret'):
+                self.failed = True
+        if self.failed:
+            for undo, k in reversed(journal):
+                undo(k)
+            self.failed = False
+            return False
+        for b in starts:
+            self.funcs.add(b)
+            self.probable.add(b)
+        return True
 
     def gap_starts(self):
         """Unclaimed addresses in the code area right after a jump or a
@@ -493,7 +566,13 @@ class Disasm:
         # tables the code calls through: each entry code, else the table
         # ends before it
         for t in sorted(self.call_tables):
-            for a, v in self.call_table(t):
+            ents = self.call_table(t)
+            if ents and ents[0][0] != t and \
+                    self.owner.get(t) not in (None, t):
+                # a biased base inside an instruction (`lea (x).l` of
+                # 0x22B8's table): written table-off (BIASED)
+                self.biased.setdefault(t, ents[0][0])
+            for a, v in ents:
                 if v not in self.insns:
                     if not self.speculate(v):
                         break
@@ -580,6 +659,12 @@ class Disasm:
                         self._add(self.slots, src.addr)
                     elif p.mn == 'movea.l' and src.kind == 'pcindex':
                         self._add(self.call_tables, src.addr)
+                    elif p.mn == 'movea.l' and src.kind == 'index':
+                        # `lea (x).l,a0; movea.l (d,a0,dn.w),a0;
+                        # jsr (a0)`: a table at x+d
+                        t = self.lea_base(block[:block.index(p)], src.reg)
+                        if t is not None:
+                            self._add(self.call_tables, t + src.val)
                     break
             return
         if mn == 'move.l' and ins.ops[0].kind == 'imm' and \
@@ -587,6 +672,19 @@ class Disasm:
                 is_ram(ins.ops[1].addr):
             st = self.slot_stores[ins.ops[1].addr]
             self._add(st, ins.ops[0].val)
+
+    @staticmethod
+    def lea_base(block, reg):
+        """The ROM address the last `lea (x).l`/`(x,pc)` in block loaded
+        into address register reg, if nothing else wrote it since."""
+        for p in reversed(block):
+            ops = p.ops
+            if len(ops) == 2 and ops[1].kind == 'an' and ops[1].reg == reg:
+                if p.mn == 'lea' and ops[0].kind in ('absl', 'absw',
+                                                     'pcdisp'):
+                    return ops[0].addr
+                return None
+        return None
 
     def code_ptr(self, a, todo):
         if self.in_rom(a) and not a & 1:
@@ -1108,7 +1206,7 @@ def main():
     rom = open(os.path.join(TOP, 'baserom.%s.bin' % a.version), 'rb').read()
     extra, data, longs = load_known(a.version)
     d = Disasm(rom, extra, data, longs)
-    d.biased = BIASED.get(a.version, {})
+    d.biased = dict(BIASED.get(a.version, {}))
     d.scripts = SCRIPTS.get(a.version, [])
     d.trace_all()
     if not a.no_speculate:

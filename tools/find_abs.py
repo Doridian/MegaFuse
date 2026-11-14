@@ -42,7 +42,7 @@ def main():
                'rb').read()
     extra, data, longs = disasm.load_known(a.version)
     d = disasm.Disasm(rom, extra, data, longs)
-    d.biased = disasm.BIASED.get(a.version, {})
+    d.biased = dict(disasm.BIASED.get(a.version, {}))
     d.scripts = disasm.SCRIPTS.get(a.version, [])
     d.trace_all()
     d.speculate_all()
