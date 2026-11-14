@@ -914,11 +914,18 @@ class Writer:
                     lo, hi = min(a, t), max(a, t)
                     for c in range(lo + 1, hi + 1):
                         crossed[c] = 1
+        # nor where a script ends: its pointer is left one past its end
+        # (0xAD5E after the credits) and has to stay the next label's
+        # address in a SHIFT build, with no object pad in between
+        script_ends = set(a + 1 for a in d.script_bytes
+                          if a + 1 not in d.script_bytes)
         cuts = [HEADER_END]
         a = HEADER_END
         in_data_file = False
         while a < end:
             if a in d.owner:
+                if in_data_file and a in script_ends:
+                    in_data_file = False
                 if in_data_file and a & 1 == 0 and not crossed[a]:
                     cuts.append(a)
                     in_data_file = False

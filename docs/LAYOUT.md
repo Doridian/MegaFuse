@@ -118,13 +118,16 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,590 functions (counting entries only pointers name),
-110 KB of code, of which the traces ran 17,656 instructions (66%); every instruction that ran is in the
+The result in us: 1,588 functions (counting entries only pointers name),
+110 KB of code, of which the traces ran 21,275 instructions (79%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
 pointer tables, palettes, sine and step tables, text.
 
-Open: from `0x1906E` on, code that runs is also read word by word (the
+Open: `func_00C152` is likely an animation table (it is stored with
+`move.l #x,(0xC,a6)`, like the three `D_` tables that store holds; the
+`ending` trace turned `D_015DD0` from code into data), but no trace has
+read it. From `0x1906E` on, code that runs is also read word by word (the
 bosses' palette cycle reads its colours there, "SHIFT"), and `0x81C8` stores code
 addresses at `0xFFF000`, which may be code run from RAM.
 
@@ -161,7 +164,9 @@ What `tools/disasm.py` writes as a symbol rather than a number
   calls followed), so `func_0174BA` takes a palette address after it. A
   script's call targets are speculated as code (`0x16D8A`). One
   interpreter so far, `func_015FAE` (`0xAD5E`): its one script,
-  `D_016FFA`, holds 51 pointers. No trace has run it yet.
+  `D_016FFA`, holds 51 pointers; the `ending` trace runs all of it. Its
+  pointer ends one past the script, so no object starts there (no pad in
+  a SHIFT build).
 
 What a target is called: `D_` in data, `func_` for an instruction start
 nothing branches to. Not handled yet: pointers at other offsets in
@@ -229,7 +234,18 @@ runs repeat): `normal` (random play from stage 1-1), `battle` (two pads)
 and `battle4` (four, on the Team Player), cycling through the setup screens
 and random matches, `password`, `idle`, and `stage-*`: one per password,
 every stage, boss and the final area (Sega Retro's list, all checked in
-the emulator). `tools/trace_all.sh <v>` runs them all (about half a
+the emulator), and `ending`. A script line `FRAME =ADDR VALUE` writes a
+byte, word or long of work RAM before FRAME runs; `ending` uses that for
+what random play can't do: from the final area's password it loads room 5
+(`0x953E`/`0x953F`), zeroes the energy (`+0x11` in the 0x40-byte object
+slots from `0xFFA432`) of the room's targets and enemies, puts the player
+under the open gate, gives the player 0x7F hits, and takes the final boss
+through its three forms (the orbs, a hit on slot 7, energy 0 in
+`func_012CBC`), to the escape, the ending and the credits (`func_015FAE`'s
+script). Only numbers are written, never ROM addresses, so the SHIFT build
+runs it too (24000 frames, `FRAMES` in tools/shift_check.py). The
+continue and game-over screens come up in random play already.
+`tools/trace_all.sh <v>` runs them all (about half a
 minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
 `data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
 alone reports how a trace and the disassembly disagree.

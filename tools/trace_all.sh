@@ -17,7 +17,7 @@ IGNORE="--ignore-reads 7BE2"
 for f in tools/inputs/*.txt; do
     n=$(basename "$f" .txt)
     frames=${FRAMES:-60000}
-    case $n in stage-*) frames=${FRAMES:-20000} ;; esac
+    case $n in stage-*) frames=${FRAMES:-20000} ;; ending) frames=${FRAMES:-24000} ;; esac
     tp=
     case $n in battle4) tp=--teamplayer ;; esac
     nice -n 10 tools/mdtrace $tp --frames "$frames" --input "$f" $IGNORE \

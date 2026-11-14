@@ -178,6 +178,10 @@ LIMITS = {
 }
 
 
+# scripts run for longer than --frames (the credits end at about 22000)
+FRAMES = {'ending': 24000}
+
+
 def checkpoints(frames, every):
     out = list(range(every, frames + 1, every))
     if not out or out[-1] != frames:
@@ -249,10 +253,11 @@ def main():
     def one(name):
         script = os.path.join(TOP, 'tools/inputs', name + '.txt')
         tp = name == 'battle4'
+        frames = max(a.frames, FRAMES.get(name, 0))
         for which, rom in (('orig', orig), ('shift', shift)):
-            run(rom, script, a.frames, a.every,
+            run(rom, script, frames, a.every,
                 os.path.join(tmp, '%s-%s-' % (name, which)), tp)
-        for f in checkpoints(a.frames, a.every):
+        for f in checkpoints(frames, a.every):
             if f > LIMITS.get(name, f):
                 break
             png, bad = compare(tmp, name, f, amap)

@@ -45,7 +45,9 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   menus, battle mode with two and four pads, and every normal-game stage
   through the passwords (docs/LAYOUT.md, "Runtime traces"). The evidence
   is `code.<v>.txt`/`data.<v>.txt`, and the trace wins over speculation.
-  Still to cover: the endings, the continue and game-over paths, the
+  The ending is covered with RAM writes in the script (`ending`); the
+  continue and game-over screens come up in random play. Still to cover:
+  the normal stages' exits (random play never clears a stage), the
   options a password can't reach. A human playthrough recorded as a pad
   script would do (BizHawk's Mega Drive core is Genesis Plus GX too, so
   its `.bk2` input logs should play back in mdtrace).

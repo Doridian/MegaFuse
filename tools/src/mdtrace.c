@@ -37,6 +37,9 @@
  * Pad script: one line per change, `FRAME [PAD:]BUTTONS`, held from FRAME on
  * until that pad's next line.  PAD is 1-4 (default 1).  BUTTONS are letters
  * from UDLRABCSXYZM (S Start, M Mode) or `-` for none.  `#` starts a comment.
+ * `FRAME =ADDR VALUE` writes VALUE (hex: 2, 4 or 8 digits, a byte, word or
+ * long) to work RAM at ADDR (hex, 0xFF0000-0xFFFFFF) before FRAME runs: a
+ * shortcut past what a script can't play (a boss's energy, a stage number).
  */
 #include <dlfcn.h>
 #include <stdarg.h>
@@ -246,6 +249,15 @@ struct event {
 };
 static struct event events[MAX_EVENTS];
 static int n_events, next_event;
+/* RAM writes */
+struct poke {
+    long frame;
+    unsigned addr;
+    int size;
+    uint32_t value;
+};
+static struct poke pokes[MAX_EVENTS];
+static int n_pokes, next_poke;
 static uint16_t pads[8];
 
 static uint16_t parse_buttons(const char *s, const char *path, int line)
@@ -300,6 +312,34 @@ static void load_input(const char *path)
             fprintf(stderr, "%s:%d: no buttons\n", path, line);
             exit(1);
         }
+        if (tok[0] == '=') {
+            char *val = strtok(NULL, " \t\r\n"), *end;
+            struct poke *k = &pokes[n_pokes];
+            size_t len = val ? strlen(val) : 0;
+            k->frame = frame;
+            k->addr = strtoul(tok + 1, &end, 16) & 0xFFFFFF;
+            if (*end || k->addr < 0xFF0000) {
+                fprintf(stderr, "%s:%d: bad RAM address\n", path, line);
+                exit(1);
+            }
+            k->value = val ? strtoul(val, &end, 16) : 0;
+            k->size = len / 2;
+            if (!val || *end || (len != 2 && len != 4 && len != 8) ||
+                    (k->size > 1 && k->addr & 1)) {
+                fprintf(stderr, "%s:%d: want =ADDR VALUE (2, 4 or 8 hex "
+                        "digits; even ADDR for a word or long)\n", path, line);
+                exit(1);
+            }
+            if (n_pokes && frame < pokes[n_pokes - 1].frame) {
+                fprintf(stderr, "%s:%d: frames go backwards\n", path, line);
+                exit(1);
+            }
+            if (++n_pokes == MAX_EVENTS) {
+                fprintf(stderr, "%s: too many lines\n", path);
+                exit(1);
+            }
+            continue;
+        }
         if (tok[0] >= '1' && tok[0] <= '8' && tok[1] == ':') {
             pad = tok[0] - '0';
             tok += 2;
@@ -318,6 +358,24 @@ static void load_input(const char *path)
         n_events++;
     }
     fclose(f);
+}
+
+static void poke(const struct poke *k)
+{
+    /* the core keeps work RAM as host-order 16-bit words */
+    uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+    int i;
+    for (i = 0; i < k->size; i++) {
+        unsigned a = (k->addr + i) & 0xFFFF;
+        uint16_t v;
+        int shift = 8 * (k->size - 1 - i);
+        memcpy(&v, w + (a & ~1u), 2);
+        if (a & 1)
+            v = (v & 0xFF00) | ((k->value >> shift) & 0xFF);
+        else
+            v = (v & 0x00FF) | (((k->value >> shift) & 0xFF) << 8);
+        memcpy(w + (a & ~1u), &v, 2);
+    }
 }
 
 static void poll(void) {}
@@ -598,6 +656,8 @@ int main(int argc, char **argv)
             pads[events[next_event].pad] = events[next_event].mask;
             next_event++;
         }
+        while (next_poke < n_pokes && pokes[next_poke].frame <= frame)
+            poke(&pokes[next_poke++]);
         p_run();
         if (logf) {
             uint8_t *wram = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
