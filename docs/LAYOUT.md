@@ -46,9 +46,8 @@ difflib, and runs at a fixed distance made ranges. It comes out as
 - **eu takes us's names**: a label is named after the address of the
   same thing in us (`Disasm.tag`; one with no counterpart in us would be
   `D_XXXXXX_eu`; there are none), and so are the files. eu's `asm/` reads
-  as us's but for the `movem.l`, us's stray bytes, the bytes of pointers
-  still written as `.byte` (which the diff of the two finds: each is an
-  address left to symbolize) and a few `shift_pad`s;
+  as us's but for the `movem.l`, us's stray bytes and a few
+  `shift_pad`s;
 - **numbers**: a long immediate that stays the same in both versions
   while what it would point at moves is a number
   (`vermap.numbers`): `move.l #0xFE00,(0x8A5E).w` sets the counter at
@@ -187,6 +186,19 @@ What `tools/disasm.py` writes as a symbol rather than a number
   (`lea (D_00DA50).l,a0` then `move.l (0x4,a0),...`) whose value is a
   function's entry: a static read, so a value that is only a number
   stays one (`Disasm.read_longs`);
+- **longs that moved between the versions** (`vermap.moved_longs`):
+  a long whose value in eu is where the version map puts its value in
+  us, and differs. A number doesn't move with the code, so this is
+  evidence like a trace, at any alignment (`0x1B7BA`'s records, the
+  10-byte records at `0x3704` with pointers at odd offsets, operands of
+  dead code still written as bytes). One such long stands alone: it
+  doesn't extend to its neighbours. Every byte of the code area that
+  differs between the versions is now an instruction or a pointer; what
+  points below `0x7C4A` is where it is in both, so this can't see it;
+- a pointer's target that starts a table of pointers itself: where the
+  pointer's neighbours point at such tables (`D_00B534`'s seventh,
+  `D_00B728`), or where two pointers run up to it (a record points
+  into the middle of `D_00FEB0`);
 - a displacement off an address register that lands on data a trace read
   (`move.b (0x17A6,a0),d0` with an index in `a0`);
 - `BIASED`: a table's address minus its smallest index, which only a

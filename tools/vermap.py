@@ -28,6 +28,7 @@ import bisect
 import difflib
 import os
 import re
+import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -95,6 +96,26 @@ def numbers(ref, oth, vm):
                 if t is not None and t != x.val:
                     ref.numbers.add(a)
                     oth.numbers.add(b)
+
+
+def moved_longs(ref, oth, vm):
+    """Longs in the data of the code area that are pointers by the
+    versions' say: the value in the other version is where the map puts
+    the value in ref, and they differ (the address moved).  A number
+    doesn't move with the code.  Any alignment (0x1B7BA's records hold
+    them at odd offsets).  They go to each one's Disasm.moved."""
+    lim = min(ref.code_limit, ref.end - 3)
+    for a in range(disasm.HEADER_END, lim):
+        if any(a + k in ref.owner for k in range(4)):
+            continue
+        b = vm.to_other(a)
+        if b is None or vm.to_other(a + 3) != b + 3:
+            continue
+        v = struct.unpack_from('>I', ref.rom, a)[0]
+        w = struct.unpack_from('>I', oth.rom, b)[0]
+        if v != w and vm.to_other(v) == w:
+            ref.moved.add(a)
+            oth.moved.add(b)
 
 
 class VerMap:

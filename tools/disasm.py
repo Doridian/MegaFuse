@@ -197,6 +197,9 @@ class Disasm:
         # equals an address: the other version has the same number where
         # that address moved (tools/vermap.py, numbers())
         self.numbers = set()
+        # longs in data that moved with the code between the versions
+        # (tools/vermap.py, moved_longs()): pointers, like a traced read
+        self.moved = set()
         self.script_ptrs = {}    # pointer longs in scripts -> target
         self.script_bytes = set()  # every byte a script walk covered
         self.dlabels = set()     # data addresses the code names
@@ -832,8 +835,8 @@ class Disasm:
         # function's entry (a number may equal anything else)
         read = set(a for a in self.read_longs if a + 4 <= self.end and
                    struct.unpack_from('>I', self.rom, a)[0] in self.funcs)
-        seeds = sorted(a for a in self.longs | self.table_longs | read
-                       if ok(a, True))
+        seeds = sorted(a for a in self.longs | self.table_longs | read |
+                       self.moved if ok(a, True))
         for a in seeds:
             self.ptrs[a] = struct.unpack_from('>I', self.rom, a)[0]
         # the strides: 4, and the distance from each seed to the others
@@ -863,6 +866,8 @@ class Disasm:
                 return any(x in stops for x in range(a + 1, b + 4))
             return any(x in stops for x in range(b + 1, a + 1))
         for a in seeds:
+            if a in self.moved and a not in self.longs | self.table_longs:
+                continue         # one pointer: dead code holds them too
             for s in sorted(strides[a]):
                 for step in (s, -s):
                     p, b = a, a + step
@@ -871,6 +876,28 @@ class Disasm:
                         self.ptrs[b] = t
                         stops.add(t)
                         p, b = b, b + step
+        # a target that starts a table too, from its start 4 bytes on:
+        # where the pointer's neighbours point at tables of pointers
+        # (D_00B534's seventh, D_00B728, no trace read), or where it
+        # carries on a table, two pointers before it (a record at 0x37E4
+        # points into D_00FEB0's middle, which no longer runs over it)
+        more = True
+        while more:
+            more = False
+            for a, t in sorted(self.ptrs.items()):
+                if t in self.ptrs or not ok(t, False):
+                    continue
+                sib = [self.ptrs.get(a + k) for k in (-4, 4)]
+                if not (t - 4 in self.ptrs and t - 8 in self.ptrs) and \
+                        not any(x is not None and x in self.ptrs for x in sib):
+                    continue
+                p, b = None, t
+                while ok(b, False) and (p is None or not crosses(p, b)):
+                    v = struct.unpack_from('>I', self.rom, b)[0]
+                    self.ptrs[b] = v
+                    stops.add(v)
+                    p, b = b, b + 4
+                    more = True
 
     def disp_pointer(self, v):
         """Is a displacement v off an address register a ROM address?
@@ -1314,6 +1341,7 @@ def analyze(version, speculate=True, versions=True):
         ref, oth = (d, od) if version == vermap.REF else (od, d)
         vm = vermap.VerMap(vermap.build(oth.version, ref, oth))
         vermap.numbers(ref, oth, vm)
+        vermap.moved_longs(ref, oth, vm)
         if d is oth:
             d.vmap = vm
     d.collect_refs()
