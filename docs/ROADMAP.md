@@ -1,0 +1,103 @@
+# Roadmap
+
+The end state follows Bomberman 64 (`../Bomberman64`) and Blast Corps
+(`../BlastCorps`): every ROM rebuilds byte for byte from one source tree,
+the ROM's assets are editable files that rebuild to the same bytes, and a
+port plays the game on Linux, Windows, macOS and in the browser, with
+**online multiplayer** over WebRTC, natively and in the browser alike
+(docs/NETPLAY.md).
+
+The difference from the N64 projects: Mega Bomberman is handwritten 68000
+assembly, not compiled C. There is no compiler output to match, so the
+"decompilation" is two things:
+
+1. a **matching disassembly** that is complete and symbolic (every
+   pointer a label, so the code can move), with names and documentation;
+2. a **translation into Rust**, function by function, checked against the
+   original running in an emulator, which becomes the port's game code.
+
+The port is Rust, as in the HolidayIsland and WidgetWorkshop ports (winit,
+wgpu, cpal, matchbox), not C: no part of the port has to compile to
+anything in particular, and the netplay stack (matchbox and GGRS-style
+rollback) is native Rust. The matching build stays Python tools plus GNU
+as.
+
+Versions: **us** is the working version; **eu** builds from the same
+source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
+
+## Phase 0: scaffolding (done)
+
+- Repo, `make setup` (GNU binutils 2.47 for `m68k-elf`, sha256-pinned,
+  `tools/get_binutils.sh`), `mbm.<v>.sha1`.
+- `tools/m68k.py`, a 68000 decoder that knows what gas can spell, and
+  `tools/test_m68k.py`, its ROM-free test against gas (CI).
+
+## Phase 1: matching disassembly (done)
+
+`make VERSION=us extract && make VERSION=us` rebuilds each ROM from
+`asm/`, sha1-checked, for us and eu. Code is found statically
+(docs/LAYOUT.md, "Finding code"); what isn't found stays data.
+
+## Phase 2: complete and symbolic
+
+- **A runtime trace.** A headless emulator with execution and memory
+  hooks marks every ROM byte that runs as an instruction start or is read
+  as data (and at what width). It covers attract mode, the menus, normal
+  game and battle mode from scripted inputs (B64's `tools/inputs`). Traced
+  code goes to `code.<v>.txt`; where speculation disagrees with the trace,
+  the trace wins. Planned tool: Genesis Plus GX's libretro core built with
+  `HOOK_CPU` (`tools/get_gpgx.sh`) and a small libretro frontend
+  (`tools/src/mdtrace.c`). It is a development tool only: fetched, never
+  vendored, and nothing of it goes into the port (its license forbids
+  commercial use).
+- **Data words become symbols.** Pointer tables, records with pointers
+  (scene and object scripts), the PC-relative and `(xxx).w` tables. RAM
+  gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed addresses.
+- **Objects.** Files cut at module boundaries rather than at long data,
+  with `.s` per function where that helps.
+- **SHIFT=1** pads each object and the data, recomputes the checksum
+  (`tools/checksum.py`), and runs the shifted and the original ROM headless
+  side by side, comparing work RAM and the frames (B64's `shift-check`).
+  `tools/find_abs.py` lists any ROM address left as a number.
+- **eu from us.** A us↔eu map; eu's `asm/` takes us's names, and one
+  source tree builds both with `.if` (two places).
+
+## Phase 3: assets
+
+The data from `0x40000` on: compressed tiles (Hudson's compression,
+to be identified), tilemaps and stage layouts, palettes, sprite mappings,
+text, the Z80 sound driver and the music and sound effect data. Each gets
+an extractor to editable files (PNG, YAML, ...) that must rebuild to the
+same bytes, as `tools/assets.py` does in B64 and Blast Corps.
+
+## Phase 4: the game in Rust
+
+- `tools/recomp/`: a mechanical 68000 → Rust translator, one Rust
+  function per routine over a CPU state (`d`/`a` registers, flags, the
+  68000's memory map), the way Blast Corps' `tools/recomp` handled Rare's
+  handwritten code. It is checked by running each function both ways from
+  the same states (the emulator's), comparing registers and memory.
+- Then the translated code is rewritten as readable Rust, function by
+  function, with typed game state in place of the raw RAM. The
+  differential tests stay as the arbiter, and the TAS (if one syncs) is
+  the end-to-end test.
+- No asm in the port: the 68000 code is all translated, and so is the
+  Z80 sound driver (or it runs on a small Z80 interpreter until it is).
+
+## Phase 5: the port
+
+A Cargo workspace like HolidayIsland's: `crates/game` (the translated
+game, no platform dependencies), `crates/md` (the Mega Drive hardware
+the game drives: the VDP (planes A/B, window, sprites, per-line scroll and
+HBlank effects, DMA), the YM2612 and SN76489, the pads and the Team Player
+multitap), `crates/platform` (winit, wgpu, cpal), `crates/net`, and the
+binary. Linux, Windows, macOS and `wasm32-unknown-unknown`, built and
+packaged by CI as in the other ports. The port is deterministic from
+the start (docs/NETPLAY.md, "Requirements").
+
+Enhancements stay switchable and off in compared runs: widescreen (more
+of the arena), no sprite limits, and the like.
+
+## Phase 6: online multiplayer
+
+docs/NETPLAY.md.

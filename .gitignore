@@ -1,0 +1,16 @@
+# ROMs and build output
+*.bin
+/Mega Bomberman*
+build/
+asm/
+.version
+
+# tools fetched or built by make setup
+tools/binutils/
+tools/gpgx/
+__pycache__/
+.env/
+
+# drafts kept across sessions
+/scratch/
+.claude/worktrees/

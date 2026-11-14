@@ -1,0 +1,48 @@
+# Mega Bomberman disassembly
+
+A matching disassembly of Mega Bomberman (Hudson, Mega Drive, 1994), aimed
+at a Rust port (Linux, Windows, macOS, WebAssembly) with online multiplayer
+over WebRTC. The models are `../BlastCorps` and `../Bomberman64` (same
+goals, same rules; look at their tools before writing a new one) and, for
+the Rust port and its netplay, `../HolidayIsland` (winit, wgpu, cpal,
+`crates/net` with matchbox). docs/ROADMAP.md has the phases: 0 and 1 are
+done (both ROMs rebuild from `asm/`, sha1-checked).
+
+The game is handwritten 68000 asm, not compiled C. Nothing gets compiled to
+match: the asm is the source, and the port is a translation of it into
+Rust (ROADMAP, phase 4). The port is Rust, not C (decided at the start).
+
+## Build
+
+```
+make setup                   # GNU binutils for m68k-elf into tools/binutils
+make VERSION=us extract      # tools/disasm.py: baserom.us.bin -> asm/
+make VERSION=us              # assemble, link, sha1-checked
+make test                    # tools/test_m68k.py: the decoder against gas
+```
+
+`VERSION` is `us` or `eu`; `asm/` holds one at a time (`.version`),
+`make clean` before switching. `baserom.<v>.bin` are copies of the no-intro
+files in this directory.
+
+## Rules
+
+- **The sha1 is the arbiter.** Every change keeps `make` passing for us
+  and eu.
+- **asm/ is generated.** `tools/disasm.py` writes it; change the tool (or
+  `code.<v>.txt`, addresses known to be code), not the asm. Hand-written
+  asm comes later, once the disassembly is complete and named.
+- **The decoder only emits what gas reassembles exactly.** Any change to
+  `tools/m68k.py` passes `make test` (every encoding it accepts, through
+  gas and back). An encoding gas spells differently is `raw` (written as
+  `.short`) or refused (data). gas needs `.opt noquick` and `(0.w,an)`
+  (docs/LAYOUT.md, "gas details").
+- **Code found statically can be wrong.** Speculation (docs/LAYOUT.md,
+  "Finding code") is a heuristic; the runtime trace of phase 2 is the
+  evidence. Matching doesn't depend on it, shifting will.
+- **Don't guess names.** Labels are `func_`/`loc_`/`D_`/`jtbl_` plus the
+  address (us's addresses in both versions, once there is a us↔eu map).
+- **Downloaded code is a dependency decision.** The emulator for tracing
+  (Genesis Plus GX, `tools/get_gpgx.sh`) needs the user's go-ahead before
+  it is fetched and built.
+- Drafts worth keeping go in `scratch/` (git-ignored), not `/tmp`.
