@@ -2,9 +2,9 @@
 
 MegaFuse is a decompilation of Mega Bomberman (Hudson, Mega Drive, 1994):
 a matching disassembly, aimed at a Rust port (Linux, Windows, macOS, WebAssembly) with online multiplayer
-over WebRTC. The models are `../BlastCorps` and `../Bomberman64` (same
+over WebRTC. The models are `../DozerEncore` and `../Fuse64` (same
 goals, same rules; look at their tools before writing a new one) and, for
-the Rust port and its netplay, `../HolidayIsland` (winit, wgpu, cpal,
+the Rust port and its netplay, `../VacationDestination` (winit, wgpu, cpal,
 `crates/net` with matchbox). docs/ROADMAP.md has the phases: 0 and 1 are
 done (both ROMs rebuild from `asm/`, sha1-checked); in phase 2 the runtime
 trace, pointer symbols and the SHIFT build with its check are in place

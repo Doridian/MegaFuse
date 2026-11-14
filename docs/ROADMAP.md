@@ -1,7 +1,7 @@
 # Roadmap
 
-The end state follows Bomberman 64 (`../Bomberman64`) and Blast Corps
-(`../BlastCorps`): every ROM rebuilds byte for byte from one source tree,
+The end state follows Bomberman 64 (`../Fuse64`) and Blast Corps
+(`../DozerEncore`): every ROM rebuilds byte for byte from one source tree,
 the ROM's assets are editable files that rebuild to the same bytes, and a
 port plays the game on Linux, Windows, macOS and in the browser, with
 **online multiplayer** over WebRTC, natively and in the browser alike
@@ -16,7 +16,7 @@ assembly, not compiled C. There is no compiler output to match, so the
 2. a **translation into Rust**, function by function, checked against the
    original running in an emulator, which becomes the port's game code.
 
-The port is Rust, as in the HolidayIsland and WidgetWorkshop ports (winit,
+The port is Rust, as in the VacationDestination and GadgetGenerator ports (winit,
 wgpu, cpal, matchbox), not C: no part of the port has to compile to
 anything in particular, and the netplay stack (matchbox and GGRS-style
 rollback) is native Rust. The matching build stays Python tools plus GNU
@@ -105,7 +105,7 @@ same bytes, as `tools/assets.py` does in B64 and Blast Corps.
 
 ## Phase 5: the port
 
-A Cargo workspace like HolidayIsland's: `crates/game` (the translated
+A Cargo workspace like VacationDestination's: `crates/game` (the translated
 game, no platform dependencies), `crates/md` (the Mega Drive hardware
 the game drives: the VDP (planes A/B, window, sprites, per-line scroll and
 HBlank effects, DMA), the YM2612 and SN76489, the pads and the Team Player

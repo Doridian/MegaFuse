@@ -3,7 +3,7 @@
 Mega Bomberman's battle mode is up to four players on one console, with
 Sega's Team Player multitap (the header's I/O field is `J4`). The port
 turns that into online play the way Bomberman 64's plan does
-(`../Bomberman64/docs/NETPLAY.md`): each player runs the game, only
+(`../Fuse64/docs/NETPLAY.md`): each player runs the game, only
 controller inputs cross the network, and every peer simulates the same
 frames. The transport is WebRTC data channels from both the native and the
 browser build, so browser and native players can share a match.
@@ -14,10 +14,10 @@ Here the port is Rust, so the model isn't imitated, it is used:
 | --- | --- |
 | signaling | matchbox's protocol; `matchbox_server` as the lobby server |
 | transport | `matchbox_socket` (native and wasm), unreliable and unordered channels |
-| session | lockstep first, then rollback (GGRS, or a session layer of our own as in HolidayIsland's `crates/net`) |
+| session | lockstep first, then rollback (GGRS, or a session layer of our own as in VacationDestination's `crates/net`) |
 | game | the translated game, one frame per step, with the four pads as input |
 
-HolidayIsland's `crates/net` (a transport trait, the matchbox transport, an
+VacationDestination's `crates/net` (a transport trait, the matchbox transport, an
 in-memory transport for tests, a lockstep session, the wire format) is
 the starting point.
 
