@@ -1,4 +1,5 @@
-# Mega Bomberman: the ROM rebuilt from asm/, sha1-checked.
+# MegaFuse (a decompilation of Mega Bomberman): the ROM rebuilt from asm/,
+# sha1-checked.
 #
 #   make setup                 once: GNU binutils for m68k-elf in tools/binutils,
 #                              Genesis Plus GX and tools/mdtrace (tracing)

@@ -1,8 +1,8 @@
-# Mega Bomberman
+# MegaFuse
 
-A matching disassembly of Hudson Soft's *Mega Bomberman* (Sega Mega
-Drive / Genesis, 1994; Westone's port of *Bomberman '94*), aimed at a
-port to Rust for Linux, Windows, macOS and the browser, with online
+MegaFuse is a decompilation of Hudson Soft's *Mega Bomberman* (Sega Mega
+Drive / Genesis, 1994; Westone's port of *Bomberman '94*): a matching
+disassembly, aimed at a port to Rust for Linux, Windows, macOS and the browser, with online
 multiplayer over WebRTC. You need your own
 ROM: none of the game's code or data is in this repository.
 

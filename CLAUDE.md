@@ -1,7 +1,7 @@
-# Mega Bomberman disassembly
+# MegaFuse
 
-A matching disassembly of Mega Bomberman (Hudson, Mega Drive, 1994), aimed
-at a Rust port (Linux, Windows, macOS, WebAssembly) with online multiplayer
+MegaFuse is a decompilation of Mega Bomberman (Hudson, Mega Drive, 1994):
+a matching disassembly, aimed at a Rust port (Linux, Windows, macOS, WebAssembly) with online multiplayer
 over WebRTC. The models are `../BlastCorps` and `../Bomberman64` (same
 goals, same rules; look at their tools before writing a new one) and, for
 the Rust port and its netplay, `../HolidayIsland` (winit, wgpu, cpal,

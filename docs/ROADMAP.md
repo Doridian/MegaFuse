@@ -105,7 +105,7 @@ game, no platform dependencies), `crates/md` (the Mega Drive hardware
 the game drives: the VDP (planes A/B, window, sprites, per-line scroll and
 HBlank effects, DMA), the YM2612 and SN76489, the pads and the Team Player
 multitap), `crates/platform` (winit, wgpu, cpal), `crates/net`, and the
-binary. Linux, Windows, macOS and `wasm32-unknown-unknown`, built and
+binary, `megafuse`. Linux, Windows, macOS and `wasm32-unknown-unknown`, built and
 packaged by CI as in the other ports. The port is deterministic from
 the start (docs/NETPLAY.md, "Requirements").
 
