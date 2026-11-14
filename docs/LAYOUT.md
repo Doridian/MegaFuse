@@ -162,6 +162,10 @@ What `tools/disasm.py` writes as a symbol rather than a number
   (a table usually ends where what it points at starts). A neighbour no
   trace read must point into the data or at something already named:
   palette scripts hold words like `0000 6D00`;
+- a long the code reads off a `lea` base in the same block
+  (`lea (D_00DA50).l,a0` then `move.l (0x4,a0),...`) whose value is a
+  function's entry: a static read, so a value that is only a number
+  stays one (`Disasm.read_longs`);
 - a displacement off an address register that lands on data a trace read
   (`move.b (0x17A6,a0),d0` with an index in `a0`);
 - `BIASED`: a table's address minus its smallest index, which only a

@@ -187,6 +187,8 @@ class Disasm:
         # bases of `movea.l (tbl,pc,dn),an; jsr (an)` tables of longs
         self.call_tables = set()
         self.table_longs = set() # their entries (find_pointers' seeds)
+        # ROM longs the code reads off a `lea` base (Disasm.look)
+        self.read_longs = set()
         self.scripts = []        # SCRIPTS[version]
         self.records = []        # RECORDS[version]
         self.script_ptrs = {}    # pointer longs in scripts -> target
@@ -720,6 +722,14 @@ class Disasm:
                             self._add(self.call_tables, t + src.val)
                     break
             return
+        if mn in ('move.l', 'movea.l') and \
+                ins.ops[0].kind in ('ind', 'disp'):
+            # a long read off a `lea (x).l` base in the block
+            src = ins.ops[0]
+            t = self.lea_base(block[:-1], src.reg)
+            if t is not None and self.in_rom(t):
+                self._add(self.read_longs,
+                          t + (src.val if src.kind == 'disp' else 0))
         if mn == 'move.l' and ins.ops[0].kind == 'imm' and \
                 ins.ops[1].kind in ('absw', 'absl') and \
                 is_ram(ins.ops[1].addr):
@@ -732,6 +742,9 @@ class Disasm:
         into address register reg, if nothing else wrote it since."""
         for p in reversed(block):
             ops = p.ops
+            if any(o.kind in ('postinc', 'predec') and o.reg == reg
+                   for o in ops):
+                return None      # moved on from x
             if len(ops) == 2 and ops[1].kind == 'an' and ops[1].reg == reg:
                 if p.mn == 'lea' and ops[0].kind in ('absl', 'absw',
                                                      'pcdisp'):
@@ -809,7 +822,11 @@ class Disasm:
         self.walk_scripts()
         self.ptrs.update(self.script_ptrs)
         stops = set()
-        seeds = sorted(a for a in self.longs | self.table_longs
+        # longs the code reads off a `lea` base, where they hold a
+        # function's entry (a number may equal anything else)
+        read = set(a for a in self.read_longs if a + 4 <= self.end and
+                   struct.unpack_from('>I', self.rom, a)[0] in self.funcs)
+        seeds = sorted(a for a in self.longs | self.table_longs | read
                        if ok(a, True))
         for a in seeds:
             self.ptrs[a] = struct.unpack_from('>I', self.rom, a)[0]
