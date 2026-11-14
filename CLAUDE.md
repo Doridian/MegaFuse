@@ -16,7 +16,7 @@ Rust (ROADMAP, phase 4). The port is Rust, not C (decided at the start).
 ## Build
 
 ```
-make setup                   # GNU binutils for m68k-elf into tools/binutils
+make setup                   # binutils (m68k-elf), Genesis Plus GX, tools/mdtrace
 make VERSION=us extract      # tools/disasm.py: baserom.us.bin -> asm/
 make VERSION=us              # assemble, link, sha1-checked
 make test                    # tools/test_m68k.py: the decoder against gas

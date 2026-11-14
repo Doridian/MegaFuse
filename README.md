@@ -1,8 +1,9 @@
 # Mega Bomberman
 
 A matching disassembly of Hudson Soft's *Mega Bomberman* (Sega Mega
-Drive / Genesis, 1994; the port of *Bomberman '94* was made by Westone), aimed at a port to Rust for Linux, Windows, macOS
-and the browser, with online multiplayer over WebRTC. You need your own
+Drive / Genesis, 1994; Westone's port of *Bomberman '94*), aimed at a
+port to Rust for Linux, Windows, macOS and the browser, with online
+multiplayer over WebRTC. You need your own
 ROM: none of the game's code or data is in this repository.
 
 Both ROMs rebuild byte for byte from disassembled code and data. The game
