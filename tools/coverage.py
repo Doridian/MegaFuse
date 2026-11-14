@@ -12,8 +12,8 @@ Reports:
     (a table it decoded as instructions, or code read as data on purpose);
   - unconfirmed: code found by speculation that never ran (not wrong, just
     not evidence).
---write regenerates code.VERSION.txt and data.VERSION.txt from the
-trace (what tools/disasm.py takes as evidence): see write_known.
+--write regenerates code.VERSION.txt, data.VERSION.txt and
+longs.VERSION.txt from the trace (what tools/disasm.py takes as evidence): see write_known.
 """
 import argparse
 import os
@@ -41,7 +41,7 @@ def main():
     if a.write:
         extra, data = [], []      # recompute both from the trace alone
     else:
-        extra, data = disasm.load_known(a.version)
+        extra, data, _ = disasm.load_known(a.version)
     d = disasm.Disasm(rom, extra, data)
     d.trace_all()
     d.speculate_all()
@@ -100,7 +100,8 @@ def entries(rom, cov, d):
 def write_known(version, rom, cov, d):
     """code.VERSION.txt: the entries above that tracing from the vectors
     doesn't reach; data.VERSION.txt: runs of bytes read as data below the
-    code area's end.  Both from the trace alone, so they can be
+    code area's end; longs.VERSION.txt: longs read as longs that hold a
+    ROM address.  Both from the trace alone, so they can be
     regenerated whenever more is traced."""
     plain = disasm.Disasm(rom)
     plain.trace_all()
@@ -136,8 +137,21 @@ def write_known(version, rom, cov, d):
                 'as data\n# (tools/coverage.py --write; tools/inputs/)\n')
         for lo, hi in runs:
             f.write('%06X %06X\n' % (lo, hi))
-    print('wrote %d entries to code.%s.txt, %d ranges to data.%s.txt' % (
-        len(code), version, len(runs), version))
+    # longs read whose value could be a ROM address: tools/disasm.py
+    # makes the ones that fit pointers (Disasm.find_pointers)
+    import struct
+    longs = [k for k in range(disasm.HEADER_END, len(rom) - 3)
+             if cov[k] & 0x08 and
+             0x100 <= struct.unpack_from('>I', rom, k)[0] < len(rom)]
+    with open(os.path.join(TOP, 'longs.%s.txt' % version), 'w') as f:
+        f.write('# ROM longs a runtime trace read as longs whose value is '
+                'in the ROM\n# (tools/coverage.py --write; '
+                'tools/inputs/)\n')
+        for k in longs:
+            f.write('%06X\n' % k)
+    print('wrote %d entries to code.%s.txt, %d ranges to data.%s.txt, '
+          '%d to longs.%s.txt' % (len(code), version, len(runs), version,
+                                  len(longs), version))
 
 if __name__ == '__main__':
     main()

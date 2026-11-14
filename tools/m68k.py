@@ -55,8 +55,9 @@ class Op:
         self.pre = pre
 
     def format(self, sym=None):
-        """sym(addr, kind) -> name or None; kind is 'abs' or 'pc' or
-        'imm'.  sym is asked for any address this operand holds."""
+        """sym(addr, kind) -> name or None; kind is 'abs', 'pc', 'imm',
+        'branch' or 'disp' (a positive displacement off an address
+        register).  sym is asked for any address this operand holds."""
         k = self.kind
         if k == 'dn':
             return 'd%d' % self.reg
@@ -69,9 +70,12 @@ class Op:
         if k == 'predec':
             return '-(%s)' % areg(self.reg)
         if k == 'disp':
+            # a displacement can be a table's address, the register an
+            # index: sym(val, 'disp') decides
+            name = sym(self.val, 'disp') if sym and self.val > 0 else None
             # gas turns (0,a0) into (a0); the size keeps the word
-            return '(%s,%s)' % (hx(self.val) if self.val else '0.w',
-                                areg(self.reg))
+            return '(%s,%s)' % (name or (hx(self.val) if self.val else
+                                         '0.w'), areg(self.reg))
         if k == 'index':
             return '(%s,%s,%s.%s)' % (hx(self.val), areg(self.reg),
                                       xname(self.xreg), self.xsize)

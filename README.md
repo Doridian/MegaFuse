@@ -32,7 +32,8 @@ make setup                 # once: GNU binutils for m68k-elf, Genesis Plus GX, t
 make VERSION=us extract    # baserom.us.bin (sha1-checked) -> asm/
 make VERSION=us            # assemble, link, sha1-checked
 make test                  # the decoder against gas, no ROM needed
-tools/trace_all.sh us      # play tools/inputs/ headless, regenerate code.us.txt/data.us.txt
+tools/trace_all.sh us      # play tools/inputs/ headless, regenerate code/data/longs.us.txt
+make VERSION=us shift-check   # the shifted build against the matching one, headless
 ```
 
 On Debian/Ubuntu, `apt install binutils-m68k-linux-gnu` and
@@ -51,11 +52,12 @@ time, so run `make clean` before you switch.
 | `tools/m68k.py` | the 68000 decoder: what gas can spell, in Motorola syntax |
 | `tools/test_m68k.py` | every encoding the decoder accepts, through gas and back (CI) |
 | `tools/disasm.py` | the ROM to `asm/`: code found by tracing and speculation, the rest data |
-| `code.<v>.txt`, `data.<v>.txt` | what runtime traces proved is code and data (generated) |
+| `code.<v>.txt`, `data.<v>.txt`, `longs.<v>.txt` | what runtime traces proved is code, data, and read as longs (generated) |
 | `tools/checksum.py` | the header checksum and ROM end |
 | `tools/src/mdtrace.c` | headless runs in Genesis Plus GX: coverage, screenshots, RAM dumps |
 | `tools/gen_inputs.py`, `tools/inputs/` | the pad scripts: menus, battle, every stage by password |
 | `tools/trace_all.sh`, `tools/coverage.py` | run them all; compare a trace with the disassembly |
+| `tools/shift_check.py`, `tools/find_abs.py` | the SHIFT build run against the original; addresses still left as numbers |
 | `tools/get_gpgx.sh` | Genesis Plus GX's libretro core with CPU hooks (a dev tool, not in the port) |
 | `tools/get_binutils.sh` | builds GNU binutils 2.47 for m68k-elf (sha256-pinned) |
 | `docs/` | LAYOUT (the ROM, the build, finding code), ROADMAP, NETPLAY |

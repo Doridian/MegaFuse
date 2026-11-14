@@ -6,8 +6,9 @@ over WebRTC. The models are `../BlastCorps` and `../Bomberman64` (same
 goals, same rules; look at their tools before writing a new one) and, for
 the Rust port and its netplay, `../HolidayIsland` (winit, wgpu, cpal,
 `crates/net` with matchbox). docs/ROADMAP.md has the phases: 0 and 1 are
-done (both ROMs rebuild from `asm/`, sha1-checked), and phase 2's runtime
-trace is in place (docs/LAYOUT.md, "Runtime traces").
+done (both ROMs rebuild from `asm/`, sha1-checked); in phase 2 the runtime
+trace, pointer symbols and the SHIFT build with its check are in place
+(docs/LAYOUT.md, "Runtime traces", "Pointers", "SHIFT").
 
 The game is handwritten 68000 asm, not compiled C. Nothing gets compiled to
 match: the asm is the source, and the port is a translation of it into
@@ -20,7 +21,9 @@ make setup                   # binutils (m68k-elf), Genesis Plus GX, tools/mdtra
 make VERSION=us extract      # tools/disasm.py: baserom.us.bin -> asm/
 make VERSION=us              # assemble, link, sha1-checked
 make test                    # tools/test_m68k.py: the decoder against gas
-tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/data lists
+tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/data/longs lists
+make VERSION=us shift-check  # SHIFT=1 build run against the matching one (tools/shift_check.py)
+tools/find_abs.py us         # what may still be a ROM address written as a number
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`
@@ -48,11 +51,15 @@ files in this directory.
   evidence. Matching doesn't depend on it, shifting will.
 - **Don't guess names.** Labels are `func_`/`loc_`/`D_`/`jtbl_` plus the
   address (us's addresses in both versions, once there is a us↔eu map).
-- **Traces are evidence, speculation is a guess.** `code.<v>.txt` and
-  `data.<v>.txt` come from `tools/trace_all.sh <v>` (never hand-edited);
+- **Traces are evidence, speculation is a guess.** `code.<v>.txt`,
+  `data.<v>.txt` and `longs.<v>.txt` come from `tools/trace_all.sh <v>` (never hand-edited);
   rerun it after changing `tools/inputs/` (`tools/gen_inputs.py`) and
   commit the lists. Genesis Plus GX (`tools/get_gpgx.sh`) is a dev tool
   only: nothing of it goes into the repo or the port.
+- **shift-check passes** for us and eu (it does now): a change to the
+  disassembly keeps the shifted build running like the original. The
+  port doesn't reproduce the game's bugs, but the shifted build must
+  (READS_PAST, BIASED in tools/disasm.py).
 - New dependencies (downloaded code, crates, libraries) are the user's
   call: ask first.
 - Drafts worth keeping go in `scratch/` (git-ignored), not `/tmp`.

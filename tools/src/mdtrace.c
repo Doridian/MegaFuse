@@ -11,12 +11,21 @@
  *                        existing file of the right size (so runs add up)
  *     --shot PREFIX      screenshots PREFIX<frame>.png, at --shot-every N
  *                        frames (default 600) and the last frame
- *     --ram PREFIX       work RAM (64 KB) as PREFIX<frame>.bin, same frames
+ *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
+ *                        same frames, and PREFIX<frame>.sp: the stack
+ *                        pointer and the lowest it has been, in hex
  *     --region R         auto (default), ntsc-u, pal, ntsc-j
  *     --teamplayer       Sega's Team Player on port 1 (pads 1-4 on it)
  *     --log FILE         every frame's pad state and the RAM hash
  *     --ignore-reads PC  don't record the reads the instruction at PC makes
  *                        (repeatable; the boot checksum reads the whole ROM)
+ *     --watch ADDR       print (stderr) each read or write of the byte at ADDR
+ *                        (hex, ROM or 0xFFxxxx; repeatable), with the frame
+ *                        and the instruction's address, up to --watch-limit
+ *                        (default 64) in all
+ *     --pcs FILE         every instruction executed, `FRAME PC` per line,
+ *                        and every read of the ROM, `FRAME ADDR Rn VALUE`,
+ *     --pcs-frames A:B   in frames A to B-1 (default 0:1)
  *
  * Coverage flags (tools/coverage.py reads them):
  *     0x01  an instruction started here
@@ -60,6 +69,8 @@ static void *(*p_get_memory_data)(unsigned);
 static size_t (*p_get_memory_size)(unsigned);
 static void (*p_set_port)(unsigned, unsigned);
 static void (*p_set_cpu_hook)(void (*)(int, int, unsigned, unsigned));
+static unsigned (*p_get_reg)(int);
+#define REG_A7 15   /* m68k_register_t in the core's m68k.h */
 
 /* coverage */
 static uint8_t *cover;
@@ -67,6 +78,17 @@ static size_t rom_size;
 static unsigned last_pc;
 static unsigned ignore_pc[16];
 static int n_ignore;
+/* --watch */
+static unsigned watch_addr[16];
+static int n_watch;
+static long watch_left = 64;
+static long cur_frame;
+/* --ram: the stack pointer's lowest value so far */
+static int track_sp;
+static unsigned min_sp = 0xFFFFFFFF;
+/* --pcs */
+static FILE *pcs_file;
+static long pcs_from, pcs_to = 1;
 
 enum {
     HOOK_M68K_E = 1 << 0,
@@ -76,12 +98,34 @@ enum {
 
 static void hook(int type, int width, unsigned address, unsigned value)
 {
-    (void)value;
     address &= 0xFFFFFF;
-    if (type == HOOK_M68K_E)
+    if (type == HOOK_M68K_E) {
         last_pc = address;
+        if (track_sp) {
+            unsigned sp = p_get_reg(REG_A7) & 0xFFFFFF;
+            if (sp >= 0xFF0000 && sp < min_sp)
+                min_sp = sp;
+        }
+        if (pcs_file && cur_frame >= pcs_from && cur_frame < pcs_to)
+            fprintf(pcs_file, "%ld %06X\n", cur_frame, address);
+    } else if (n_watch && watch_left > 0) {
+        int k;
+        for (k = 0; k < n_watch; k++)
+            if (watch_addr[k] >= address && watch_addr[k] < address + width) {
+                fprintf(stderr, "frame %ld pc %06X %c%d %06X = %0*X\n",
+                        cur_frame, last_pc,
+                        type == HOOK_M68K_W ? 'W' : 'R', width, address,
+                        width * 2, value);
+                watch_left--;
+                break;
+            }
+    }
     if (address >= rom_size)
         return;
+    if (type == HOOK_M68K_R && pcs_file && cur_frame >= pcs_from &&
+        cur_frame < pcs_to)
+        fprintf(pcs_file, "%ld %06X R%d %0*X\n", cur_frame, address, width,
+                width * 2, value);
     if (type == HOOK_M68K_E) {
         last_pc = address;
         cover[address] |= 0x01;
@@ -389,8 +433,32 @@ static void snapshot(const char *shot, const char *ram, long frame)
             perror(path);
             exit(1);
         }
-        fwrite(p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM), 1,
-               p_get_memory_size(RETRO_MEMORY_SYSTEM_RAM), f);
+        {
+            /* the core keeps work RAM as host-order 16-bit words: write it
+               as the 68000 sees it, big-endian */
+            const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+            size_t k, n = p_get_memory_size(RETRO_MEMORY_SYSTEM_RAM);
+            uint8_t *be = malloc(n);
+            for (k = 0; k + 1 < n; k += 2) {
+                uint16_t v;
+                memcpy(&v, w + k, 2);
+                be[k] = v >> 8;
+                be[k + 1] = v & 0xff;
+            }
+            fwrite(be, 1, n, f);
+            free(be);
+        }
+        fclose(f);
+        /* the stack pointer now and the lowest it has been: RAM between
+           the two is dead stack */
+        snprintf(path, sizeof path, "%s%06ld.sp", ram, frame);
+        f = fopen(path, "w");
+        if (!f) {
+            perror(path);
+            exit(1);
+        }
+        fprintf(f, "%06X %06X\n", p_get_reg(REG_A7) & 0xFFFFFF,
+                min_sp & 0xFFFFFF);
         fclose(f);
     }
 }
@@ -425,6 +493,21 @@ int main(int argc, char **argv)
         else if (ARG("--log")) log_path = argv[++i];
         else if (ARG("--ignore-reads") && n_ignore < 16)
             ignore_pc[n_ignore++] = strtoul(argv[++i], NULL, 16);
+        else if (ARG("--watch") && n_watch < 16)
+            watch_addr[n_watch++] = strtoul(argv[++i], NULL, 16) & 0xFFFFFF;
+        else if (ARG("--watch-limit")) watch_left = strtol(argv[++i], NULL, 0);
+        else if (ARG("--pcs")) {
+            pcs_file = fopen(argv[++i], "w");
+            if (!pcs_file) {
+                perror(argv[i]);
+                return 1;
+            }
+        }
+        else if (ARG("--pcs-frames")) {
+            char *e;
+            pcs_from = strtol(argv[++i], &e, 0);
+            pcs_to = *e == ':' ? strtol(e + 1, NULL, 0) : pcs_from + 1;
+        }
         else if (!strcmp(a, "--teamplayer")) teamplayer = 1;
         else if (a[0] == '-') {
             fprintf(stderr, "unknown option %s (see the comment in %s)\n", a,
@@ -459,6 +542,8 @@ int main(int argc, char **argv)
     p_get_memory_size = sym(h, "retro_get_memory_size");
     p_set_port = sym(h, "retro_set_controller_port_device");
     p_set_cpu_hook = sym(h, "set_cpu_hook");
+    p_get_reg = sym(h, "m68k_get_reg");
+    track_sp = ram != NULL;
 
     rom = read_file(rom_path, &rom_size);
     if (rom_size > ROM_MAX)
@@ -508,6 +593,7 @@ int main(int argc, char **argv)
     }
 
     for (frame = 0; frame < frames; frame++) {
+        cur_frame = frame;
         while (next_event < n_events && events[next_event].frame <= frame) {
             pads[events[next_event].pad] = events[next_event].mask;
             next_event++;
@@ -536,6 +622,8 @@ int main(int argc, char **argv)
     }
     if (logf)
         fclose(logf);
+    if (pcs_file)
+        fclose(pcs_file);
     p_set_cpu_hook(NULL);
     p_retro_deinit();
     return 0;

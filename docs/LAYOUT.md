@@ -47,13 +47,15 @@ A us↔eu address map (B64's `vermap`) will be simple: two insertions.
   never inside the span of a PC-relative reference (an 8-bit displacement
   can't cross objects, and `.L` labels are file-local).
 - `asm/link.ld`: the objects in order, which the Makefile puts into
-  `mbm.ld`; `asm/symbols.txt`: every global label.
+  `mbm.ld`, and `. = 0x040000;` before the data: the zeros between the
+  code and the data aren't in any file, so the data stays at its address
+  in a SHIFT build; `asm/symbols.txt`: every global label.
 
 Code is written as instructions with labels, and everything else as
 `.byte` (with `.space` for long zero runs). The build matches however much
 is found to be code: a word that is not found stays data, and its bytes are
 the same either way. What finding code decides is how much is readable and
-symbolic, which the SHIFT build (ROADMAP, phase 2) will need.
+symbolic, which the SHIFT build (below) needs.
 
 ### gas details
 
@@ -109,15 +111,90 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,433 functions, 110 KB of code, of which the traces ran
-17,656 instructions (66%); every instruction that ran is in the
+The result in us: 1,560 functions (counting entries only pointers name),
+110 KB of code, of which the traces ran 17,656 instructions (66%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
 pointer tables, palettes, sine and step tables, text.
 
-Open: from `0x1906E` on, code that runs is also read word by word (`0x522`
-is called just before it: copied or scanned?), and `0x81C8` stores code
+Open: from `0x1906E` on, code that runs is also read word by word (the
+bosses' palette cycle reads its colours there, "SHIFT"), and `0x81C8` stores code
 addresses at `0xFFF000`, which may be code run from RAM.
+
+## Pointers
+
+What `tools/disasm.py` writes as a symbol rather than a number
+(`Disasm.collect_refs`):
+
+- absolute and PC-relative operands in the ROM, as before;
+- long immediates used as addresses: `movea.l #x`, `move.l #x` to memory
+  or the stack, `addi.l`/`adda.l #x` (a table's base plus an index), and
+  any long immediate that is a function's entry (`move.l #func,d0` hands
+  a callback over). `move.l #x,dn`, `cmpi.l`, `andi.l` stay numbers;
+- **pointer longs in data** (`.long label`): a long a trace read as a long
+  (`longs.<v>.txt`) whose value can be pointed at (an instruction start or
+  data in the code area, even there; or the data from 0x40000; not the
+  zeros between), and the rest of its table: its neighbours 4 bytes on, or
+  at the distance to another such long within 0x20 (records: 0x3704 is 10
+  bytes each, two pointers), until something the code or a pointer names
+  (a table usually ends where what it points at starts). A neighbour no
+  trace read must point into the data or at something already named:
+  palette scripts hold words like `0000 6D00`;
+- a displacement off an address register that lands on data a trace read
+  (`move.b (0x17A6,a0),d0` with an index in `a0`);
+- `BIASED`: a table's address minus its smallest index, which only a
+  trace shows (`lea (D_00EFB8-0x86).l,a0`).
+
+What a target is called: `D_` in data, `func_` for an instruction start
+nothing branches to. Not handled yet: pointers at other offsets in
+records (scene and object scripts: `0xA0AA` holds `FF 00 0D 8F EC 5A`
+entries, a long at an odd offset), word pointers, and the data's own
+pointers. `tools/find_abs.py` lists what may still be an address written
+as a number.
+
+The tracer didn't see PC-relative reads at first (Musashi reads them like
+instruction words, past the hook); `tools/get_gpgx.sh` routes them through
+it, so `move.l (tbl,pc,d0.w),a0` tables are evidence like any other.
+
+## SHIFT
+
+`make SHIFT=1` builds into `build/<v>-shift/` with 0x10 zero bytes after
+each object in the code and 2 before most functions in it (`shift_pad`,
+include/macros.inc), so everything from 0x200 on moves, by up to a few
+KB. Pads go only where nothing falls through (after a `rts`, `jmp` or
+`bra`), never inside a jump table, and only where every displacement
+still fits (`Writer.plan_pads`): none under an 8-bit one, and a 16-bit one
+(`bra.w`, `(d16,pc)`, a ROM address written `(xxx).w`, which must stay
+below 0x8000) takes as many as its slack allows. The data from 0x40000
+doesn't move (link.ld); its pointers into the code are symbols, but its
+own aren't all known yet, and the Z80 driver addresses samples by 32 KB
+bank.
+
+`make shift-check` (`tools/shift_check.py`) runs the shifted and the
+matching ROM headless over every script in tools/inputs/ for 9000 frames
+and compares, every 300 frames, the screen (exactly) and work RAM, with
+ROM addresses translated: a long or word that points at `label + off` in
+the original must point at the label's new address `+ off`. The map is
+the shifted ELF's symbol table, since labels are named after their
+original address. On a failure, `--first` finds the first frame and the
+bytes, and `--pcs NAME:FRAME` the first instruction or ROM read that
+differs (mdtrace's `--pcs`); `mdtrace --watch ADDR` shows who reads and
+writes a byte. us and eu pass. What it tolerates, and why:
+
+- the stack (down to the lowest the stack pointer has been): return
+  addresses and saved registers, and pieces of old ones;
+- the stale half of an address whose other half was overwritten
+  (`0xFF80C8` holds a pointer, then another variable's word);
+- `PAST_TABLE`: the game reads `D_000B7E[0xFF]` (slot 0xFF is "none"),
+  which is code, and keeps it in `a5`;
+- the bosses' palette cycle (`func_00AA4C`) takes its colours from code
+  (`0x19068` in eu, `jsr (0x19144).l` among them), so the boss scripts are
+  compared only up to the fight.
+
+The SHIFT build keeps the game's bugs where a pad would change them:
+`READS_PAST` in tools/disasm.py (`0xFE` from `D_003FA2` read as +254
+instead of -2, into an opcode byte that moves an enemy). The port fixes
+such bugs instead (docs/ROADMAP.md, phase 4).
 
 ## Runtime traces
 
@@ -136,8 +213,8 @@ and `battle4` (four, on the Team Player), cycling through the setup screens
 and random matches, `password`, `idle`, and `stage-*`: one per password,
 every stage, boss and the final area (Sega Retro's list, all checked in
 the emulator). `tools/trace_all.sh <v>` runs them all (about half a
-minute) into `build/<v>/trace/` and regenerates `code.<v>.txt` and
-`data.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
+minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
+`data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
 alone reports how a trace and the disassembly disagree.
 `tools/sheet.py` tiles screenshots into one picture.
 

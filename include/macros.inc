@@ -4,3 +4,15 @@
 | addq: the ROM's encodings are written as they are (tools/test_m68k.py)
 	.opt noquick
 	.text
+
+| SHIFT build (make SHIFT=1 passes --defsym SHIFT=1): shift_pad, which
+| tools/disasm.py writes before functions nothing falls through into, is
+| two zero bytes (SHIFT_FUNC_PAD there); in the matching build, nothing
+	.ifndef SHIFT
+	.set SHIFT, 0
+	.endif
+	.macro shift_pad
+	.if SHIFT
+	.space 2
+	.endif
+	.endm

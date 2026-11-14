@@ -49,15 +49,24 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   options a password can't reach. A human playthrough recorded as a pad
   script would do (BizHawk's Mega Drive core is Genesis Plus GX too, so
   its `.bk2` input logs should play back in mdtrace).
-- **Data words become symbols.** Pointer tables, records with pointers
-  (scene and object scripts), the PC-relative and `(xxx).w` tables. RAM
-  gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed addresses.
+- **Data words become symbols (started).** Long immediates used as
+  addresses, pointer longs the traces read and the rest of their tables,
+  table addresses used as displacements (docs/LAYOUT.md, "Pointers").
+  Still to do: records with pointers at other offsets (scene and object
+  scripts: 0xA0AA's entries hold a long at odd offsets), word pointers,
+  `tools/find_abs.py`'s list, and the data's own pointers (0x40000 on).
+  RAM gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed
+  addresses.
 - **Objects.** Files cut at module boundaries rather than at long data,
   with `.s` per function where that helps.
-- **SHIFT=1** pads each object and the data, recomputes the checksum
-  (`tools/checksum.py`), and runs the shifted and the original ROM headless
-  side by side, comparing work RAM and the frames (B64's `shift-check`).
-  `tools/find_abs.py` lists any ROM address left as a number.
+- **SHIFT=1 (in place for the code).** Pads after each object and before
+  most functions, recomputes the checksum, and `make shift-check` runs the
+  shifted and the original ROM headless over every script in
+  tools/inputs/, comparing screens and work RAM (docs/LAYOUT.md,
+  "SHIFT"): us and eu pass. The data (0x40000 on) stays at its address
+  for now; moving it too needs its formats (phase 3) and the Z80's bank
+  pointers. `tools/find_abs.py` lists what may still be an address left
+  as a number.
 - **eu from us.** A us↔eu map; eu's `asm/` takes us's names, and one
   source tree builds both with `.if` (two places).
 
@@ -77,7 +86,10 @@ same bytes, as `tools/assets.py` does in B64 and Blast Corps.
   handwritten code. It is checked by running each function both ways from
   the same states (the emulator's), comparing registers and memory.
 - Then the translated code is rewritten as readable Rust, function by
-  function, with typed game state in place of the raw RAM. The
+  function, with typed game state in place of the raw RAM. The game's
+  bugs (reads past a table into code, docs/LAYOUT.md "SHIFT") are fixed
+  there, not reproduced, each one noted and allowed for in the
+  differential tests. The
   differential tests stay as the arbiter, and the TAS (if one syncs) is
   the end-to-end test.
 - No asm in the port: the 68000 code is all translated, and so is the
