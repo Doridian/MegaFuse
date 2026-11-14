@@ -56,9 +56,13 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   table addresses used as displacements (docs/LAYOUT.md, "Pointers").
   Bytecode scripts are walked op by op (`func_015FAE`'s, so far), and
   tables of records by what the code does with each field (`D_00A04A`).
-  Still to do: the lists those records point at (0xA0AA's entries hold
-  a long at odd offsets), word pointers,
-  `tools/find_abs.py`'s list, and the data's own pointers (0x40000 on).
+  Word pointers: none. No `movea.w` loads a ROM address and there are
+  no offset tables (`move.w (tbl,pc,dn.w)` then `jmp`); the words
+  `tools/find_abs.py` lists are numbers (`0x200`, `0x7000`, colours) or
+  operands in dead code that is still bytes (after `D_00A83A`,
+  `D_013838`, `D_01974E`: nothing marks where it starts). Still to do:
+  the lists those records point at (0xA0AA's entries hold a long at odd
+  offsets) and the data's own pointers (0x40000 on).
   RAM gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed
   addresses.
 - **Objects.** Files cut at module boundaries rather than at long data,
