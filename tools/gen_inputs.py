@@ -54,11 +54,13 @@ def press_pair(ev, f, pad):
     press(ev, f + 12, pad, 'S', 4)
 
 
-def write(name, ev, comment, frames=None, compare=None, teamplayer=False):
+def write(name, ev, comment, frames=None, compare=None, teamplayer=False,
+          wayplay=False):
     """frames: how long the script runs (a `# frames N` line, which
     tools/trace_all.sh and tools/shift_check.py read); compare: the frame
     tools/shift_check.py compares up to (`# compare N`); teamplayer: run
-    with Sega's Team Player (`# teamplayer`)."""
+    with Sega's Team Player (`# teamplayer`); wayplay: with EA's 4-Way
+    Play (`# wayplay`)."""
     ev.sort(key=lambda e: (e[0], e[1]))
     with open(os.path.join(HERE, name), 'w') as f:
         for line in comment.strip().split('\n'):
@@ -70,6 +72,8 @@ def write(name, ev, comment, frames=None, compare=None, teamplayer=False):
             f.write('# compare %d\n' % compare)
         if teamplayer:
             f.write('# teamplayer\n')
+        if wayplay:
+            f.write('# wayplay\n')
         last = {}
         for frame, pad, b in ev:
             if not pad:
@@ -100,13 +104,14 @@ Normal game from power-on: Start through the intro and the title menu
 then, and a pair of Starts every 1500 frames for the screens that wait.''')
 
 
-def battle(name, seed, pads, teamplayer):
+def battle(name, seed, pads, teamplayer, wayplay=False):
     write(name, battle_events(seed, pads), '''
 Battle game from power-on%s: the title menu's BATTLE GAME, then cycles of
 setup presses (C and Start in turn, a direction now and then) and random
 play on pads %s (C is the bomb).''' % (
-        ' with the Team Player' if teamplayer else '',
-        ', '.join(map(str, pads))), teamplayer=teamplayer)
+        ' with the Team Player' if teamplayer else
+        ' with the 4-Way Play' if wayplay else '',
+        ', '.join(map(str, pads))), teamplayer=teamplayer, wayplay=wayplay)
 
 
 def battle_events(seed, pads):
@@ -237,6 +242,22 @@ def ending():
     """The last room of the final area, the final boss and the ending, with
     RAM writes for what random play can't do.  Every write is a number
     (no ROM address), so the shifted build gets the same ones."""
+    write('ending.txt', ending_events(), '''
+Normal game from password 0515 (the final area) to the ending, with RAM
+writes (`FRAME =ADDR VALUE`) for what random play can't do: room 5, the
+room's targets and enemies, the player into the open gate, the player's
+energy, and each form of the final boss.  us's timings and RAM.''', 24000)
+    # each form left alone for a while: what it does that the ending
+    # doesn't wait for (form 1's func_013638, form 3's func_012F4C and
+    # func_012E5A)
+    for form, cut, frames in ((1, 5800, 14000), (3, 11800, 20000)):
+        write('final-form%d.txt' % form,
+              [e for e in ending_events() if e[0] < cut], '''
+ending.txt up to frame %d, then the final boss's form %d left to itself,
+the player at 0x7F hits.''' % (cut, form), frames)
+
+
+def ending_events():
     ev = list(TITLE)
     press(ev, 3300, 1, 'D', 6)
     press(ev, 3340, 1, 'D', 6)        # PASSWORD
@@ -275,11 +296,7 @@ def ending():
     # the escape (func_0139DC), the ending (0x953B = 6) and the credits
     # (func_015FAE's script, D_016FFA)
     energy(ev, 11800, 6, 0)
-    write('ending.txt', ev, '''
-Normal game from password 0515 (the final area) to the ending, with RAM
-writes (`FRAME =ADDR VALUE`) for what random play can't do: room 5, the
-room's targets and enemies, the player into the open gate, the player's
-energy, and each form of the final boss.  us's timings and RAM.''', 24000)
+    return ev
 
 
 # tools/find_exits.py's plans: each stage from its password to its exit
@@ -371,11 +388,55 @@ def items():
             poke(ev, f, 0xFF989C + 16 + c, 5)
             poke(ev, f, 0xFFAC00 + 4 * k, kind << 24 | c << 8 | 1, 8)
         press(ev, f + 10, 1, d, 250)
+    # then use them: bombs kicked, punched and thrown (D_005E6C's states)
+    # in the empty room, the player at 0x7F hits
+    energy(ev, kill + 800, 0, 0x7F)
+    play(ev, random.Random(5), kill + 810, kill + 3300, extra='AABB',
+         every=30)
+    # the egg among them hatches a Louie (func_004480) of a random type
+    # (0-3), its ability one of D_0048F6's: each type in turn, written
+    # where the first rider's is (0xFFA96E, 0xA96E - 5 + its slot 5)
+    for k, kind in enumerate((0, 1, 3, 4)):
+        poke(ev, kill + 700 + 400 * k, 0xFFA96E, kind)
     write('items.txt', ev, '''
 Every item kind once: stage 1-1 from its password, its room cleared,
 then items 1-9 in the top row to the right of the player and 10-14 on
 the way back, written as an item (grid cell 5) and an entry in the list
-at 0xFFAC00.  us's timings.''', kill + 1200)
+at 0xFFAC00; then random play with A and B often, the player at 0x7F
+hits.  us's timings.''', kill + 3400)
+
+
+def timeouts():
+    """The clock running out (func_00ACA4: 0xA429 minutes, 0xA428
+    seconds, 0xA427 tenths), which random play never waits for.  In a
+    battle (0x9540 bit 0): set to 1:03 the hurry-up starts at 1:01.0
+    (func_00B1A2, blocks closing in), then with both players at 0x7F hits
+    0:03 more runs out: TIME UP and the draw (func_00B2A0).  In the
+    normal game: 0:03 in stage 1-1, the player's time up (func_00B346)."""
+    import json
+    def clock(ev, f, m, sec):
+        poke(ev, f, 0xFFA429, m)
+        poke(ev, f, 0xFFA428, sec)
+        poke(ev, f, 0xFFA427, 0)
+    # battle.txt's first match is on by 6800; no play after
+    ev = [e for e in battle_events(2, (1, 2)) if e[0] < 6800]
+    clock(ev, 6800, 1, 3)
+    for s in (0, 1):
+        energy(ev, 6800, s, 0x7F)
+    clock(ev, 7100, 0, 3)
+    write('timeup-battle.txt', ev, '''
+A battle's clock running out: battle.txt to its first match, then the
+clock at 1:03 (the hurry-up at 1:01.0), both players at 0x7F hits, and
+at 0:03 (TIME UP, the draw).''', 9000)
+    if not os.path.exists(EXITS):
+        return
+    plan = json.load(open(EXITS))['1-1']['plan']
+    kill = [st for st in plan if st['do'] == 'kill'][0]['frame']
+    ev = exit_events('2200', [st for st in plan if st['do'] == 'start'])
+    clock(ev, kill + 60, 0, 3)
+    write('timeup-stage.txt', ev, '''
+Stage 1-1 with its clock at 0:03: the player's time up, the lost life and
+the stage again.  us's timings.''', kill + 1500)
 
 
 def idle():
@@ -389,12 +450,16 @@ def main():
     normal()
     battle('battle.txt', 2, (1, 2), False)
     battle('battle4.txt', 4, (1, 2, 3, 4), True)
+    # EA's 4-Way Play: func_009086 finds it at power-on (0x80C2), and the
+    # pads are read through func_00912A
+    battle('battle4w.txt', 4, (1, 2, 3, 4), False, True)
     password()
     stages()
     ending()
     exits()
     items()
     arenas()
+    timeouts()
     idle()
 
 

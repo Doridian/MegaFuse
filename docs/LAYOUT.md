@@ -155,7 +155,7 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    traces (below), not edited.
 
 The result in us: 1,634 functions (counting entries only pointers name),
-110 KB of code, of which the traces ran 23,534 instructions (88%); every instruction that ran is in the
+110 KB of code, of which the traces ran 24,113 instructions (90%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
 pointer tables, palettes, sine and step tables, text.
@@ -338,10 +338,29 @@ kind indexing `D_0069B2`; random play only ever found 5 of the 15.
 after a script's first stage select it plays that arena: 0-5 and 8-11
 with two players, 7 and 12 with four (black with two); 6 shows garbage.
 
+`items` then plays on with A and B pressed often (bombs kicked, punched
+and thrown) and writes the Louie's type (`0xFFA96E`: the egg hatches one
+of a random type, `D_0048F6` holds each type's ability) through all
+five. `timeup-battle` and `timeup-stage` set the clock (`func_00ACA4`:
+`0xA429` minutes, `0xA428` seconds, `0xA427` tenths): a battle's
+hurry-up at 1:01.0 (`func_00B1A2`), then with both players at 0x7F hits
+TIME UP and the draw (`func_00B2A0`); the normal game's time up
+(`func_00B346`). `final-form1` and `final-form3` are `ending` cut short,
+the final boss's first or last form left to itself. `battle4w` is
+`battle4` on EA's 4-Way Play instead of Sega's Team Player
+(`func_009086` tells them apart at power-on, `0x80C2`; the pads are then
+read by `func_00912A`); `tools/mdtrace --wayplay` plugs it in.
+
 A script's `# frames N` line sets how long it runs, `# compare N` how far
 tools/shift_check.py compares it (an area's last stage goes on into the
 boss stage, whose palette cycle reads its colours from code, below), and
-`# teamplayer` plugs in the Team Player.
+`# teamplayer` or `# wayplay` plugs in a multitap.
+
+`docs/UNRUN.md` (`tools/unrun.py`, which `tools/trace_all.sh us` runs
+last) lists what no script runs: dead code, live code never triggered,
+grouped by where it would start (the instruction or table that leads
+into it, and the scripts that run the code around it), and functions run
+in part. It is the list to hunt down.
 `tools/trace_all.sh <v>` runs them all (about half a
 minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
 `data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`

@@ -26,6 +26,7 @@ make VERSION=us shift-check  # SHIFT=1 build run against the matching one (tools
 tools/find_abs.py us         # what may still be a ROM address written as a number
 tools/vermap.py eu           # where each us address is in eu (eu takes us's names)
 tools/find_exits.py [STAGE]  # plans that take stages to their exit (tools/exits.json)
+tools/unrun.py               # docs/UNRUN.md: what no script runs, by where it starts
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`

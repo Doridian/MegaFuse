@@ -97,7 +97,7 @@ def run(rom, script, frames, every, out, teamplayer):
     if script:
         cmd[4:4] = ['--input', script]
     if teamplayer:
-        cmd.insert(4, '--teamplayer')
+        cmd.insert(4, teamplayer)
     subprocess.run(cmd, check=True, cwd=TOP)
 
 
@@ -186,8 +186,14 @@ LIMITS = {
 
 
 def teamplayer(path):
-    """Does the script play with the Team Player (`# teamplayer`)?"""
-    return '# teamplayer\n' in open(path).read()
+    """mdtrace's option for the script's multitap: `# teamplayer` (Sega's
+    Team Player) or `# wayplay` (EA's 4-Way Play), or None."""
+    text = open(path).read()
+    if '# teamplayer\n' in text:
+        return '--teamplayer'
+    if '# wayplay\n' in text:
+        return '--wayplay'
+    return None
 
 
 def script_compare(path):
@@ -347,7 +353,7 @@ def pcs_diff(a, amap, tmp, name, frame):
                '--pcs-frames', '%d:%d' % (max(0, frame - 1), frame + 1),
                rom]
         if teamplayer(script):
-            cmd.insert(1, '--teamplayer')
+            cmd.insert(1, teamplayer(script))
         subprocess.run(cmd, check=True, cwd=TOP)
         logs.append(out)
     with open(logs[0]) as fa, open(logs[1]) as fb:

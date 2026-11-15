@@ -16,6 +16,7 @@
  *                        pointer and the lowest it has been, in hex
  *     --region R         auto (default), ntsc-u, pal, ntsc-j
  *     --teamplayer       Sega's Team Player on port 1 (pads 1-4 on it)
+ *     --wayplay          EA's 4-Way Play on both ports (pads 1-4 on it)
  *     --log FILE         every frame's pad state and the RAM hash
  *     --ignore-reads PC  don't record the reads the instruction at PC makes
  *                        (repeatable; the boot checksum reads the whole ROM)
@@ -56,6 +57,7 @@
 
 static const char *region = "auto";
 static int teamplayer;
+static int wayplay;
 
 /* the core's functions */
 static void (*p_retro_init)(void);
@@ -567,6 +569,7 @@ int main(int argc, char **argv)
             pcs_to = *e == ':' ? strtol(e + 1, NULL, 0) : pcs_from + 1;
         }
         else if (!strcmp(a, "--teamplayer")) teamplayer = 1;
+        else if (!strcmp(a, "--wayplay")) wayplay = 1;
         else if (a[0] == '-') {
             fprintf(stderr, "unknown option %s (see the comment in %s)\n", a,
                     __FILE__);
@@ -637,9 +640,13 @@ int main(int argc, char **argv)
         return 1;
     }
     /* libretro's 3-button pad, or the Team Player (subclass 5) on port 1 */
-    p_set_port(0, teamplayer ? RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 5)
-                             : RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0));
-    if (!teamplayer)
+    /* the core's MD Joypad 3 Button (0), + 4-WayPlay (3, both ports), +
+     * Teamplayer (5) */
+    p_set_port(0, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD,
+                                        wayplay ? 3 : teamplayer ? 5 : 0));
+    if (wayplay)    /* the core takes it on either port; both, to be sure */
+        p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 3));
+    else if (!teamplayer)
         p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0));
     p_set_cpu_hook(hook);
     if (log_path) {

@@ -23,9 +23,12 @@ for f in tools/inputs/*.txt; do
     [ -n "$own" ] && frames=${FRAMES:-$own}
     tp=
     grep -q '^# teamplayer' "$f" && tp=--teamplayer
+    grep -q '^# wayplay' "$f" && tp=--wayplay
     nice -n 10 tools/mdtrace $tp --frames "$frames" --input "$f" $IGNORE \
         --cover "$OUT/$n.cov" --shot "$OUT/$n-" --shot-every 3000 \
         "baserom.$V.bin" &
 done
 wait
 python3 tools/coverage.py "$V" "$OUT"/*.cov --write --list 0
+# what still never runs, sorted out (docs/UNRUN.md, us's)
+if [ "$V" = us ]; then python3 tools/unrun.py us; fi

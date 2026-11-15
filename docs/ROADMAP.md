@@ -49,9 +49,10 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   continue and game-over screens come up in random play, and with RAM
   writes too every stage's exit, bonus stage and next card, every boss's
   defeat and the next area's intro (`exit-*`, the plans found by
-  `tools/find_exits.py`), every item kind (`items`) and every battle
-  arena (`arena-*`). Still to cover: the options a password can't
-  reach, and what `tools/coverage.py` lists as never run. A human
+  `tools/find_exits.py`), every item kind and Louie ability (`items`),
+  every battle arena (`arena-*`), the clock running out, the final
+  boss's forms left to themselves and EA's 4-Way Play. What still never
+  runs is in docs/UNRUN.md (`tools/unrun.py`), the list to hunt down. A human
   playthrough recorded as a pad script would do, at the end (BizHawk's
   Mega Drive core is Genesis Plus GX too, so its `.bk2` input logs should
   play back in mdtrace).
