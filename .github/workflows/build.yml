@@ -1,0 +1,247 @@
+name: build
+
+# The port for Linux (x86-64, aarch64), Windows (x86-64), macOS (universal)
+# and the browser, on every push and pull request, each one file: an
+# AppImage, an .exe, the app in a .dmg, the page in a zip. None carries
+# any of the game: the player gives the port the ROM at run time, natively
+# from a file dialog when it isn't on the command line, in the browser on
+# the page (docs/PORT.md). A push to main also deploys the page to GitHub
+# Pages (docs/web.md); a tag v* publishes every package on the tag's
+# release.
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        # The oldest Ubuntu LTS still in standard support, on purpose: the
+        # AppImage uses the host's glibc, which has to be at least as new
+        # as the one it was built against. The arch as AppImage spells it.
+        include:
+          - runner: ubuntu-22.04
+            arch: x86_64
+          - runner: ubuntu-22.04-arm
+            arch: aarch64
+    runs-on: ${{ matrix.runner }}
+    env:
+      APPIMAGE_EXTRACT_AND_RUN: 1
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # (keyed by the runner image too: a target/ built on another Ubuntu
+      # release doesn't load)
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.runner }}
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config file
+
+      - name: Build
+        run: cargo build --release --locked -p megafuse
+
+      - name: Package (AppImage)
+        timeout-minutes: 10
+        run: |
+          out=megafuse-${{ matrix.arch }}.AppImage
+          curl -sSLfo linuxdeploy https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${{ matrix.arch }}.AppImage
+          chmod +x linuxdeploy
+          doc=AppDir/usr/share/doc/megafuse
+          mkdir -p $doc
+          cp LICENSE README.md $doc/
+          cp crates/megafuse/res/icon.png megafuse.png
+          # the window, the GPU and the sound are the host's (dlopen'd, or
+          # linuxdeploy's excludelist: libasound, libGL, libvulkan)
+          LDAI_OUTPUT=$out ./linuxdeploy --appdir AppDir -e target/release/megafuse \
+              -d crates/megafuse/res/megafuse.desktop -i megafuse.png --output appimage
+          # (it starts: the libraries are all there)
+          ./$out --help | grep "usage:"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: megafuse-${{ matrix.arch }}.AppImage
+          path: megafuse-${{ matrix.arch }}.AppImage
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      # the C runtime linked in: the .exe needs only Windows' own DLLs
+      RUSTFLAGS: -C target-feature=+crt-static
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --release --locked -p megafuse
+
+      - name: Package
+        run: |
+          cp target/release/megafuse.exe megafuse-windows-x86_64.exe
+          # (it starts)
+          ./megafuse-windows-x86_64.exe --help | grep "usage:"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: megafuse-windows-x86_64
+          path: megafuse-windows-x86_64.exe
+
+  macos:
+    runs-on: macos-26
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '11.0'
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build (arm64 and x86-64)
+        run: |
+          cargo build --release --locked -p megafuse --target aarch64-apple-darwin
+          cargo build --release --locked -p megafuse --target x86_64-apple-darwin
+
+      - name: Package (app in a dmg)
+        timeout-minutes: 10
+        run: |
+          app="dmg/MegaFuse.app"
+          c="$app/Contents"
+          mkdir -p "$c/MacOS" "$c/Resources"
+          lipo -create -output "$c/MacOS/megafuse" \
+              target/aarch64-apple-darwin/release/megafuse target/x86_64-apple-darwin/release/megafuse
+          v=0.0.0
+          case "$GITHUB_REF" in refs/tags/v*) v=${GITHUB_REF_NAME#v} ;; esac
+          sed "s/@VERSION@/$v/" crates/megafuse/res/Info.plist > "$c/Info.plist"
+          # the icon, from crates/megafuse/res/icon.png
+          mkdir megafuse.iconset
+          for n in 16 32 128 256 512; do
+              sips -z $n $n crates/megafuse/res/icon.png --out megafuse.iconset/icon_${n}x${n}.png > /dev/null
+              if [ $n -le 256 ]; then
+                  sips -z $((n * 2)) $((n * 2)) crates/megafuse/res/icon.png --out megafuse.iconset/icon_${n}x${n}@2x.png > /dev/null
+              fi
+          done
+          iconutil -c icns megafuse.iconset -o "$c/Resources/megafuse.icns"
+          cp LICENSE README.md "$c/Resources/"
+          otool -L "$c/MacOS/megafuse"
+          lipo -info "$c/MacOS/megafuse"
+          codesign --force --deep -s - "$app"
+          # (it starts)
+          "$c/MacOS/megafuse" --help | grep "usage:"
+          ln -s /Applications dmg/Applications
+          hdiutil create -volname "MegaFuse" -srcfolder dmg -ov -format UDZO megafuse-macos.dmg
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: megafuse-macos
+          path: megafuse-macos.dmg
+
+  # The browser build (docs/web.md), without the game: the page asks the
+  # player for the ROM.
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: The wasm-bindgen version the crates pin
+        id: bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = "=\(.*\)"$/\1/p' crates/megafuse/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@${{ steps.bindgen.outputs.version }}
+
+      - name: Build
+        run: tools/build-web.sh --out web
+
+      - name: Assemble the site
+        run: |
+          # The site must never carry any of the game, only the port's own files.
+          if find web -type f ! -name '*.js' ! -name '*.wasm' ! -name '*.html' | grep .; then
+            echo "unexpected files in the build"; exit 1
+          fi
+          mkdir _site
+          cp -r web/. _site/
+          d=megafuse-web
+          cp -r _site $d
+          cp LICENSE README.md $d/
+          zip -r $d.zip $d
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: megafuse-web
+          path: megafuse-web.zip
+
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v6
+
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: web
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows, macos, web]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish on the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          ls -l dist
+          gh release view "$TAG" > /dev/null 2>&1 || gh release create "$TAG" --verify-tag --generate-notes --title "$TAG"
+          gh release upload "$TAG" dist/* --clobber

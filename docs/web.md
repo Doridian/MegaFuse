@@ -13,8 +13,7 @@ frames and shows them at the console's pace, so nothing waits.
 Needs the `wasm32-unknown-unknown` target and the `wasm-bindgen` CLI in
 the version the crates pin (`wasm-bindgen = "=0.2.128"` in
 `crates/megafuse/Cargo.toml` and `crates/platform/Cargo.toml`; the CLI
-refuses a module from another version), and the translated game
-(`make port`):
+refuses a module from another version),:
 
 ```sh
 cargo install wasm-bindgen-cli --version 0.2.128

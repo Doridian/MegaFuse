@@ -2,12 +2,11 @@ name: CI
 
 # What can be checked without a ROM: the 68000 decoder against gas (every
 # encoding it accepts must assemble back to the same bytes), that the
-# Python tools parse, and the Rust port: it builds (natively and for the
-# browser), clippy has nothing to say, and its tests pass.  The translated
-# game is generated from the ROM (make port), so here the port builds
-# against crates/game/src/stub.rs; the matching builds and the checks
-# against the original (port_check, timeline_check) need a baserom and
-# run locally (README, "Build"; docs/PORT.md).
+# Python tools parse, and the Rust port: clippy has nothing to say
+# (natively and for the browser) and its tests pass.  build.yml makes the
+# packages.  The matching builds and the checks against the original
+# (port_check, timeline_check, rewrite_check, the netplay loopback) need a
+# baserom and run locally (README, "Build"; docs/PORT.md).
 
 on:
   push:

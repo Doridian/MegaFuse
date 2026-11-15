@@ -12,8 +12,7 @@
 #
 # Then serve the directory over HTTP, e.g.
 #   python3 -m http.server -d web 8000
-# and open http://localhost:8000/.  The translated game must be there
-# first (make port).
+# and open http://localhost:8000/.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=MegaFuse
+Comment=A port of Mega Bomberman (needs the original cartridge's ROM)
+Exec=megafuse %f
+Icon=megafuse
+Categories=Game;ActionGame;
+Terminal=false

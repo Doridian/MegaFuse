@@ -12,6 +12,10 @@ pub fn main() {
 /// Plays `rom` (the cartridge's bytes) in the page's canvas.
 #[wasm_bindgen]
 pub fn start(rom: Vec<u8>) {
+    if let Err(e) = crate::rom::check(&rom) {
+        platform::web::show_error(&e);
+        return;
+    }
     let app = crate::window::GameApp::new(rom, false);
     if let Err(e) = platform::run("MegaFuse", (320 * 3, 224 * 3), app) {
         platform::web::show_error(&e.to_string());

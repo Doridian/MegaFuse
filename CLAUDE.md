@@ -74,6 +74,13 @@ directory.
   disassembly keeps the shifted build running like the original. The
   port doesn't reproduce the game's bugs, but the shifted build must
   (READS_PAST, BIASED in tools/disasm.py).
+- **The translation is committed** (`crates/game/src/translated/`, so CI
+  builds the real game): after changing tools/recomp or a rewrite, rerun
+  `make port` and commit what it writes. Never the ROM's data: the port
+  reads it from the ROM at run time, and no package carries it.
+- **Netplay stays working**: before a commit that touches the port,
+  `megafuse ROM --loopback 4 --input tools/inputs/battle4.txt --frames
+  20000` must print the same RAM hash for every peer.
 - New dependencies (downloaded code, crates, libraries) are the user's
   call: ask first.
 - Drafts worth keeping go in `scratch/` (git-ignored), not `/tmp`.

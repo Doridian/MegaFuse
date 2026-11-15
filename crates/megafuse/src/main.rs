@@ -22,6 +22,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod netplay;
 mod png;
+mod rom;
 #[cfg(target_arch = "wasm32")]
 mod web;
 mod window;
@@ -296,6 +297,11 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
     Ok(game::Game::routine_outputs(entry).join(" "))
 }
 
+const USAGE: &str = "usage: megafuse [ROM] [--host ROOM | --join ROOM] [--players N] [--delay N] [--signal URL]
+       megafuse ROM --frames N [--input FILE] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE]
+       megafuse ROM --loopback N --input FILE --frames N
+Without a ROM, a file dialog asks for Mega Bomberman's (the US version).";
+
 /// In the browser: the page calls `start` with the ROM (web.rs).
 #[cfg(target_arch = "wasm32")]
 fn main() {
@@ -376,18 +382,33 @@ fn main() {
                 });
                 h.hashes = Some(std::io::BufWriter::new(f));
             }
+            "--help" | "-h" => {
+                println!("{USAGE}");
+                return;
+            }
             _ => rom_path = Some(a.to_string()),
         }
         i += 1;
     }
-    let Some(rom_path) = rom_path else {
-        eprintln!("usage: megafuse ROM [--input FILE] [--frames N] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE]");
+    let rom = if let Some(rom_path) = rom_path {
+        let rom = std::fs::read(&rom_path).unwrap_or_else(|e| {
+            eprintln!("{rom_path}: {e}");
+            std::process::exit(1)
+        });
+        // a warning only: the tools run builds of their own (SHIFT)
+        if let Err(e) = rom::check(&rom) {
+            eprintln!("{rom_path}: {e}");
+        }
+        rom
+    } else if headless || loopback.is_some() || join.is_some() {
+        eprintln!("{USAGE}");
+        std::process::exit(2);
+    } else if let Some((_, rom)) = rom::pick() {
+        rom
+    } else {
+        eprintln!("{USAGE}");
         std::process::exit(2);
     };
-    let rom = std::fs::read(&rom_path).unwrap_or_else(|e| {
-        eprintln!("{rom_path}: {e}");
-        std::process::exit(1)
-    });
     if let Some(j) = &mut join {
         j.players = players;
         j.delay = delay;
