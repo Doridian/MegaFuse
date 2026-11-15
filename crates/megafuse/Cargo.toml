@@ -21,6 +21,10 @@ net = { path = "../net" }
 # natively only, the browser's page asks for it itself.
 rfd = "0.18"
 
+# The Windows executable's icon (build.rs).
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+
 # The browser build (docs/web.md, tools/build-web.sh).
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "=0.2.128"
