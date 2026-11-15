@@ -185,8 +185,24 @@ LIMITS = {
 }
 
 
-# scripts run for longer than --frames (the credits end at about 22000)
-FRAMES = {'ending': 24000}
+def script_compare(path):
+    """The frame a script is compared up to, its `# compare N` line
+    (tools/gen_inputs.py: an area's last stage's exit goes on into the
+    boss stage, whose palette cycle reads code), or None."""
+    for line in open(path):
+        if line.startswith('# compare '):
+            return int(line.split()[2])
+    return None
+
+
+def script_frames(path):
+    """A script's own length, its `# frames N` line (tools/gen_inputs.py
+    writes one where a script runs for longer than the default: the
+    ending's credits end at about 22000, the exits at up to 11500)."""
+    for line in open(path):
+        if line.startswith('# frames '):
+            return int(line.split()[2])
+    return 0
 
 
 def checkpoints(frames, every):
@@ -261,12 +277,13 @@ def main():
     def one(name):
         script = os.path.join(TOP, 'tools/inputs', name + '.txt')
         tp = name == 'battle4'
-        frames = max(a.frames, FRAMES.get(name, 0))
+        frames = max(a.frames, script_frames(script))
         for which, rom in (('orig', orig), ('shift', shift)):
             run(rom, script, frames, a.every,
                 os.path.join(tmp, '%s-%s-' % (name, which)), tp)
+        limit = script_compare(script) or LIMITS.get(name)
         for f in checkpoints(frames, a.every):
-            if f > LIMITS.get(name, f):
+            if limit is not None and f > limit:
                 break
             png, bad = compare(tmp, name, f, amap)
             if not png or bad:

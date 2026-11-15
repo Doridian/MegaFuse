@@ -25,6 +25,7 @@ tools/trace_all.sh us        # headless runs of tools/inputs/, regenerates code/
 make VERSION=us shift-check  # SHIFT=1 build run against the matching one (tools/shift_check.py)
 tools/find_abs.py us         # what may still be a ROM address written as a number
 tools/vermap.py eu           # where each us address is in eu (eu takes us's names)
+tools/find_exits.py [STAGE]  # plans that take stages to their exit (tools/exits.json)
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`

@@ -99,13 +99,45 @@ def entries(rom, cov, d):
 
 def write_known(version, rom, cov, d):
     """code.VERSION.txt: the entries above that tracing from the vectors
-    doesn't reach; data.VERSION.txt: runs of bytes read as data below the
+    doesn't reach, and any start that ran the disassembly doesn't have; data.VERSION.txt: runs of bytes read as data below the
     code area's end; longs.VERSION.txt: longs read as longs that hold a
     ROM address.  Both from the trace alone, so they can be
     regenerated whenever more is traced."""
     plain = disasm.Disasm(rom)
     plain.trace_all()
-    code = [s for s in entries(rom, cov, d) if s not in plain.insns]
+    code = set(s for s in entries(rom, cov, d) if s not in plain.insns)
+    # and what ran that none of that reaches through what ran (falling
+    # through, branching, calling): code entered only from code that is
+    # still bytes, or by a loop into itself (0xEEE8, entered through a
+    # pointer stored there).  The first of each such stretch.
+    import m68k
+    succ = {}
+    for s in range(len(rom)):
+        if cov[s] & 1:
+            ins = m68k.decode(rom, s)
+            nx = []
+            if ins is not None:
+                if ins.flow not in ('jump', 'ret'):
+                    nx.append(s + ins.size)
+                if ins.target is not None:
+                    nx.append(ins.target)
+            succ[s] = nx
+    seen = set()
+    todo = [s for s in set(plain.insns) | code if s in succ]
+    while todo:
+        s = todo.pop()
+        if s in seen:
+            continue
+        seen.add(s)
+        todo += [t for t in succ[s] if t in succ]
+    left = set(succ) - seen
+    falls = set()
+    for s in left:
+        ins = m68k.decode(rom, s)
+        if ins is not None and ins.flow not in ('jump', 'ret'):
+            falls.add(s + ins.size)
+    code |= set(s for s in left if s not in falls)
+    code = sorted(code)
     with open(os.path.join(TOP, 'code.%s.txt' % version), 'w') as f:
         f.write('# instruction starts a runtime trace ran that nothing in '
                 'the code reaches\n# directly (tools/coverage.py --write; '

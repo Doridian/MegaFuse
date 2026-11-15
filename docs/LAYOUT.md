@@ -154,8 +154,8 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    data) are off limits to speculation. Both are regenerated from the
    traces (below), not edited.
 
-The result in us: 1,629 functions (counting entries only pointers name),
-110 KB of code, of which the traces ran 21,275 instructions (79%); every instruction that ran is in the
+The result in us: 1,634 functions (counting entries only pointers name),
+110 KB of code, of which the traces ran 22,138 instructions (82%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
 pointer tables, palettes, sine and step tables, text.
@@ -305,8 +305,27 @@ under the open gate, gives the player 0x7F hits, and takes the final boss
 through its three forms (the orbs, a hit on slot 7, energy 0 in
 `func_012CBC`), to the escape, the ending and the credits (`func_015FAE`'s
 script). Only numbers are written, never ROM addresses, so the SHIFT build
-runs it too (24000 frames, `FRAMES` in tools/shift_check.py). The
+runs it too. The
 continue and game-over screens come up in random play already.
+
+`exit-*`: every normal stage (not the bosses, not the final area) from
+its password to its exit, the bonus stage after it and the next stage's
+card. `tools/find_exits.py` worked the plans out by running the game a
+step at a time and reading work RAM between runs (`tools/exits.json`,
+which `tools/gen_inputs.py` turns into the scripts): Start on the screens
+that wait (the stage card takes it some 100 frames after it shows), then
+in each room energy 0 for object slots 1-19, and once the gate is open
+(`0x9540` bit 5) the player put next to it, on a cell made floor, walking
+in. The gate is either a task running `func_00C1F6` (its position at
+`+0xE`/`+0x10`; it checks the player with `func_0018C4` and starts the
+exit) or a door that `func_00C822` writes into the grid as 4 (into the
+next room; most stages have two to four). The grid: a position `(x, y)`
+is in the cell at `0xFF989C + row[y >> 4] + (x >> 4)`, the rows' offsets
+being the longs at `0xFFA31A` (`func_001652`), 16 or 32 bytes a row. The
+bonus stage sets `0x9540` bit 4. A script's `# frames N` line sets how
+long it runs, `# compare N` how far tools/shift_check.py compares it: an
+area's last stage goes on into the boss stage, whose palette cycle reads
+its colours from code (below).
 `tools/trace_all.sh <v>` runs them all (about half a
 minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
 `data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
@@ -314,4 +333,12 @@ alone reports how a trace and the disassembly disagree.
 `tools/sheet.py` tiles screenshots into one picture.
 
 There is no TAS of Mega Bomberman (TASVideos lists the us ROM, with no
-movies, submissions or user files), so the passwords stand in for one.
+movies, submissions or user files), so the passwords stand in for one. A
+2011 run on YouTube (20 fps, no input display, another emulator) shows
+the whole game but can't give its inputs back.
+
+`tools/coverage.py --write` lists in `code.<v>.txt` what tracing from the
+vectors doesn't reach, and also what ran that nothing that ran reaches
+from there (code entered only from code that is still bytes, or a loop
+into itself: `0xEEE8`); with that, every instruction that ran is in the
+disassembly.
