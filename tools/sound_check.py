@@ -36,6 +36,8 @@ import wave
 import numpy as np
 
 TOP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# the exact build (make exact; docs/PORT.md, "Rewriting")
+PORT = os.environ.get('MEGAFUSE', os.path.join(TOP, 'target/exact/release/megafuse'))
 # NTSC: 53693175 / (3420 * 262)
 FPS = 53693175 / (3420 * 262)
 BANDS = np.geomspace(60, 8000, 64)
@@ -110,7 +112,7 @@ def check(script, n, tmp, a):
     name = os.path.basename(script)[:-4] if script else 'none'
     port = os.path.join(tmp, name + '-port.wav')
     orig = os.path.join(tmp, name + '-orig.wav')
-    cmd = [os.path.join(TOP, 'target/release/megafuse'), 'baserom.us.bin',
+    cmd = [PORT, 'baserom.us.bin',
            '--frames', str(n), '--every', '0', '--wav', port]
     mt = ['nice', os.path.join(TOP, 'tools/mdtrace'), '--frames',
           str(n + a.window), '--wav', orig, 'baserom.us.bin']

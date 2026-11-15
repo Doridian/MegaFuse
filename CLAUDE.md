@@ -32,6 +32,8 @@ tools/sound_check.py [SCRIPT] # the same for the sound (uv, numpy)
 tools/timeline_check.py [SCRIPT] # the port's time against the original's, to the instruction
 tools/timing_check.py        # tools/recomp/timing.py against mdtrace --cycles
 make port                    # tools/recomp/translate.py: crates/game/src/translated
+make exact                   # the exact build the checks run (docs/PORT.md, "Rewriting")
+tools/routine_check.py ADDR --script FILE   # a (rewritten) routine against the original, call by call
 cargo run --release -p megafuse -- baserom.us.bin   # play (docs/PORT.md)
 tools/build-web.sh           # the browser build into web/ (docs/web.md)
 megafuse ROM --loopback 4 --input tools/inputs/battle4.txt --frames 20000  # netplay peers agree (docs/NETPLAY.md)

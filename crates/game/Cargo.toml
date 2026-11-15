@@ -6,5 +6,11 @@ edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
+[features]
+# The translation of the routines rewritten by hand in their place, with
+# the console's time: the build the checks against the original use
+# (docs/PORT.md, "Rewriting").
+exact = []
+
 [lints]
 workspace = true

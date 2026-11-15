@@ -48,7 +48,7 @@ TARGET    = $(BUILD_DIR)/$(BASENAME).$(VERSION)
 S_FILES  := $(wildcard asm/*.s)
 O_FILES  := $(patsubst asm/%.s,$(BUILD_DIR)/asm/%.o,$(S_FILES))
 
-.PHONY: all extract clean distclean setup test check shift-check port
+.PHONY: all extract clean distclean setup test check shift-check port exact
 .DEFAULT_GOAL := all
 
 all: check
@@ -121,6 +121,11 @@ test:
 # the game in Rust (docs/PORT.md): generated, like asm/
 port:
 	$(PYTHON) tools/recomp/translate.py
+
+# the exact build, which the checks against the original run
+# (target/exact/release/megafuse: docs/PORT.md, "Rewriting")
+exact:
+	cargo build --release -p megafuse --features exact --target-dir target/exact
 
 clean:
 	rm -rf asm build

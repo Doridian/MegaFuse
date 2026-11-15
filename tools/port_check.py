@@ -22,6 +22,8 @@ import tempfile
 import zlib
 
 TOP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# the exact build (make exact; docs/PORT.md, "Rewriting")
+PORT = os.environ.get('MEGAFUSE', os.path.join(TOP, 'target/exact/release/megafuse'))
 STACK = 0xFE00
 
 def read_png(path):
@@ -69,7 +71,7 @@ def ram_diff(a, b):
 
 
 def run(script, frames, out, extra_port, extra_orig):
-    port = [os.path.join(TOP, 'target/release/megafuse'), 'baserom.us.bin',
+    port = [PORT, 'baserom.us.bin',
             '--frames', str(frames), '--every', '0'] + extra_port
     orig = ['nice', os.path.join(TOP, 'tools/mdtrace'), '--frames',
             str(frames)] + extra_orig + ['baserom.us.bin']

@@ -45,6 +45,44 @@ feeds the game (pads) depends on the frame, not on how it got there.
 restores and runs them again: the same clock and RAM after each, on every
 script tried.
 
+## Rewriting
+
+Phase 4's second half: the translation rewritten as readable Rust,
+routine by routine (`crates/game/src/rewritten/`), as a port rather than
+an emulation: rewritten code has no console timing (no `insn`), only the
+game's logic. A rewritten routine keeps the translation's signature for
+now (its generated callers use it; tools/recomp writes the generated
+version to `translated/rewritten.txt`) and replaces it: tools/recomp
+gives the generated one `#[cfg(feature = "exact")]`.
+
+Two builds, then:
+
+- the port (`cargo build --release -p megafuse`): the rewrites. It no
+  longer keeps the console's time where they run, so it parts from the
+  original's frame-for-frame run once timing matters (the random numbers
+  take in the frame count): two look-ups rewritten, stage-1-1 is the same
+  to frame 464.
+- the exact build (`make exact`: `--features exact`, in
+  `target/exact/`): the translation everywhere, the console's time to the
+  cycle. tools/port_check.py, tools/timeline_check.py and
+  tools/sound_check.py run it (or `MEGAFUSE=path`): the hardware's model,
+  the sound and the translator stay held to the original.
+
+A rewrite is checked against the original call by call:
+`tools/routine_check.py ADDR --script ... --calls N` snapshots the
+original at the routine's entry and return (tools/mdtrace --snap) and runs
+the port's routine from each entry: the same RAM and the same registers
+and flags the callers read. Rewritten so far: `func_001CFA` and
+`func_0005F8` (a pointer from a table by an index; 200 calls each, the
+same).
+
+Next: the analysis keeps condition codes as results wherever a caller
+might test them (most of these helpers "return" all five), which a
+readable rewrite would have to compute for nothing; that gets tighter
+first, then the helpers go up their call trees with typed interfaces,
+and the waits for the vertical blank (and the polls of the Z80 and the
+VDP) become explicit, so the game is driven by frames.
+
 ## Translation
 
 `tools/recomp/` works on tools/disasm.py's analysis, in passes:

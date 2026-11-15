@@ -3,6 +3,10 @@
 //! is generated from the ROM (`make port`), this file is written by hand.
 
 mod ops;
+// the exact build (feature `exact`) runs the translation of the
+// rewritten routines too: the console's time to the cycle
+#[cfg(all(translated, not(feature = "exact")))]
+mod rewritten;
 #[cfg(translated)]
 mod translated;
 #[cfg(not(translated))]
