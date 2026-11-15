@@ -16,7 +16,7 @@ net = { path = "../net" }
 
 # The browser build (docs/web.md, tools/build-web.sh).
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = "=0.2.128"
+wasm-bindgen = "=0.2.130"
 
 [lints]
 workspace = true
