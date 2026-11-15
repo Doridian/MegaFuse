@@ -64,6 +64,12 @@ Drive hardware the game drives, the platform) are.
 - **Crashes.** The exception handlers (0x200-0x26A) read the exception's
   frame and show where it happened: in the port, a panic.
 
+- **Waiting.** Most of the game runs in the tasks, once a frame. Some code
+  waits in a loop: for the hardware (the Z80's bus, the VDP's DMA: done
+  at once in the port), for a raster line (the HV counter: a hook at that
+  line) or for a RAM flag the vertical interrupt sets (`0x805A` in the main
+  loop): there the game waits for the next frame.
+
 ## Bugs
 
 What the game does wrong that the port does right (the SHIFT build keeps
@@ -72,8 +78,3 @@ them, docs/LAYOUT.md "SHIFT"; the port's comparisons allow for them):
 - `func_00D652` returns with d0 still pushed when `func_001222` can't
   make the task it asks for (`0xD6DA`): the `rts` would jump to d0's
   value. The port returns.
-- **Waiting.** Most of the game runs in the tasks, once a frame. Some code
-  waits in a loop: for the hardware (the Z80's bus, the VDP's DMA: done
-  at once in the port), for a raster line (the HV counter: a hook at that
-  line) or for a RAM flag the vertical interrupt sets (`0x805A` in the main
-  loop): there the game waits for the next frame.
