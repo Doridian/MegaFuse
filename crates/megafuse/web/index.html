@@ -1,0 +1,107 @@
+<!doctype html>
+<!-- The browser build's page (docs/web.md). tools/build-web.sh copies it
+     into web/ beside megafuse.js and megafuse_bg.wasm. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MegaFuse</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; color: #eee; overflow: hidden;
+    font: 15px/1.4 system-ui, sans-serif; }
+  /* The game's window: the whole page; winit follows its size. */
+  canvas#megafuse { display: block; width: 100vw; height: 100vh; outline: none; touch-action: none; }
+  #setup { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #101830; }
+  #setup[hidden] { display: none; }
+  #setup form { max-width: 34em; margin: 16px; padding: 1.5em 2em; background: #1c2850;
+    border-radius: 8px; box-shadow: 0 4px 24px #0008; }
+  #setup h1 { margin: 0 0 .5em; font-size: 1.6em; }
+  #setup label { display: block; margin: 1em 0 .3em; font-weight: 600; }
+  #setup .note { color: #bcd; font-size: .9em; }
+  #start { margin-top: 1.3em; padding: .5em 2em; font-size: 1.1em; }
+  #status { position: fixed; left: 0; right: 0; bottom: 0; padding: .4em 1em; background: #000c;
+    white-space: pre-wrap; }
+  #status.error { background: #800c; }
+</style>
+</head>
+<body>
+<canvas id="megafuse" oncontextmenu="return false"></canvas>
+<div id="setup" hidden>
+  <form id="form">
+    <h1>MegaFuse</h1>
+    <p>Mega Bomberman (Hudson, 1994), from its 68000 code translated into Rust.</p>
+    <label for="rom">The game's ROM (Mega Bomberman, USA)</label>
+    <p id="kept" class="note" hidden>Kept from last time: <span id="kept-name"></span>. Pick another to replace it.</p>
+    <input type="file" id="rom" accept=".bin,.md,.gen">
+    <p class="note">The ROM stays in this browser and isn't sent anywhere.
+      Keys: arrows, Z X C (A B C), Enter (Start); W A S D, F G H, Tab for pad 2.</p>
+    <button id="start" type="submit" disabled>Start</button>
+  </form>
+</div>
+<div id="status" style="display:none"></div>
+<script type="module">
+  import init, { start } from "./megafuse.js";
+
+  // the ROM, kept in IndexedDB
+  function db() {
+    return new Promise((ok, fail) => {
+      const r = indexedDB.open("megafuse", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("files");
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => fail(r.error);
+    });
+  }
+  async function kept() {
+    try {
+      const d = await db();
+      return await new Promise((ok) => {
+        const r = d.transaction("files").objectStore("files").get("rom");
+        r.onsuccess = () => ok(r.result);
+        r.onerror = () => ok(undefined);
+      });
+    } catch (e) { return undefined; }
+  }
+  async function keep(name, bytes) {
+    try {
+      const d = await db();
+      d.transaction("files", "readwrite").objectStore("files").put({ name, bytes }, "rom");
+    } catch (e) {}
+  }
+
+  function fail(e) {
+    const s = document.getElementById("status");
+    s.textContent = String(e);
+    s.className = "error";
+    s.style.display = "";
+  }
+
+  init().then(async () => {
+    const setup = document.getElementById("setup");
+    const input = document.getElementById("rom");
+    const button = document.getElementById("start");
+    const old = await kept();
+    if (old) {
+      document.getElementById("kept").hidden = false;
+      document.getElementById("kept-name").textContent = old.name;
+      button.disabled = false;
+    }
+    input.onchange = () => { button.disabled = !input.files.length && !old; };
+    setup.hidden = false;
+    document.getElementById("form").onsubmit = async (ev) => {
+      ev.preventDefault();
+      let bytes = old && old.bytes;
+      if (input.files.length) {
+        const f = input.files[0];
+        bytes = new Uint8Array(await f.arrayBuffer());
+        await keep(f.name, bytes);
+      }
+      setup.hidden = true;
+      document.getElementById("megafuse").focus();
+      start(bytes);
+    };
+  }).catch(fail);
+</script>
+</body>
+</html>

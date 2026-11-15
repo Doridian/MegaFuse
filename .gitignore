@@ -18,3 +18,4 @@ tools/mdtrace
 # the port's translated code (tools/recomp/translate.py, from the ROM)
 /crates/game/src/translated/
 /target/
+/web/

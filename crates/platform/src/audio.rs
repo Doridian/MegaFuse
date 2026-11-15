@@ -39,7 +39,28 @@ impl Queue {
 pub struct Audio {
     queue: Option<Arc<Mutex<Queue>>>,
     #[cfg(feature = "audio-device")]
-    _stream: Option<cpal::Stream>,
+    _stream: Option<Arc<cpal::Stream>>,
+}
+
+// The browser's streams, for [`resume`].
+#[cfg(all(feature = "audio-device", target_arch = "wasm32"))]
+thread_local! {
+    static STREAMS: std::cell::RefCell<Vec<std::sync::Weak<cpal::Stream>>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Starts the sound after the player pressed a key: a browser keeps a
+/// page's `AudioContext` suspended until then, and the stream asks for
+/// it to run when it plays.  Natively it does nothing.
+pub fn resume() {
+    #[cfg(all(feature = "audio-device", target_arch = "wasm32"))]
+    STREAMS.with(|s| {
+        use cpal::traits::StreamTrait;
+        s.borrow_mut().retain(|w| {
+            let Some(st) = w.upgrade() else { return false };
+            let _ = st.play();
+            true
+        });
+    });
 }
 
 impl Audio {
@@ -49,7 +70,12 @@ impl Audio {
     pub fn new(rate: u32) -> Self {
         #[cfg(feature = "audio-device")]
         match open(rate) {
-            Ok((queue, stream)) => return Audio { queue: Some(queue), _stream: Some(stream) },
+            Ok((queue, stream)) => {
+                let stream = Arc::new(stream);
+                #[cfg(target_arch = "wasm32")]
+                STREAMS.with(|s| s.borrow_mut().push(Arc::downgrade(&stream)));
+                return Audio { queue: Some(queue), _stream: Some(stream) };
+            }
             Err(e) => eprintln!("no sound: {e}"),
         }
         Audio {

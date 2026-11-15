@@ -17,8 +17,13 @@
 //! snapshot restored and the same steps run again: the clock and RAM
 //! after each have to be the same (Game::save, Game::restore).
 
+#![cfg_attr(target_arch = "wasm32", allow(dead_code, unused_imports))]
+
+#[cfg(not(target_arch = "wasm32"))]
 mod netplay;
 mod png;
+#[cfg(target_arch = "wasm32")]
+mod web;
 mod window;
 
 use md::{Frontend, Md, button};
@@ -243,6 +248,13 @@ fn routine(args: &[String]) {
     println!("{}", game::Game::routine_outputs(entry).join(" "));
 }
 
+/// In the browser: the page calls `start` with the ROM (web.rs).
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    web::main();
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--routine") {

@@ -9,8 +9,14 @@ publish.workspace = true
 [dependencies]
 game = { path = "../game" }
 md = { path = "../md" }
-net = { path = "../net" }
 platform = { path = "../platform" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+net = { path = "../net" }
+
+# The browser build (docs/web.md, tools/build-web.sh).
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.128"
 
 [lints]
 workspace = true

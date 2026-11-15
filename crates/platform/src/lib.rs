@@ -1,82 +1,113 @@
-//! MegaFuse's platform: a window that shows the picture the game makes
-//! (wgpu, scaled by a whole number), the keys held down, and the sound
-//! (`audio`, cpal).  The game runs on a thread of its own (it never
-//! returns: frames pass as it runs) and meets the window through
-//! [`Shared`]: it puts each frame's picture there and reads the keys.
+//! MegaFuse's platform: a window that shows the picture an [`App`] makes
+//! (wgpu, scaled by a whole number), the keys, and the sound (`audio`,
+//! cpal), natively and in the browser (wasm32: the page's canvas, WebGPU
+//! or WebGL2, WebAudio).  The window calls [`App::update`] as often as it
+//! can; the app keeps its own time and says what to show.
 
 pub mod audio;
 mod display;
+#[cfg(target_arch = "wasm32")]
+pub mod web;
 
-use std::collections::HashSet;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, PoisonError};
+use std::sync::Arc;
 
 use winit::application::ApplicationHandler;
-use winit::dpi::LogicalSize;
 use winit::event::{ElementState, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
 use winit::keyboard::PhysicalKey;
 use winit::window::{Fullscreen, Window, WindowId};
 
 pub use display::Error;
+pub use web_time::{Duration, Instant};
 pub use winit::keyboard::KeyCode;
 
-/// A frame's picture: RGBA, `width` x `height`; `serial` counts frames.
-#[derive(Default)]
-pub struct Picture {
-    pub rgba: Vec<u8>,
+/// A picture: RGBA, `width` x `height`.
+pub struct Picture<'a> {
+    pub rgba: &'a [u8],
     pub width: u32,
     pub height: u32,
-    pub serial: u64,
 }
 
-/// What the game thread and the window share.
-#[derive(Default)]
-pub struct Shared {
-    pub picture: Mutex<Picture>,
-    /// The keys held down.
-    pub keys: Mutex<HashSet<KeyCode>>,
-    /// The window was closed (the game stops), or the game ended.
-    pub quit: AtomicBool,
-}
-
-impl Shared {
-    #[must_use]
-    pub fn held(&self, key: KeyCode) -> bool {
-        self.keys.lock().unwrap_or_else(PoisonError::into_inner).contains(&key)
+/// What runs in the window.
+pub trait App {
+    /// Time passes (the app looks at the clock itself); returns when it
+    /// next wants to be called.
+    fn update(&mut self) -> Instant;
+    /// What to show now, and a number that changes when it does.
+    fn picture(&self) -> Option<(Picture<'_>, u64)>;
+    /// A key went down or up.
+    fn key(&mut self, code: KeyCode, down: bool);
+    /// The window lost the focus (keys held then count as let go).
+    fn unfocused(&mut self) {}
+    /// Done: the window closes.
+    fn finished(&self) -> bool {
+        false
     }
 }
 
-struct App {
+struct Runner<A: App> {
+    app: A,
     title: String,
+    /// The window's size natively (the page sizes the browser's).
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     size: (u32, u32),
-    shared: Arc<Shared>,
     window: Option<Arc<Window>>,
     display: Option<display::Display>,
+    /// In the browser, the display while the GPU is being set up.
+    #[cfg(target_arch = "wasm32")]
+    pending: Option<display::Pending>,
     error: Option<Error>,
-    shown: u64,
+    shown: Option<u64>,
 }
 
-impl App {
+impl<A: App> Runner<A> {
     fn fail(&mut self, event_loop: &ActiveEventLoop, e: Error) {
+        #[cfg(target_arch = "wasm32")]
+        web::show_error(&e.to_string());
         self.error = Some(e);
-        self.shared.quit.store(true, Ordering::Relaxed);
         event_loop.exit();
+    }
+
+    /// In the browser: the display, once the GPU is there.
+    #[cfg(target_arch = "wasm32")]
+    fn take_display(&mut self, event_loop: &ActiveEventLoop) {
+        let Some(slot) = &self.pending else { return };
+        let Some(result) = slot.borrow_mut().take() else { return };
+        self.pending = None;
+        match result {
+            Ok(d) => self.display = Some(d),
+            Err(e) => self.fail(event_loop, e),
+        }
     }
 }
 
-impl ApplicationHandler for App {
+impl<A: App> ApplicationHandler for Runner<A> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.window.is_some() {
             return;
         }
-        let attrs = Window::default_attributes()
-            .with_title(self.title.clone())
-            .with_inner_size(LogicalSize::new(self.size.0, self.size.1));
+        let attrs = Window::default_attributes().with_title(self.title.clone());
+        // natively a window of this size; in the browser the canvas is as
+        // big as the page makes it
+        #[cfg(not(target_arch = "wasm32"))]
+        let attrs = attrs.with_inner_size(winit::dpi::LogicalSize::new(self.size.0, self.size.1));
+        #[cfg(target_arch = "wasm32")]
+        let attrs = {
+            use winit::platform::web::WindowAttributesExtWebSys;
+            let canvas = web::canvas();
+            let append = canvas.is_none();
+            attrs.with_canvas(canvas).with_append(append).with_prevent_default(true).with_focusable(true)
+        };
         let window = match event_loop.create_window(attrs) {
             Ok(w) => Arc::new(w),
             Err(e) => return self.fail(event_loop, Error::Window(e.to_string())),
         };
+        #[cfg(target_arch = "wasm32")]
+        {
+            window.focus_window();
+            self.pending = Some(display::Display::start(event_loop, Arc::clone(&window)));
+        }
+        #[cfg(not(target_arch = "wasm32"))]
         match display::Display::new(event_loop, Arc::clone(&window)) {
             Ok(d) => self.display = Some(d),
             Err(e) => return self.fail(event_loop, e),
@@ -85,17 +116,18 @@ impl ApplicationHandler for App {
     }
 
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _: WindowId, event: WindowEvent) {
+        #[cfg(target_arch = "wasm32")]
+        self.take_display(event_loop);
         match event {
-            WindowEvent::CloseRequested => {
-                self.shared.quit.store(true, Ordering::Relaxed);
-                event_loop.exit();
-            }
+            WindowEvent::CloseRequested => event_loop.exit(),
             WindowEvent::Resized(size) => {
                 if let Some(d) = &mut self.display {
                     d.resize(size);
                 }
             }
             WindowEvent::KeyboardInput { event, .. } => {
+                // a key press lets the browser's sound start
+                audio::resume();
                 let PhysicalKey::Code(code) = event.physical_key else { return };
                 let down = event.state == ElementState::Pressed;
                 if down
@@ -106,26 +138,16 @@ impl ApplicationHandler for App {
                     let full = w.fullscreen().is_some();
                     w.set_fullscreen(if full { None } else { Some(Fullscreen::Borderless(None)) });
                 }
-                let mut keys = self.shared.keys.lock().unwrap_or_else(PoisonError::into_inner);
-                if down {
-                    keys.insert(code);
-                } else {
-                    keys.remove(&code);
+                if !event.repeat {
+                    self.app.key(code, down);
                 }
             }
-            WindowEvent::Focused(false) => {
-                // keys let go while the window was away don't stay held
-                self.shared.keys.lock().unwrap_or_else(PoisonError::into_inner).clear();
-            }
+            WindowEvent::Focused(false) => self.app.unfocused(),
             WindowEvent::RedrawRequested => {
                 let Some(d) = &mut self.display else { return };
-                let p = self.shared.picture.lock().unwrap_or_else(PoisonError::into_inner);
-                if p.width == 0 {
-                    return;
-                }
-                self.shown = p.serial;
-                if let Err(e) = d.draw(&p.rgba, p.width, p.height) {
-                    drop(p);
+                let Some((p, serial)) = self.app.picture() else { return };
+                self.shown = Some(serial);
+                if let Err(e) = d.draw(p.rgba, p.width, p.height) {
                     self.fail(event_loop, e);
                 }
             }
@@ -134,38 +156,51 @@ impl ApplicationHandler for App {
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
-        if self.shared.quit.load(Ordering::Relaxed) {
+        #[cfg(target_arch = "wasm32")]
+        self.take_display(event_loop);
+        if self.app.finished() {
             event_loop.exit();
             return;
         }
-        // draw each new frame (the present waits for the screen)
-        let serial = self.shared.picture.lock().unwrap_or_else(PoisonError::into_inner).serial;
+        let next = self.app.update();
+        let serial = self.app.picture().map(|(_, s)| s);
         if let Some(w) = &self.window
             && serial != self.shown
         {
             w.request_redraw();
         }
-        event_loop.set_control_flow(ControlFlow::WaitUntil(
-            std::time::Instant::now() + std::time::Duration::from_millis(4),
-        ));
+        event_loop.set_control_flow(ControlFlow::WaitUntil(next));
     }
 }
 
-/// The window, until it is closed or the game ends (`shared.quit`).
+/// The window, until it is closed or the app is done.  In the browser it
+/// returns at once and the page's events run it.
 ///
 /// # Errors
 /// The window or the GPU couldn't be had.
-pub fn run(title: &str, size: (u32, u32), shared: Arc<Shared>) -> Result<(), Error> {
+pub fn run<A: App + 'static>(title: &str, size: (u32, u32), app: A) -> Result<(), Error> {
     let event_loop = EventLoop::new().map_err(|e| Error::Window(e.to_string()))?;
-    let mut app = App {
+    let runner = Runner {
+        app,
         title: title.to_string(),
         size,
-        shared,
         window: None,
         display: None,
+        #[cfg(target_arch = "wasm32")]
+        pending: None,
         error: None,
-        shown: 0,
+        shown: None,
     };
-    event_loop.run_app(&mut app).map_err(|e| Error::Window(e.to_string()))?;
-    app.error.map_or(Ok(()), Err)
+    #[cfg(target_arch = "wasm32")]
+    {
+        use winit::platform::web::EventLoopExtWebSys;
+        event_loop.spawn_app(runner);
+        Ok(())
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let mut runner = runner;
+        event_loop.run_app(&mut runner).map_err(|e| Error::Window(e.to_string()))?;
+        runner.error.map_or(Ok(()), Err)
+    }
 }
