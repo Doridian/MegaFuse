@@ -5,7 +5,9 @@
 //! compared with the original running in Genesis Plus GX
 //! (tools/port_check.py, tools/timeline_check.py).
 //!
-//!   megafuse ROM
+//!   megafuse ROM [--host ROOM [--players N] [--delay D] | --join ROOM]
+//!                [--signal ws://HOST:3536]
+//!   megafuse ROM --loopback N --input FILE --frames N
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
 //!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
 //!                [--timeline FILE] [--ztimeline FILE] [--timeline-at F]
@@ -15,6 +17,7 @@
 //! snapshot restored and the same steps run again: the clock and RAM
 //! after each have to be the same (Game::save, Game::restore).
 
+mod netplay;
 mod png;
 mod window;
 
@@ -253,6 +256,11 @@ fn main() {
     let mut ztimeline = None;
     let mut headless = false;
     let mut restore_check = false;
+    let mut join: Option<netplay::Join> = None;
+    let mut players = 2;
+    let mut delay = netplay::DELAY;
+    let mut signal = "ws://localhost:3536".to_owned();
+    let mut loopback = None;
     let mut h = Headless {
         script: Script { pads: BTreeMap::new(), pokes: BTreeMap::new() },
         frames: 3600,
@@ -288,6 +296,14 @@ fn main() {
             "--ztimeline" => ztimeline = Some(next(&mut i)),
             "--vram" => h.vram_prefix = Some(next(&mut i)),
             "--restore-check" => restore_check = true,
+            "--host" | "--join" => {
+                let host = a == "--host";
+                join = Some(netplay::Join { room: next(&mut i), host, players: 2, delay: 0, signal: String::new() });
+            }
+            "--players" => players = next(&mut i).parse().unwrap_or(2),
+            "--delay" => delay = next(&mut i).parse().unwrap_or(netplay::DELAY),
+            "--signal" => signal = next(&mut i),
+            "--loopback" => loopback = next(&mut i).parse::<usize>().ok(),
             "--hashes" => {
                 let p = next(&mut i);
                 let f = std::fs::File::create(&p).unwrap_or_else(|e| {
@@ -308,8 +324,21 @@ fn main() {
         eprintln!("{rom_path}: {e}");
         std::process::exit(1)
     });
+    if let Some(j) = &mut join {
+        j.players = players;
+        j.delay = delay;
+        j.signal.clone_from(&signal);
+    }
+    if let Some(n) = loopback {
+        let text = input.as_ref().and_then(|p| std::fs::read_to_string(p).ok()).unwrap_or_default();
+        netplay::loopback(rom, parse_script(&text).pads, n.clamp(2, 4), h.frames);
+    }
     if !headless {
-        window::play(rom);
+        window::play(rom, join);
+    }
+    if let Some(j) = &join {
+        let text = input.as_ref().and_then(|p| std::fs::read_to_string(p).ok()).unwrap_or_default();
+        netplay::headless(rom, j, parse_script(&text).pads, h.frames);
     }
     if let Some(p) = input {
         let text = std::fs::read_to_string(&p).unwrap_or_default();

@@ -33,16 +33,19 @@ pub struct Windowed {
     audio: Audio,
     /// When the next frame is due.
     due: Option<Instant>,
+    /// In a network game: the pads come from the session (this keyboard's
+    /// first pad is this peer's).
+    net: Option<crate::netplay::Pads>,
 }
 
 impl Windowed {
     pub fn new(shared: Arc<Shared>) -> Self {
-        Windowed { shared, audio: Audio::new(md::sound::SAMPLE_RATE), due: None }
+        Windowed { shared, audio: Audio::new(md::sound::SAMPLE_RATE), due: None, net: None }
     }
 }
 
 impl Frontend for Windowed {
-    fn frame(&mut self, _: u64, picture: &[u32], width: usize, height: usize, _: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
+    fn frame(&mut self, frame: u64, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
         if self.shared.quit.load(Ordering::Relaxed) {
             std::process::exit(0);
         }
@@ -61,6 +64,16 @@ impl Frontend for Windowed {
         for (pad, keys) in pads.iter_mut().zip(KEYS) {
             *pad = keys.iter().zip(BUTTONS).filter(|&(&k, _)| self.shared.held(k)).fold(0, |m, (_, b)| m | b);
         }
+        if let Some(net) = &mut self.net {
+            match net(frame, pads[0], ram) {
+                Ok(p) => *pads = p,
+                Err(e) => {
+                    eprintln!("{e}");
+                    self.shared.quit.store(true, Ordering::Relaxed);
+                    std::process::exit(1);
+                }
+            }
+        }
         // the console's pace: a frame every 16.69 ms (a late frame isn't
         // made up for long)
         let now = Instant::now();
@@ -76,12 +89,31 @@ impl Frontend for Windowed {
     }
 }
 
-/// The game on a thread of its own, the window on this one.
-pub fn play(rom: Vec<u8>) -> ! {
+/// The game on a thread of its own, the window on this one; in a network
+/// game, once the players are there.
+pub fn play(rom: Vec<u8>, join: Option<crate::netplay::Join>) -> ! {
     let shared = Arc::new(Shared::default());
-    let frontend = Windowed::new(Arc::clone(&shared));
+    let mut frontend = Windowed::new(Arc::clone(&shared));
+    let quit = Arc::clone(&shared);
     std::thread::spawn(move || {
-        let md = md::Md::new(rom.clone(), Box::new(frontend));
+        let mut multitap = false;
+        if let Some(j) = &join {
+            match crate::netplay::connect(j, &rom) {
+                Ok((pads, _, players)) => {
+                    frontend.net = Some(pads);
+                    multitap = players > 2;
+                }
+                Err(e) => {
+                    eprintln!("{e}");
+                    quit.quit.store(true, Ordering::Relaxed);
+                    return;
+                }
+            }
+        }
+        let mut md = md::Md::new(rom.clone(), Box::new(frontend));
+        if multitap {
+            md.plug_teamplayer();
+        }
         let mut game = game::Game::new(rom, Box::new(md));
         game.run();
     });

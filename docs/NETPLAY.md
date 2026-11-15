@@ -62,6 +62,32 @@ From B64's list, adapted:
 6. **A state hash across hosts.** The hash covers the snapshot's bytes.
    A replay test runs native and wasm and compares hashes every frame.
 
+## Where it is
+
+Lockstep works (`crates/net`, `crates/server`, `megafuse --host` and
+`--join`): the transport, the matchbox transport and the signalling
+server are VacationDestination's; the session is this port's own. Each
+peer sends its pad `delay` frames ahead (3 by default) to the host, the
+star's middle, which sends each frame's four pads to everyone, itself
+included; a frame runs on a peer only with them, so the games are the
+same everywhere. Every 60 frames the clients' RAM hashes go to the host,
+which compares them with its own. With three or four players every peer
+has the Team Player plugged in.
+
+    megafuse-server [--listen=0.0.0.0:3536]
+    megafuse ROM --host ROOM [--players N] [--delay D] [--signal ws://HOST:3536]
+    megafuse ROM --join ROOM [--signal ws://HOST:3536]
+
+`megafuse ROM --loopback N --input SCRIPT --frames F` is the loopback
+harness: N peers in one process over the in-memory transport, each
+playing its pad of the script: 4 peers (Team Player) agree through 20000
+frames of battle4, 2 through 30000 of battle. With `--frames` and
+`--input`, `--host`/`--join` run headless too (two peers over WebRTC on
+one machine agree).
+
+Not yet: rollback (the snapshots are there, `Game::save`), joining a game
+under way, the browser build.
+
 ## Phases
 
 1. **Input plumbing.** Four pads from local devices, a replay file or the

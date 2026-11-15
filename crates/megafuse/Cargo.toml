@@ -9,6 +9,7 @@ publish.workspace = true
 [dependencies]
 game = { path = "../game" }
 md = { path = "../md" }
+net = { path = "../net" }
 platform = { path = "../platform" }
 
 [lints]

@@ -21,7 +21,8 @@ the arrows, Z X C (A B C) and Enter (Start) are pad 1, W A S D, F G H and
 Tab pad 2; F11 for full screen. The translated game runs on a thread of
 its own (it never returns; frames pass as it runs) at the console's pace,
 a frame every 16.69 ms, and hands the window each picture and its sound.
-Headless (`--frames N`) it runs some 1100 frames a second.
+Headless (`--frames N`) it runs some 1100 frames a second. Over the
+network: docs/NETPLAY.md (`--host ROOM`, `--join ROOM`).
 
 ## A step
 

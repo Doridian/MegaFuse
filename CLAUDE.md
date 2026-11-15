@@ -33,6 +33,7 @@ tools/timeline_check.py [SCRIPT] # the port's time against the original's, to th
 tools/timing_check.py        # tools/recomp/timing.py against mdtrace --cycles
 make port                    # tools/recomp/translate.py: crates/game/src/translated
 cargo run --release -p megafuse -- baserom.us.bin   # play (docs/PORT.md)
+megafuse ROM --loopback 4 --input tools/inputs/battle4.txt --frames 20000  # netplay peers agree (docs/NETPLAY.md)
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`
