@@ -48,7 +48,7 @@ TARGET    = $(BUILD_DIR)/$(BASENAME).$(VERSION)
 S_FILES  := $(wildcard asm/*.s)
 O_FILES  := $(patsubst asm/%.s,$(BUILD_DIR)/asm/%.o,$(S_FILES))
 
-.PHONY: all extract clean distclean setup test check shift-check
+.PHONY: all extract clean distclean setup test check shift-check port
 .DEFAULT_GOAL := all
 
 all: check
@@ -117,6 +117,10 @@ $(TARGET).bin: $(TARGET).elf
 
 test:
 	$(PYTHON) tools/test_m68k.py --as $(AS)
+
+# the game in Rust (docs/PORT.md): generated, like asm/
+port:
+	$(PYTHON) tools/recomp/translate.py
 
 clean:
 	rm -rf asm build

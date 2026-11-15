@@ -1,103 +1,221 @@
-"""How long each instruction takes, in 68000 cycles, near enough
-(tools/recomp; docs/PORT.md "Time").
+"""How long each instruction takes, in 68000 cycles (tools/recomp;
+docs/PORT.md "Time").
 
-The port lets time pass a basic block at a time (`self.tick(N)`): the
-VDP draws its lines and the interrupts come as they would, so code that
-runs for several frames without waiting (decompression, loading) lets the
-vertical interrupt in as on the console.  The figures follow the 68000's
-timing tables in outline: 4 cycles a bus access (the opcode word, each
-extension word, each word of an operand read or written) and the extra
-the ALU, shifts, multiplication and division take.
+The 68000's timing tables (the M68000 user manual, section 8), as Genesis
+Plus GX's 68000 counts them, which tools/timing_check.py holds this to.
+An instruction's time comes in up to three parts, in the order the
+console spends them:
+
+- `pre`: before a long instruction checks the bus refresh (MOVEM's
+  registers);
+- `dyn`: what depends on the data, worked out as it runs (a branch taken
+  or not, a shift by a register, MULU/MULS/DIVU/DIVS, a bit above 15,
+  Scc true);
+- `base`: the rest, spent last.
+
+`skip`: the instruction is long enough that a bus refresh due during it
+is skipped (a shift by a register, MOVEM.L, DIVU/DIVS).
 """
 
-EA_WORDS = {'dn': 0, 'an': 0, 'ind': 0, 'postinc': 0, 'predec': 0,
-            'disp': 1, 'index': 1, 'absw': 1, 'absl': 2, 'pcdisp': 1,
-            'pcindex': 1, 'imm': 1, 'quick': 0, 'label': 0, 'reglist': 1,
-            'sr': 0, 'ccr': 0, 'usp': 0}
-EXTRA = {'predec': 2, 'index': 2, 'pcindex': 2}
+# effective-address time (calculation and read): byte/word, long
+EA = {'dn': (0, 0), 'an': (0, 0), 'ind': (4, 8), 'postinc': (4, 8),
+      'predec': (6, 10), 'disp': (8, 12), 'index': (10, 14),
+      'absw': (8, 12), 'absl': (12, 16), 'pcdisp': (8, 12),
+      'pcindex': (10, 14), 'imm': (4, 8)}
+# MOVE's destination: byte/word, long
+MOVE_DST = {'dn': (0, 0), 'an': (0, 0), 'ind': (4, 8), 'postinc': (4, 8),
+            'predec': (4, 8), 'disp': (8, 12), 'index': (10, 14),
+            'absw': (8, 12), 'absl': (12, 16)}
+# JMP, JSR, LEA, PEA by addressing mode
+JMP = {'ind': 8, 'disp': 10, 'index': 14, 'absw': 10, 'absl': 12,
+       'pcdisp': 10, 'pcindex': 14}
+LEA = {'ind': 4, 'disp': 8, 'index': 12, 'absw': 8, 'absl': 12,
+       'pcdisp': 8, 'pcindex': 12}
+# MOVEM's fixed part: memory to registers, registers to memory
+MOVEM_R = {'ind': 12, 'postinc': 12, 'disp': 16, 'index': 18, 'absw': 16,
+           'absl': 20, 'pcdisp': 16, 'pcindex': 18}
+MOVEM_W = {'ind': 8, 'predec': 8, 'disp': 12, 'index': 14, 'absw': 12,
+           'absl': 16}
+SHIFTS = ('asl', 'asr', 'lsl', 'lsr', 'rol', 'ror', 'roxl', 'roxr')
+COND = ('t', 'f', 'hi', 'ls', 'cc', 'cs', 'ne', 'eq', 'vc', 'vs', 'pl', 'mi',
+        'ge', 'lt', 'gt', 'le', 'hs', 'lo', 'ra')
 
 
-def operand_cycles(o, size, read=True):
-    """Bus cycles to read (or write) operand o at size ('b'/'w'/'l')."""
-    k = o.kind
-    words = EA_WORDS.get(k, 0)
-    if k == 'imm':
-        words = 2 if size == 'l' else 1
-        return 4 * words
-    t = 4 * words + EXTRA.get(k, 0)
-    if k in ('ind', 'postinc', 'predec', 'disp', 'index', 'absw', 'absl',
-             'pcdisp', 'pcindex'):
-        t += 8 if size == 'l' else 4
-    return t
+class Cost:
+    __slots__ = ('base', 'pre', 'dyn', 'skip')
+
+    def __init__(self, base, pre=0, dyn=None, skip=False):
+        self.base, self.pre, self.dyn, self.skip = base, pre, dyn, skip
+
+    def __repr__(self):
+        return 'Cost(%d, pre=%d, dyn=%r, skip=%r)' % (
+            self.base, self.pre, self.dyn, self.skip)
 
 
-def cycles(i):
+def ea(o, size):
+    t = EA.get(o.kind, (0, 0))
+    return t[1] if size == 'l' else t[0]
+
+
+def reg(o):
+    return o.kind in ('dn', 'an')
+
+
+def cost(i):
     mn = i.mn
     base, _, size = mn.partition('.')
     size = size or 'w'
     ops = i.ops
-    t = 4                               # the opcode
-    if base in ('bra', 'bsr') or (base[0] == 'b' and len(ops) == 1 and
-                                  ops[0].kind == 'label'):
-        return 10 + (8 if base == 'bsr' else 0)
-    if base.startswith('db'):
-        return 10                        # taken (the loop goes on)
-    if base in ('jsr', 'jmp'):
-        return {'absw': 10, 'absl': 12, 'ind': 8}.get(ops[0].kind, 14) + \
-            (8 if base == 'jsr' else 0)
-    if base in ('rts', 'rte'):
-        return 16 if base == 'rts' else 20
+    k = [o.kind for o in ops]
+    long = size == 'l'
+
+    # flow
+    if base in ('bra', 'bsr') and len(ops) == 1:
+        return Cost(18 if base == 'bsr' else 10)
+    if base[0] == 'b' and base[1:] in COND and len(ops) == 1:
+        # not taken: 8 short, 12 word; taken 10
+        return Cost(8 if size == 's' else 10,
+                    dyn='bcc.s' if size == 's' else 'bcc.w')
+    if base.startswith('db') and base[2:] in COND:
+        # looping 10, condition true 12, count run out 14
+        return Cost(10, dyn='dbcc')
+    if base == 'jmp':
+        return Cost(JMP[k[0]])
+    if base == 'jsr':
+        return Cost(JMP[k[0]] + 8)
+    if base == 'rts':
+        return Cost(16)
+    if base in ('rte', 'rtr'):
+        return Cost(20)
+    if base == 'lea':
+        return Cost(LEA[k[0]])
+    if base == 'pea':
+        return Cost(LEA[k[0]] + 8)
+    if base == 'link':
+        return Cost(16)
+    if base == 'unlk':
+        return Cost(12)
+    if base in ('swap', 'ext', 'nop', 'moveq', 'illegal'):
+        return Cost(4)
+    if base == 'exg':
+        return Cost(6)
+    if base == 'trap':
+        return Cost(34)
+    if base == 'reset':
+        return Cost(132)
+    if base == 'stop':
+        return Cost(4)
+
+    # status register
+    if base in ('andi', 'ori', 'eori') and k[1] in ('sr', 'ccr'):
+        return Cost(20)
+    if base == 'move' and k[0] == 'sr':
+        return Cost(6 if reg(ops[1]) else 8 + ea(ops[1], 'w'))
+    if base == 'move' and k[1] in ('sr', 'ccr'):
+        return Cost(12 + ea(ops[0], 'w'))
+    if base == 'move' and 'usp' in k:
+        return Cost(4)
+
     if base == 'movem':
-        n = bin((ops[0] if ops[0].kind == 'reglist' else ops[1]).val).count(
-            '1')
-        mem = ops[1] if ops[0].kind == 'reglist' else ops[0]
-        return 12 + n * (8 if size == 'l' else 4) + \
-            4 * EA_WORDS.get(mem.kind, 0)
-    if base == 'mulu':
-        return 54 + operand_cycles(ops[0], 'w')
-    if base == 'divu':
-        return 120 + operand_cycles(ops[0], 'w')
-    if base in ('asl', 'asr', 'lsl', 'lsr', 'rol', 'ror', 'roxl', 'roxr'):
-        if len(ops) == 1:
-            return 8 + operand_cycles(ops[0], 'w') * 2
-        n = ops[0].val if ops[0].kind in ('quick', 'imm') else 4
-        return (8 if size == 'l' else 6) + 2 * (n or 8)
-    if base in ('lea', 'pea'):
-        return 4 + 4 * EA_WORDS.get(ops[0].kind, 0) + (8 if base == 'pea'
-                                                      else 0)
-    if base in ('link', 'unlk'):
-        return 16 if base == 'link' else 12
-    if base in ('swap', 'ext', 'exg', 'nop', 'moveq'):
-        return 4 if base != 'exg' else 6
-    # the rest: read the source, read (and write) the destination
-    if not ops:
-        return t
-    src = ops[0]
-    t += operand_cycles(src, size)
-    if len(ops) > 1:
-        dst = ops[1]
-        if dst.kind not in ('dn', 'an', 'sr', 'ccr', 'usp'):
-            write = operand_cycles(dst, size)
-            # a read-modify-write reads it too, but move and clr
-            if base not in ('move', 'movea', 'clr'):
-                write += 8 if size == 'l' else 4
-            t += write
-        elif size == 'l' and base not in ('move', 'movea', 'moveq'):
-            t += 4
-    elif base in ('clr', 'tst', 'neg', 'not', 'scc') or base[0] == 's':
-        if src.kind not in ('dn', 'an'):
-            t += 4                       # written back
-    if base in ('btst', 'bset', 'bclr', 'bchg'):
-        # a bit test reads its operand (8 + the address), a change reads
-        # and writes it (12 +); on a register 6-10
-        dst = ops[1]
-        imm = ops[0].kind == 'imm'
-        if dst.kind == 'dn':
-            return (10 if imm else 6) + (2 if base != 'btst' else 0)
-        ea = 4 * EA_WORDS.get(dst.kind, 0) + EXTRA.get(dst.kind, 0)
-        return (8 if base == 'btst' else 12) + (4 if imm else 0) + ea
-    if base == 'clr' and src.kind not in ('dn', 'an'):
-        t += 4                           # the 68000 reads before clearing
-    if base in ('addq', 'subq') and len(ops) > 1 and ops[1].kind == 'an':
-        t = 8
-    return t
+        regs, mem = (ops[0], ops[1]) if k[0] == 'reglist' else (ops[1],
+                                                                 ops[0])
+        n = bin(regs.val).count('1')
+        fixed = (MOVEM_W if k[0] == 'reglist' else MOVEM_R)[mem.kind]
+        return Cost(fixed, pre=n * (8 if long else 4), skip=long)
+
+    if base in ('move', 'movea'):
+        s = ea(ops[0], size)
+        d = MOVE_DST[k[1]][1 if long else 0]
+        return Cost(4 + s + d)
+
+    if base in ('mulu', 'muls'):
+        return Cost(ea(ops[0], 'w'), dyn=base)
+    if base in ('divu', 'divs'):
+        return Cost(ea(ops[0], 'w'), dyn=base, skip=True)
+
+    if base in SHIFTS:
+        if len(ops) == 1:                # memory, by one
+            return Cost(8 + ea(ops[0], 'w'))
+        fixed = 8 if long else 6
+        if k[0] == 'dn':                 # by a register's count
+            return Cost(fixed, dyn='shift', skip=True)
+        return Cost(fixed + 2 * (ops[0].val or 8))
+
+    if base in ('btst', 'bchg', 'bclr', 'bset'):
+        imm = k[0] == 'imm'
+        if k[1] == 'dn':
+            t = {'btst': 6, 'bchg': 6, 'bset': 6, 'bclr': 8}[base] + \
+                (4 if imm else 0)
+            if imm:
+                return Cost(t + (2 if ops[0].val & 31 >= 16 else 0))
+            return Cost(t, dyn='bit')
+        t = 4 if base == 'btst' else 8
+        return Cost(t + (4 if imm else 0) + ea(ops[1], 'b'))
+
+    if base == 'tst':
+        return Cost(4 + ea(ops[0], size))
+    if base in ('clr', 'neg', 'negx', 'not'):
+        if reg(ops[0]):
+            return Cost(6 if long else 4)
+        return Cost((12 if long else 8) + ea(ops[0], size))
+    if base[0] == 's' and base[1:] in COND:
+        if reg(ops[0]):
+            return Cost(4, dyn='scc')
+        return Cost(8 + ea(ops[0], 'b'))
+    if base == 'tas':
+        return Cost(4 if reg(ops[0]) else 14 + ea(ops[0], 'b'))
+    if base == 'nbcd':
+        return Cost(6 if reg(ops[0]) else 8 + ea(ops[0], 'b'))
+    if base in ('abcd', 'sbcd'):
+        return Cost(6 if k[0] == 'dn' else 18)
+    if base in ('addx', 'subx'):
+        if k[0] == 'dn':
+            return Cost(8 if long else 4)
+        return Cost(30 if long else 18)
+    if base == 'cmpm':
+        return Cost(20 if long else 12)
+    if base == 'movep':
+        return Cost(24 if long else 16)
+    if base == 'chk':
+        return Cost(10 + ea(ops[0], 'w'))
+
+    if base in ('addq', 'subq'):
+        if k[1] == 'an':
+            return Cost(8)
+        if k[1] == 'dn':
+            return Cost(8 if long else 4)
+        return Cost((12 if long else 8) + ea(ops[1], size))
+    if base in ('addi', 'subi', 'andi', 'ori', 'eori'):
+        if k[1] == 'dn':
+            return Cost(16 if long else 8)
+        return Cost((20 if long else 12) + ea(ops[1], size))
+    if base == 'cmpi':
+        if k[1] == 'dn':
+            return Cost(14 if long else 8)
+        return Cost((12 if long else 8) + ea(ops[1], size))
+    if base in ('adda', 'suba'):
+        if long:
+            return Cost((8 if k[0] in ('dn', 'an', 'imm') else 6) +
+                        ea(ops[0], 'l'))
+        return Cost(8 + ea(ops[0], 'w'))
+    if base == 'cmpa':
+        return Cost(6 + ea(ops[0], size))
+    if base in ('add', 'sub', 'and', 'or', 'eor', 'cmp'):
+        if k[1] in ('dn', 'an') and base != 'eor':
+            if base == 'cmp':
+                return Cost((6 if long else 4) + ea(ops[0], size))
+            if long:
+                return Cost((8 if k[0] in ('dn', 'an', 'imm') else 6) +
+                            ea(ops[0], size))
+            return Cost(4 + ea(ops[0], size))
+        if k[1] == 'dn':                 # eor Dn,Dn
+            return Cost(8 if long else 4)
+        return Cost((12 if long else 8) + ea(ops[1], size))
+    raise ValueError('no timing for %s' % mn)
+
+
+def cycles(i):
+    """The time without what depends on the data (the least it takes;
+    a branch not taken)."""
+    c = cost(i)
+    return c.base + c.pre

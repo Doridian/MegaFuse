@@ -29,6 +29,9 @@ tools/find_exits.py [STAGE]  # plans that take stages to their exit (tools/exits
 tools/unrun.py               # docs/UNRUN.md: what no script runs, by where it starts
 tools/port_check.py [SCRIPT] # the port against the original: RAM and screens
 tools/sound_check.py [SCRIPT] # the same for the sound (uv, numpy)
+tools/timeline_check.py [SCRIPT] # the port's time against the original's, to the instruction
+tools/timing_check.py        # tools/recomp/timing.py against mdtrace --cycles
+make port                    # tools/recomp/translate.py: crates/game/src/translated
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`

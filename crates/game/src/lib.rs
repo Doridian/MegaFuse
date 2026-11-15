@@ -10,19 +10,42 @@ pub use translated::RESET;
 /// What the game reaches on the bus besides work RAM and the ROM: the
 /// VDP, the Z80's side (its RAM, the sound chips, the bus handshake), the
 /// pads.  `crates/md` implements it.
+///
+/// Time is in master clocks (53.69 MHz NTSC, 7 a 68000 cycle) from
+/// power-on, frames of 262 lines of 3420 starting with the vertical
+/// blank's first line (224), as Genesis Plus GX counts them.
 pub trait Hardware {
+    /// The time of the access about to be made, and how much the
+    /// instruction making it has still to spend (its base time: the
+    /// VDP's status read counts it).
+    fn set_time(&mut self, clock: u64, rest: u64);
     fn read8(&mut self, addr: u32) -> u8;
     fn read16(&mut self, addr: u32) -> u16;
     fn write8(&mut self, addr: u32, value: u8);
     fn write16(&mut self, addr: u32, value: u16);
-    /// A DMA from 68000 memory the last write started: (source, words).
-    fn take_dma(&mut self) -> Option<(u32, u32)>;
+    /// A DMA from 68000 memory the last write started: (source, words,
+    /// to VRAM).
+    fn take_dma(&mut self) -> Option<(u32, u32, bool)>;
     fn dma_word(&mut self, w: u16);
     fn dma_done(&mut self, source: u32, words: u32);
-    /// Draws a line; true when the horizontal interrupt fires after it.
-    fn run_line(&mut self, line: u16) -> bool;
-    /// The vertical blank starts; true when its interrupt is enabled.
-    fn vint(&mut self) -> bool;
+    /// When a DMA from 68000 memory started at `start` ends (the 68000
+    /// waits for it), and whether it ran on past the line (or the
+    /// blank) it started in.
+    fn dma_end(&self, start: u64, words: u64, vram: bool) -> (u64, bool);
+    /// When the 68000 may go on after the access just made (0: at once).
+    fn take_stall(&mut self) -> u64;
+    /// The frame starts: line 224, the vertical blank's first.
+    fn frame_start(&mut self);
+    /// The vertical interrupt is raised (line 224, `vint_clock` in).
+    fn vint(&mut self);
+    /// Where in line 224 the vertical interrupt comes.
+    fn vint_clock(&self) -> u64;
+    /// A line starts (all but 224): drawn if it is a visible one.
+    fn line_start(&mut self, line: u16);
+    /// The interrupt the VDP is raising (6, 4 or none).
+    fn irq_level(&self) -> u8;
+    /// The 68000 takes the interrupt.
+    fn int_ack(&mut self, level: u8);
     /// Is the picture on (a DMA is slow while it is drawn)?
     fn display_on(&self) -> bool;
     /// The frame is over: the picture and RAM out, the pads in.
@@ -65,84 +88,247 @@ pub struct Game {
     /// The cartridge.
     pub rom: Vec<u8>,
     pub hw: Box<dyn Hardware>,
-    /// 68000 cycles since power-on, as the translated code counts them
-    /// (`tick`, docs/PORT.md "Time").
-    pub cycles: u64,
-    /// When the line being drawn ends.
-    next_line: u64,
-    /// The line being drawn (0-261).
-    line: u16,
+    /// Master clocks since power-on (docs/PORT.md, "Time"): where the
+    /// instruction being run started, but for its base time, `pending`,
+    /// spent when the next one starts.
+    pub clock: u64,
+    pending: u64,
+    /// When the next bus refresh is due.
+    refresh_due: u64,
+    /// The frame's start, the segment of it being run and where that
+    /// ends (segments: line 224 to the vertical interrupt, the rest of
+    /// it, then a line each).
+    frame_base: u64,
+    seg: usize,
+    seg_end: u64,
     /// The interrupt mask (SR bits 8-10).
     ipl: u8,
-    /// Interrupts that came while masked: bit 4 horizontal, bit 6
-    /// vertical.
-    pending: u8,
+    /// An interrupt enabled while pending (a VDP register write) comes
+    /// an instruction late: 1 while the next instruction is to start
+    /// (it runs as it is, no refresh, no interrupt), 2 while it runs.
+    delayed: u8,
+    /// A 32-bit write is being made (its interrupt comes at once).
+    pub(crate) long_write: bool,
+    /// The 68000's time, instruction by instruction, for
+    /// tools/timeline_check.py.
+    pub timeline: Option<Timeline>,
 }
 
-/// 68000 cycles a line takes (NTSC: 3420 master clocks over 7).
-pub const CYCLES_PER_LINE: u64 = 488;
-pub const LINES: u16 = 262;
-/// The first line of the vertical blank (the vertical interrupt's).
-pub const VBLANK_LINE: u16 = 224;
+/// Master clocks: a line, a frame.
+pub const LINE: u64 = 3420;
+pub const LINES: u64 = 262;
+pub const FRAME: u64 = LINE * LINES;
+/// Segments a frame: line 224 in two, the 261 others.
+const SEGMENTS: usize = 263;
+/// Power-on: where in the frame the 68000 starts (line 191, Genesis Plus
+/// GX's measurement of a Model 1) and the reset's 40 cycles.
+const POWER_ON: u64 = (LINES - 192 + 159) * LINE + 1004;
+const RESET_TIME: u64 = 40 * 7;
+/// A bus refresh: 2 cycles every 128.
+const REFRESH_EVERY: u64 = 128 * 7;
+const REFRESH_TAKES: u64 = 2 * 7;
+/// An interrupt's processing: 44 cycles and a wait for the E clock (a
+/// tenth of the 68000's), by where in its period it starts.
+const INTERRUPT: [u64; 10] = [50, 59, 58, 57, 56, 55, 54, 53, 52, 51];
+
+/// The 68000's time per frame: how many instructions and an FNV-1a hash
+/// of their (PC, clock), as tools/mdtrace --timeline writes it; one frame
+/// in full.
+pub struct Timeline {
+    pub out: Box<dyn std::io::Write>,
+    pub full: Option<u64>,
+    frame: u64,
+    count: u64,
+    hash: u64,
+}
+
+const FNV: u64 = 0xCBF2_9CE4_8422_2325;
+
+impl Timeline {
+    #[must_use]
+    pub fn new(out: Box<dyn std::io::Write>, full: Option<u64>) -> Self {
+        Timeline { out, full, frame: 0, count: 0, hash: FNV }
+    }
+
+    /// The frame is over: its line, and the file up to date (the
+    /// frontend may end the run now).
+    fn end_frame(&mut self) {
+        let _ = writeln!(self.out, "FRAME {} {} {:016X}", self.frame, self.count, self.hash);
+        let _ = self.out.flush();
+        self.frame += 1;
+        self.count = 0;
+        self.hash = FNV;
+    }
+
+    fn record(&mut self, pc: u32, clock: u64) {
+        let frame = clock / FRAME;
+        let v = u64::from(pc) << 40 ^ clock;
+        for k in 0..8 {
+            self.hash ^= (v >> (8 * k)) & 0xFF;
+            self.hash = self.hash.wrapping_mul(0x0000_0100_0000_01B3);
+        }
+        self.count += 1;
+        if self.full == Some(frame) {
+            let _ = writeln!(self.out, "{pc:06X} {clock}");
+        }
+    }
+}
+
+use std::io::Write as _;
 
 impl Game {
     #[must_use]
     pub fn new(rom: Vec<u8>, hw: Box<dyn Hardware>) -> Self {
+        let clock = POWER_ON / 7 * 7 + RESET_TIME;
         Game {
             ram: Box::new([0; 0x10000]),
             rom,
             hw,
-            cycles: 0,
-            next_line: CYCLES_PER_LINE,
-            line: 0,
-            ipl: 7,
+            clock,
             pending: 0,
+            refresh_due: clock / REFRESH_EVERY * REFRESH_EVERY + REFRESH_EVERY,
+            frame_base: 0,
+            seg: SEGMENTS,
+            seg_end: 0,
+            ipl: 7,
+            delayed: 0,
+            long_write: false,
+            timeline: None,
         }
     }
 
     /// Power on: the reset routine, which runs the game; it never
-    /// returns, the frames pass as it runs ([`Game::tick`]).
+    /// returns, the frames pass as it runs ([`Game::insn`]).
     pub fn run(&mut self) {
         self.call_reset();
     }
 
-    /// Time passes: n cycles of the 68000's.  The lines they cover are
-    /// drawn, and the interrupts come as the VDP raises them (between
-    /// two blocks of the game's code, as between two instructions on
-    /// the console) unless the mask holds them back.
-    pub fn tick(&mut self, n: u32) {
-        self.cycles += u64::from(n);
-        while self.cycles >= self.next_line {
-            self.next_line += CYCLES_PER_LINE;
-            self.line_done();
-        }
-    }
-
-    fn line_done(&mut self) {
-        let line = self.line;
-        if self.hw.run_line(line) {
-            self.interrupt(4);
-        }
-        self.line += 1;
-        if self.line == VBLANK_LINE && self.hw.vint() {
-            self.interrupt(6);
-        }
-        if self.line == LINES {
-            self.line = 0;
-            self.hw.end_frame(&mut self.ram);
-        }
-    }
-
-    fn interrupt(&mut self, level: u8) {
-        if level <= self.ipl {
-            self.pending |= 1 << level;
+    /// An instruction starts (at `pc`; `base` its time but what depends
+    /// on the data): the last one's time is spent, the beam moves on,
+    /// interrupts may come, the bus may be refreshed.
+    #[inline]
+    pub fn insn(&mut self, pc: u32, base: u32) {
+        if self.delayed != 0 {
+            self.delayed_insn(pc, base);
             return;
         }
-        self.pending &= !(1 << level);
+        loop {
+            self.clock += self.pending;
+            self.pending = 0;
+            if self.clock < self.seg_end || !self.boundary() {
+                break;
+            }
+        }
+        if let Some(t) = &mut self.timeline {
+            t.record(pc, self.clock);
+        }
+        if self.clock >= self.refresh_due {
+            self.refresh_due = self.clock + REFRESH_EVERY;
+            self.clock += REFRESH_TAKES;
+        }
+        self.pending = u64::from(base) * 7;
+    }
+
+    /// The instruction after one that enabled a pending interrupt runs
+    /// first, as it is; the interrupt comes after it (before its base
+    /// time is spent).
+    #[cold]
+    fn delayed_insn(&mut self, pc: u32, base: u32) {
+        if self.delayed == 1 {
+            self.clock += self.pending;
+            self.pending = u64::from(base) * 7;
+            if let Some(t) = &mut self.timeline {
+                t.record(pc, self.clock);
+            }
+            self.delayed = 2;
+            return;
+        }
+        self.delayed = 0;
+        self.check_interrupts();
+        self.insn(pc, base);
+    }
+
+    /// A write to the VDP's control port that raised its interrupt
+    /// line (an interrupt enabled while pending): it comes an
+    /// instruction late, or at once in a 32-bit write.
+    pub(crate) fn irq_raised(&mut self) {
+        if self.long_write {
+            self.check_interrupts();
+        } else {
+            self.delayed = 1;
+        }
+    }
+
+    /// What an instruction's data makes it take beyond its base time
+    /// (cycles).
+    #[inline]
+    pub fn extra(&mut self, cycles: u32) {
+        self.clock += u64::from(cycles) * 7;
+    }
+
+    /// A long instruction (a shift by a register, MOVEM.L, a division)
+    /// skips the bus refresh that came due during it.
+    #[inline]
+    pub fn skip_refresh(&mut self) {
+        if self.clock >= self.refresh_due {
+            self.refresh_due += REFRESH_EVERY;
+        }
+    }
+
+    /// The segments that ended: their events; true when an interrupt
+    /// was taken at the start of the last (the 68000 is let run again).
+    fn boundary(&mut self) -> bool {
+        while self.clock >= self.seg_end {
+            let start = self.seg_end;
+            self.seg += 1;
+            if self.seg >= SEGMENTS {
+                if self.frame_base > 0 || self.seg_end > 0 {
+                    self.frame_base += FRAME;
+                    if let Some(t) = &mut self.timeline {
+                        t.end_frame();
+                    }
+                    self.hw.end_frame(&mut self.ram);
+                }
+                self.seg = 0;
+            }
+            self.seg_end = self.frame_base + match self.seg {
+                0 => self.hw.vint_clock(),
+                s => (s as u64) * LINE,
+            };
+            self.hw.set_time(start, 0);
+            match self.seg {
+                0 => self.hw.frame_start(),
+                1 => self.hw.vint(),
+                s => self.hw.line_start(((224 + s - 1) % 262) as u16),
+            }
+        }
+        self.check_interrupts()
+    }
+
+    fn check_interrupts(&mut self) -> bool {
+        let level = self.hw.irq_level();
+        if level > self.ipl {
+            self.interrupt(level);
+            return true;
+        }
+        false
+    }
+
+    /// An interrupt: its processing, the instruction it came in (if it
+    /// came in one) finished, the handler; returning from it lets in
+    /// what waited.
+    fn interrupt(&mut self, level: u8) {
+        // the E clock's phase: Genesis Plus GX counts it from the frame's
+        // start (a frame isn't a whole number of its periods)
+        let rel = self.clock - self.frame_base;
+        self.clock += INTERRUPT[((rel / 7) % 10) as usize] * 7;
+        self.clock += self.pending;
+        self.pending = 0;
         let saved = self.ipl;
         self.ipl = level;
+        self.hw.int_ack(level);
         self.call_interrupt(level);
-        self.ipl = saved;
+        self.set_ipl(saved);
     }
 
     /// Tests: the interrupt mask as it is, for a routine run on its own.
@@ -159,28 +345,36 @@ impl Game {
     /// The interrupt mask written: what waited for it comes now.
     pub fn set_ipl(&mut self, level: u8) {
         self.ipl = level & 7;
-        for l in [6, 4] {
-            if self.pending & (1 << l) != 0 && l > self.ipl {
-                self.interrupt(l);
-            }
-        }
+        self.check_interrupts();
+    }
+
+    /// The time of a hardware access, for the hardware.
+    #[inline]
+    pub(crate) fn sync(&mut self) {
+        self.hw.set_time(self.clock, self.pending);
     }
 
     /// A DMA from memory the write just made started.  The 68000 waits
-    /// while it runs: some 18 bytes go a line while the picture is drawn,
-    /// 205 in the vertical blank or with the display off (H40).
+    /// while it runs: so many words a line (fewer while the picture is
+    /// drawn), to the line's end, or the vertical blank's (line 261),
+    /// then on from each line's start.
     pub(crate) fn dma(&mut self) {
-        while let Some((source, words)) = self.hw.take_dma() {
+        while let Some((source, words, vram)) = self.hw.take_dma() {
             for k in 0..words {
                 let a = (source & 0xFF_0000) | (source.wrapping_add(2 * k) & 0xFFFF);
                 let w = self.read16(a);
                 self.hw.dma_word(w);
             }
             self.hw.dma_done(source, words);
-            let fast = self.line >= VBLANK_LINE || !self.hw.display_on();
-            let per_line = if fast { 205 } else { 18 };
-            let cycles = u64::from(words) * 2 * CYCLES_PER_LINE / per_line;
-            self.tick(u32::try_from(cycles).unwrap_or(u32::MAX));
+            let (end, on) = self.hw.dma_end(self.clock, u64::from(words), vram);
+            self.clock = end;
+            if on {
+                // Genesis Plus GX sets the 68000's clock to the DMA's end
+                // again at each line it runs on: the instruction's base
+                // time, spent after the first, is lost
+                self.pending = 0;
+            }
         }
     }
+
 }

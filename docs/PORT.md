@@ -81,24 +81,42 @@ them, docs/LAYOUT.md "SHIFT"; the port's comparisons allow for them):
 
 ## Time
 
-Time passes a basic block at a time: each block starts with
-`self.tick(N)`, its instructions' 68000 cycles (tools/recomp/timing.py,
-the 68000's tables in outline). As the cycles add up the VDP draws its
-lines (488 cycles each, 262 a frame) and the interrupts come where the
-VDP raises them, between two blocks as between two instructions on the
-console: the horizontal one where its line counter runs out, the vertical
-one at line 224, unless the mask (SR, `set_ipl`) holds them back. Code
-that runs for frames without waiting (the ROM checksum at power-on,
-decompression) lets the interrupts in as on the console, a loop that
-polls what an interrupt handler writes just lets time pass, and a write
-to the VDP lands on the line it would. A DMA from memory holds the 68000
-as long as it takes (18 bytes a line while the picture is drawn, 205 in
-the blank).
+The port keeps the console's time exactly, as Genesis Plus GX keeps it,
+so that it runs in lockstep with the original: the same interrupts land
+on the same instructions, the same frame counts go into the random
+numbers, the RAM is the same frame for frame. Time is counted in master
+clocks (53.69 MHz NTSC; a 68000 cycle is 7, a line 3420, a frame 262
+lines starting with the vertical blank's first, 224), from power-on
+(the 68000 starts at line 191, 1004 clocks in, as on a Model 1).
 
-The figures are close, not exact (no VDP access waits, no refresh): over
-the power-on checksum, some 150 frames, the port is 2 frames early, and
-the drift grows over loads. The game's random numbers mix in the frame
-count (0xA400), so after a few frames of drift they differ.
+Each instruction starts with `self.insn(PC, BASE)`
+(`crates/game/src/lib.rs`), in the console's order: the last
+instruction's base time is spent; the segments of the frame that ended
+have their events (the frame's start, the vertical interrupt 788 clocks
+into line 224, each line's start: drawing, the horizontal interrupt's
+counter) and, if one started, the interrupts are checked; the bus
+refresh (2 cycles every 128) is taken if due. The instruction's accesses
+then happen at that time (the VDP's FIFO and DMA, the Z80's bus, which
+costs a cycle), what depends on its data is added (`extra`: a branch
+taken, a shift's count, MULU's bits, DIVU's steps; a long one skips a
+refresh due meanwhile), and its base time waits for the next.
+
+The times are tools/recomp/timing.py's (the 68000's tables) and the
+VDP's (`crates/md`: DMA rates by mode, line and blank; the FIFO's access
+slots; fills and copies busy until done). An interrupt costs 50-59
+cycles by the E clock's phase; one unmasked by a write to SR is taken
+in that instruction, one enabled while pending by a VDP register write
+an instruction later; a DMA that runs on past its line takes the
+instruction's base time with it. All of it as Genesis Plus GX does it,
+which is what the port is checked against.
+
+`tools/timing_check.py` holds timing.py to what each instruction took
+in Genesis Plus GX (`tools/mdtrace --cycles`); `tools/timeline_check.py
+[SCRIPT]` runs both with `--timeline` (a hash of every instruction's PC
+and clock, frame by frame) and shows the first instruction where they
+part. Every pad script's frames should hash the same; where they don't,
+it is a time the port has wrong or a translation that does something
+else (both turn up the same way: the first instruction that differs).
 
 ## Sound
 
@@ -139,9 +157,8 @@ apart), the sound is 0.995 alike and its levels within a few percent.
 `tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`,
 headless: tools/mdtrace's pad scripts, RAM dumps and screenshots) and the
 original in Genesis Plus GX on the same scripts and compares work RAM at
-checkpoints, each port frame with the original's closest within a window
-(the drift), the stack and the frame counters aside; and the screens at
-that offset, pixel for pixel. With no input (`none`): the same RAM and
-screens through the SEGA logo, the power-on checksum, the Hudson screen
-and the title, to frame 760, where the drift has reached the random
-numbers.
+checkpoints, the stack aside, and the screens, pixel for pixel. With the
+port's time the console's, the frames line up (`--window 0`): stage-1-1
+has the same RAM at every 300th frame through 9600 frames.
+`tools/timeline_check.py` finds where a run first parts, to the
+instruction; `tools/sound_check.py` compares the sound.

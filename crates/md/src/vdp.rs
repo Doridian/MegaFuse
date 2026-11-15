@@ -10,7 +10,7 @@ pub const LINES: u16 = 262;
 pub enum Dma {
     /// From 68000 memory: the source (a byte address) and its length in
     /// words; `Game` feeds the words through [`Vdp::dma_word`].
-    Memory { source: u32, words: u32 },
+    Memory { source: u32, words: u32, vram: bool },
 }
 
 pub struct Vdp {
@@ -23,6 +23,8 @@ pub struct Vdp {
     pending: bool,
     fill_pending: bool,
     dma: Option<Dma>,
+    /// A VRAM copy's length, just done.
+    pub copied: Option<u32>,
     /// The line being drawn (0-261).
     pub line: u16,
     /// The horizontal interrupt's line counter.
@@ -52,6 +54,7 @@ impl Vdp {
             pending: false,
             fill_pending: false,
             dma: None,
+            copied: None,
             line: 0,
             hcount: 0,
             vint_pending: false,
@@ -115,7 +118,9 @@ impl Vdp {
                     if words == 0 {
                         words = 0x10000;
                     }
-                    self.dma = Some(Dma::Memory { source, words });
+                    // code 1: VRAM (a word is two accesses); 3, 5: CRAM, VSRAM
+                    let vram = self.code & 0x06 == 0;
+                    self.dma = Some(Dma::Memory { source, words, vram });
                 }
                 2 => self.fill_pending = true,
                 _ => self.copy(),
@@ -144,12 +149,15 @@ impl Vdp {
         self.regs[22] = (end >> 8) as u8;
     }
 
+    /// A VRAM copy, done at once; its length is kept for `Md` (the time
+    /// it takes).
     fn copy(&mut self) {
         let mut src = u32::from(self.regs[22]) << 8 | u32::from(self.regs[21]);
         let mut len = u32::from(self.regs[20]) << 8 | u32::from(self.regs[19]);
         if len == 0 {
             len = 0x10000;
         }
+        self.copied = Some(len);
         for _ in 0..len {
             let b = self.vram[(src & 0xFFFF) as usize];
             self.vram[(self.addr & 0xFFFF) as usize] = b;
@@ -182,7 +190,9 @@ impl Vdp {
         }
     }
 
-    pub fn write_data(&mut self, w: u16) {
+    /// A write to the data port; a VRAM fill it starts is done at once,
+    /// its length returned (the time it takes is `Md`'s).
+    pub fn write_data(&mut self, w: u16) -> Option<u32> {
         self.pending = false;
         if self.fill_pending {
             self.fill_pending = false;
@@ -196,10 +206,17 @@ impl Vdp {
                 self.addr = (self.addr + self.autoinc()) & 0xFFFF;
                 self.vram[(self.addr ^ 1) as usize & 0xFFFF] = fill;
             }
-            return;
+            return Some(len);
         }
         self.write_target(w);
         self.addr = (self.addr + self.autoinc()) & 0xFFFF;
+        None
+    }
+
+    /// In the vertical blank (the status flag): line 224 to 261's start.
+    #[must_use]
+    pub fn in_vblank(&self) -> bool {
+        (HEIGHT as u16..LINES - 1).contains(&self.line)
     }
 
     pub fn read_data(&mut self) -> u16 {
@@ -225,8 +242,8 @@ impl Vdp {
     /// vertical interrupt pending; DMA is never busy (it is done at once).
     pub fn read_status(&mut self) -> u16 {
         self.pending = false;
-        let mut s = 0x3400 | 0x0200;
-        if self.line >= HEIGHT as u16 || !self.display_on() {
+        let mut s = 0;
+        if self.in_vblank() || !self.display_on() {
             s |= 0x0008;
         }
         if self.vint_pending {
@@ -245,29 +262,55 @@ impl Vdp {
 
     // --- the frame ---------------------------------------------------------
 
-    /// Draws `line` (if it is a visible one) and counts the horizontal
-    /// interrupt's lines; returns whether it fires after this line.
-    pub fn run_line(&mut self, line: u16) -> bool {
+    /// The frame starts (line 224): the horizontal interrupt fires if
+    /// its counter ran out on the last line.
+    pub fn frame_start(&mut self) {
+        self.line = HEIGHT as u16;
+        if self.hcount == 0 {
+            self.hint_pending = true;
+        }
+    }
+
+    /// A line starts (all but 224): drawn if it is a visible one; the
+    /// horizontal interrupt's counter counts the visible lines down,
+    /// fires and starts again from register 10 when it runs out; it is
+    /// reloaded at line 261.
+    pub fn line_start(&mut self, line: u16) {
         self.line = line;
         if (line as usize) < HEIGHT {
             self.draw_line(line as usize);
-        }
-        let mut fire = false;
-        if line <= HEIGHT as u16 {
-            if self.hcount <= 0 {
+            if self.hcount == 0 {
                 self.hcount = i16::from(self.regs[10]);
-                fire = true;
+                self.hint_pending = true;
             } else {
                 self.hcount -= 1;
             }
-        } else {
+        } else if line == LINES - 1 {
             self.hcount = i16::from(self.regs[10]);
         }
-        if fire && self.hint_enabled() {
-            self.hint_pending = true;
-            return true;
+    }
+
+    /// The interrupt raised: vertical (6) before horizontal (4), each if
+    /// pending and enabled.
+    #[must_use]
+    pub fn irq_level(&self) -> u8 {
+        if self.vint_pending && self.vint_enabled() {
+            6
+        } else if self.hint_pending && self.hint_enabled() {
+            4
+        } else {
+            0
         }
-        false
+    }
+
+    /// The 68000 takes the interrupt: the vertical one if it is pending
+    /// and enabled, else the horizontal one, is cleared.
+    pub fn int_ack(&mut self) {
+        if self.vint_pending && self.vint_enabled() {
+            self.vint_pending = false;
+        } else {
+            self.hint_pending = false;
+        }
     }
 
     fn colour(&self, index: usize) -> u32 {

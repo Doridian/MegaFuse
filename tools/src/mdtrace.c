@@ -12,6 +12,16 @@
  *     --shot PREFIX      screenshots PREFIX<frame>.png, at --shot-every N
  *                        frames (default 600) and the last frame
  *     --wav FILE         the sound, a 16-bit stereo WAV at the core's rate
+ *     --cycles FILE      what each instruction took, in master clocks (7 a
+ *                        68000 cycle), the bus refresh at its fetch (14)
+ *                        left out: lines "PC COST S COUNT", S 1 when it
+ *                        skipped a refresh (long instructions); an
+ *                        instruction an exception follows is left out
+ *     --timeline FILE    the 68000's time: per frame, "FRAME N HASH", the
+ *                        number of instructions and a hash of their
+ *                        (PC, clock) in order; the clock counts master
+ *                        clocks from power-on (896040 a frame)
+ *     --timeline-at F    and frame F in full: "PC CLOCK" an instruction
  *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
  *                        same frames, and PREFIX<frame>.sp: the stack
  *                        pointer and the lowest it has been, in hex
@@ -82,6 +92,8 @@ static void (*p_set_state)(retro_input_state_t);
 static bool (*p_load_game)(const struct retro_game_info *);
 static void (*p_run)(void);
 static void (*p_get_av_info)(struct retro_system_av_info *);
+static unsigned (*p_m68k_cycles)(void);
+static int (*p_m68k_refresh)(void);
 static void *(*p_get_memory_data)(unsigned);
 static size_t (*p_get_memory_size)(unsigned);
 static void (*p_set_port)(unsigned, unsigned);
@@ -193,10 +205,88 @@ static void edge(unsigned from, unsigned to)
     }
 }
 
+/* --cycles: per ROM word, the costs seen and how often */
+#define CSLOTS 8
+struct cslot { uint32_t cost; uint32_t count; };
+static struct cslot (*cyc)[CSLOTS];
+static unsigned long cyc_overflow;
+static unsigned cyc_pc = 0xFFFFFFFF, cyc_clock;
+static int cyc_refresh;
+static unsigned vectors[64];
+
+/* --timeline */
+static FILE *tl_file;
+static long tl_at = -1;
+static unsigned long tl_count;
+static uint64_t tl_hash = 0xCBF29CE484222325ULL;
+#define FRAME_CLOCKS 896040UL
+
+static void timeline_step(unsigned pc)
+{
+    uint64_t clock = (uint64_t)cur_frame * FRAME_CLOCKS + p_m68k_cycles();
+    uint64_t v = (uint64_t)pc << 40 ^ clock;
+    int k;
+    for (k = 0; k < 8; k++) {
+        tl_hash ^= (v >> (8 * k)) & 0xFF;
+        tl_hash *= 1099511628211ULL;
+    }
+    tl_count++;
+    if (cur_frame == tl_at)
+        fprintf(tl_file, "%06X %llu\n", pc, (unsigned long long)clock);
+}
+
+static void timeline_frame(long frame)
+{
+    fprintf(tl_file, "FRAME %ld %lu %016llX\n", frame, tl_count,
+            (unsigned long long)tl_hash);
+    tl_count = 0;
+    tl_hash = 0xCBF29CE484222325ULL;
+}
+
+static void cycles_step(unsigned pc)
+{
+    unsigned c = p_m68k_cycles();
+    int rf = p_m68k_refresh();
+    int k, exception = 0;
+    for (k = 2; k < 64; k++)
+        if (vectors[k] == pc)
+            exception = 1;
+    if (cyc_pc < rom_size && c >= cyc_clock && !exception) {
+        /* a refresh at the fetch: due by then, and it moves the next one
+         * to 128 cycles from it */
+        int refresh = cyc_clock >= (unsigned)cyc_refresh;
+        unsigned d = c - cyc_clock - (refresh ? 14 : 0);
+        int skip = refresh ? rf != (int)cyc_clock + 128 * 7
+                           : rf != cyc_refresh;
+        uint32_t cost = (d << 1) | skip;
+        struct cslot *sl = cyc[cyc_pc >> 1];
+        for (k = 0; k < CSLOTS; k++) {
+            if (sl[k].count && sl[k].cost == cost) {
+                sl[k].count++;
+                break;
+            }
+            if (!sl[k].count) {
+                sl[k].cost = cost;
+                sl[k].count = 1;
+                break;
+            }
+        }
+        if (k == CSLOTS)
+            cyc_overflow++;
+    }
+    cyc_pc = pc;
+    cyc_clock = c;
+    cyc_refresh = rf;
+}
+
 static void hook(int type, int width, unsigned address, unsigned value)
 {
     address &= 0xFFFFFF;
     if (type == HOOK_M68K_E) {
+        if (cyc)
+            cycles_step(address);
+        if (tl_file)
+            timeline_step(address);
         if (snap_addr != 0xFFFFFFFF)
             snap_step(address);
         if (edges && prev_pc != 0xFFFFFFFF &&
@@ -663,7 +753,8 @@ int main(int argc, char **argv)
 {
     const char *core = "tools/gpgx/genesis_plus_gx_libretro.so";
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
-    const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL;
+    const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL,
+               *cycles_path = NULL, *timeline_path = NULL;
     const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
@@ -681,6 +772,9 @@ int main(int argc, char **argv)
         else if (ARG("--cover")) cover_path = argv[++i];
         else if (ARG("--shot")) shot = argv[++i];
         else if (ARG("--wav")) wav_path = argv[++i];
+        else if (ARG("--cycles")) cycles_path = argv[++i];
+        else if (ARG("--timeline")) timeline_path = argv[++i];
+        else if (ARG("--timeline-at")) tl_at = strtol(argv[++i], NULL, 0);
         else if (ARG("--shot-every")) every = strtol(argv[++i], NULL, 0);
         else if (ARG("--ram")) ram = argv[++i];
         else if (ARG("--region")) {
@@ -742,6 +836,8 @@ int main(int argc, char **argv)
     p_load_game = sym(h, "retro_load_game");
     p_run = sym(h, "retro_run");
     p_get_av_info = sym(h, "retro_get_system_av_info");
+    p_m68k_cycles = sym(h, "mdtrace_m68k_cycles");
+    p_m68k_refresh = sym(h, "mdtrace_m68k_refresh");
     p_get_memory_data = sym(h, "retro_get_memory_data");
     p_get_memory_size = sym(h, "retro_get_memory_size");
     p_set_port = sym(h, "retro_set_controller_port_device");
@@ -753,6 +849,13 @@ int main(int argc, char **argv)
     if (rom_size > ROM_MAX)
         rom_size = ROM_MAX;
     cover = calloc(rom_size, 1);
+    if (cycles_path) {
+        int k;
+        cyc = calloc(rom_size / 2 + 1, sizeof *cyc);
+        for (k = 2; k < 64 && 4 * k + 3 < (int)rom_size; k++)
+            vectors[k] = (rom[4 * k] << 24 | rom[4 * k + 1] << 16 |
+                          rom[4 * k + 2] << 8 | rom[4 * k + 3]) & 0xFFFFFF;
+    }
     if (cover_path) {
         FILE *f = fopen(cover_path, "rb");
         if (f) {
@@ -807,6 +910,13 @@ int main(int argc, char **argv)
         }
     }
 
+    if (timeline_path) {
+        tl_file = fopen(timeline_path, "w");
+        if (!tl_file) {
+            perror(timeline_path);
+            return 1;
+        }
+    }
     if (wav_path) {
         wav_file = fopen(wav_path, "wb");
         if (!wav_file) {
@@ -825,6 +935,8 @@ int main(int argc, char **argv)
         while (next_poke < n_pokes && pokes[next_poke].frame <= frame)
             poke(&pokes[next_poke++]);
         p_run();
+        if (tl_file)
+            timeline_frame(frame);
         if (logf) {
             uint8_t *wram = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
             fprintf(logf, "%ld %04x %04x %04x %04x %08lx\n", frame, pads[0],
@@ -836,6 +948,26 @@ int main(int argc, char **argv)
     }
     if ((shot || ram) && (every <= 0 || frames % every))
         snapshot(shot, ram, frames);
+
+    if (tl_file)
+        fclose(tl_file);
+    if (cycles_path) {
+        FILE *f = fopen(cycles_path, "w");
+        size_t a;
+        int k;
+        if (!f) {
+            perror(cycles_path);
+            return 1;
+        }
+        for (a = 0; a < rom_size / 2; a++)
+            for (k = 0; k < CSLOTS && cyc[a][k].count; k++)
+                fprintf(f, "%06zX %u %u %u\n", 2 * a, cyc[a][k].cost >> 1,
+                        cyc[a][k].cost & 1, cyc[a][k].count);
+        if (cyc_overflow)
+            fprintf(stderr, "--cycles: %lu instructions with more than %d "
+                    "costs left out\n", cyc_overflow, CSLOTS);
+        fclose(f);
+    }
 
     if (wav_file) {
         struct retro_system_av_info av;

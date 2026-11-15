@@ -369,9 +369,9 @@ class Emitter:
         return ', '.join('0x%06X' % (a & 0xFFFFFF) for a in sorted(reads))
 
     def code(self, start):
-        # the block's time: the beam moves on, interrupts may come
-        # (docs/PORT.md, "Time")
-        out = ['self.tick(%d);' % self.r.cycles.get(start, 4)]
+        # each instruction's time: self.insn (lower.py, docs/PORT.md
+        # "Time")
+        out = []
         for k, op in enumerate(self.r.ops[start]):
             live = self.live.get((start, k), set())
             if op[0] == 'set':

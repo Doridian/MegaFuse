@@ -352,10 +352,32 @@ class Lowerer:
             f = self.op_scc
         if f is None:
             raise LowerError('no lowering for %s' % mn)
+        self.cost = timing.cost(i)
         f(out, i, base, size, ops)
-        # the instruction's time (timing.py): tools/recomp adds a block's up
+        pre, post = self.timing(i, self.cost)
+        if self.cost.dyn in ('bcc.s', 'bcc.w'):
+            c = out.term[1]
+            t = '2 } else { 0' if self.cost.dyn == 'bcc.s' else \
+                '0 } else { 2'
+            post.append(('eff', mk('self.extra(if %s { %s })' % (c.t, t),
+                                   '()', c)))
+        out.stmts = pre + out.stmts + post
         out.cycles = timing.cycles(i)
         return out
+
+    @staticmethod
+    def timing(i, c):
+        """The instruction's time (timing.py, docs/PORT.md "Time"): it
+        starts (its base time is spent when the next one does), then
+        what it takes before a refresh check (MOVEM's registers)."""
+        pre = [('eff', mk('self.insn(0x%06X, %d)' % (i.addr, c.base),
+                          '()'))]
+        post = []
+        if c.pre:
+            post.append(('eff', mk('self.extra(%d)' % c.pre, '()')))
+        if c.skip and c.dyn is None:
+            post.append(('eff', mk('self.skip_refresh()', '()')))
+        return pre, post
 
     def op_nop(self, out, i, base, size, ops):
         pass
@@ -612,6 +634,9 @@ class Lowerer:
             else:
                 cnt = mk('(%s & 63)' % REGS[ops[0].reg], 'u32',
                          var(REGS[ops[0].reg], 'u32'))
+                # 2 cycles a bit (timing.py: dyn 'shift')
+                out.stmts.append(('eff', mk('self.shift_time(%s)' % cnt.t,
+                                            '()', cnt)))
         ty = TY[size]
         fn = 'self.%s%d' % (kind, BITS[size])
         xin = [] if kind in ('asl', 'asr', 'lsl', 'lsr', 'rol', 'ror') \
@@ -657,6 +682,10 @@ class Lowerer:
             bit = mk('(%s & %d)' % (REGS[n], 31 if size == 'l' else 7),
                      'u32', var(REGS[n], 'u32'))
         ty = TY[size]
+        if self.cost.dyn == 'bit':
+            # a bit above 15 takes 2 more
+            out.stmts.append(('eff', mk('self.extra(if %s >= 16 { 2 } else '
+                                        '{ 0 })' % bit.t, '()', bit)))
         loc = self.ea(out, i.addr, ops[1], size)
         if loc[0] == 'mem' and loc[1].uses:
             loc = ('mem', self.temp(out, loc[1]), loc[2])
@@ -676,7 +705,9 @@ class Lowerer:
     op_btst = op_bset = op_bclr = op_bchg = bitop
 
     def op_mulu(self, out, i, base, size, ops):
-        s = self.read(out, self.operand(out, i.addr, ops[0], 'w'), 'w')
+        s = self.temp(out, self.read(out, self.operand(out, i.addr, ops[0],
+                                                       'w'), 'w'))
+        out.stmts.append(('eff', mk('self.mulu_time(%s)' % s.t, '()', s)))
         n = ops[1].reg
         r = self.temp(out, mk('u32::from(%s) * u32::from(%s)' % (
             self.reg(n, 'u16').t, s.t), 'u32', var(REGS[n], 'u32'), s))
@@ -684,8 +715,11 @@ class Lowerer:
         self.flags_logic(out, r)
 
     def op_divu(self, out, i, base, size, ops):
-        s = self.read(out, self.operand(out, i.addr, ops[0], 'w'), 'w')
+        s = self.temp(out, self.read(out, self.operand(out, i.addr, ops[0],
+                                                       'w'), 'w'))
         n = ops[1].reg
+        out.stmts.append(('eff', mk('self.divu_time(%s, %s)' % (
+            REGS[n], s.t), '()', var(REGS[n], 'u32'), s)))
         r = self.temp(out, mk('self.divu(%s, %s)' % (REGS[n], s.t),
                               '(u32, bool)', var(REGS[n], 'u32'), s))
         out.stmts += [('set', REGS[n], mk('%s.0' % r.t, 'u32', r)),
@@ -738,6 +772,12 @@ class Lowerer:
             if size == 'w':
                 v = sext(v, 'u32')
             out.stmts.append(('set', REGS[k], v))
+        if src.kind == 'postinc':
+            # (an)+: an moves past what was read (ea() moved it by one
+            # long), over a value loaded into it
+            out.stmts.append(('set', REGS[src.reg + 8], mk(
+                '%s.wrapping_add(%d)' % (base_addr.t, len(regs) * step),
+                'u32', base_addr)))
 
     def op_link(self, out, i, base, size, ops):
         # an = the frame (stack.py tracks it as an alias)
@@ -772,10 +812,17 @@ class Lowerer:
         # the counter is decremented only while the condition is false
         if cc in ('ra', 'f'):
             self.set_reg(out, n, cnt, 'w')
+            # looping 10 cycles, the count run out 14
+            out.stmts.append(('eff', mk('self.extra(if %s == 0xFFFF { 4 } '
+                                        'else { 0 })' % cnt.t, '()', cnt)))
             out.term = ('cond', mk('%s != 0xFFFF' % cnt.t, 'bool', cnt),
                         i.target)
         else:
             stay = self.temp(out, mk('!(%s)' % c.t, 'bool', c))
+            # the condition true 12, the count run out 14
+            out.stmts.append(('eff', mk(
+                'self.extra(if !%s { 2 } else if %s == 0xFFFF { 4 } else '
+                '{ 0 })' % (stay.t, cnt.t), '()', stay, cnt)))
             self.set_reg(out, n, mk('if %s { %s } else { %s }' % (
                 stay.t, cnt.t, self.reg(n, 'u16').t), 'u16', stay, cnt,
                 var(REGS[n], 'u32')), 'w')
@@ -784,6 +831,9 @@ class Lowerer:
 
     def op_scc(self, out, i, base, size, ops):
         c = self.cond(base[1:])
+        if self.cost.dyn == 'scc':
+            out.stmts.append(('eff', mk('self.extra(if %s { 2 } else { 0 })'
+                                        % c.t, '()', c)))
         loc = self.ea(out, i.addr, ops[0], 'b')
         self.write(out, loc, mk('if %s { 0xFF } else { 0 }' % c.t, 'u8', c),
                    'b')

@@ -13,7 +13,7 @@ return address, the yield, gets).
 """
 import collections
 
-from recomp import lower, routines, stack, structure
+from recomp import timing, lower, routines, stack, structure
 
 # the exception handlers (vectors 2-23, the traps' 0x254) and their
 # stubs: crash screens, a panic in the port.  0x260 (the unused
@@ -76,7 +76,11 @@ def build(d):
                 for k, a in enumerate(b.insns):
                     i = d.insns[a]
                     if a == 0x7C4A and i.mn == 'movem.l':
-                        continue     # us: sp reloaded before the main loop
+                        # us: sp reloaded before the main loop; its time
+                        pre, post = lower.Lowerer.timing(
+                            i, timing.cost(i))
+                        ops += pre + post
+                        continue
                     lw = low.lower(a)
                     ops += lw.stmts
                     r.cycles[start] += lw.cycles

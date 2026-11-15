@@ -331,17 +331,29 @@ def drop_saves(r, prog=None):
     # restores (X = slot holding X's value)
     saves, restores, reads = {}, {}, {}
     for s in starts:
+        # the tags again, statement by statement: a save is one of the
+        # register's own value, a restore one of a slot holding it (a
+        # register saved around a call in a loop holds something else)
+        t = dict(tags_in.get(s, {}))
         for k, op in enumerate(r.ops.get(s, [])):
+            if op[0] in ('call', 'callx', 'calltable'):
+                for x in regs:
+                    t.pop(x, None)
             if op[0] != 'set':
                 continue
             src = op[2].t
-            if is_slot(op[1]) and src in preserved:
+            if is_slot(op[1]) and src in preserved and t.get(src) == src:
                 saves[(s, k)] = (op[1], src)
-            elif op[1] in preserved and is_slot(src):
+            elif op[1] in preserved and is_slot(src) and \
+                    t.get(src) == op[1]:
                 restores[(s, k)] = (op[1], src)
             for u in op[2].uses:
                 if is_slot(u):
                     reads.setdefault(u, []).append((s, k))
+            if src in t or is_slot(src):
+                t[op[1]] = t.get(src)
+            else:
+                t.pop(op[1], None)
         # what a callee reads above its return address: the caller's
         # slots (func_010BA2 pops what its callers saved)
         for k, op in enumerate(r.ops.get(s, [])):

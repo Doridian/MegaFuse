@@ -7,6 +7,13 @@ use crate::Game;
 const RAM_FROM: u32 = 0xE0_0000;
 const ROM_TO: u32 = 0x40_0000;
 
+/// The Z80's side (0xA00000-0xA0FFFF): an access waits a cycle for its
+/// bus, before it is made.
+#[inline]
+fn z80_side(a: u32) -> bool {
+    a & 0xFF_0000 == 0xA0_0000
+}
+
 impl Game {
     #[inline]
     #[must_use]
@@ -17,6 +24,10 @@ impl Game {
         } else if a < ROM_TO {
             self.rom.get(a as usize).copied().unwrap_or(0xFF)
         } else {
+            if z80_side(a) {
+                self.clock += 7;
+            }
+            self.sync();
             self.hw.read8(a)
         }
     }
@@ -28,6 +39,10 @@ impl Game {
         if a >= RAM_FROM || a < ROM_TO {
             u16::from_be_bytes([self.read8(a), self.read8(a + 1)])
         } else {
+            if z80_side(a) {
+                self.clock += 7;
+            }
+            self.sync();
             self.hw.read16(a)
         }
     }
@@ -42,7 +57,7 @@ impl Game {
 
     /// Debugging: MEGAFUSE_TRAP=ADDR (hex) panics, with a backtrace,
     /// at the first write of something other than zero that covers the
-    /// byte at ADDR (after MEGAFUSE_TRAP_AFTER cycles).
+    /// byte at ADDR (after MEGAFUSE_TRAP_AFTER master clocks).
     fn trap(&self, a: u32, n: u32, value: u32) {
         static TRAP: std::sync::OnceLock<Option<u32>> = std::sync::OnceLock::new();
         let t = TRAP.get_or_init(|| {
@@ -53,8 +68,8 @@ impl Game {
             std::env::var("MEGAFUSE_TRAP_AFTER").ok().and_then(|v| v.parse().ok()).unwrap_or(0)
         });
         if let Some(t) = *t {
-            if self.cycles >= after && value != 0 && (t & 0xFF_FFFF).wrapping_sub(a) < n {
-                panic!("a write to {a:06X} (cycle {})", self.cycles);
+            if self.clock >= after && value != 0 && (t & 0xFF_FFFF).wrapping_sub(a) < n {
+                panic!("a write to {a:06X} (clock {})", self.clock);
             }
         }
     }
@@ -66,6 +81,10 @@ impl Game {
         if a >= RAM_FROM {
             self.ram[(a & 0xFFFF) as usize] = value;
         } else if a >= ROM_TO {
+            if z80_side(a) {
+                self.clock += 7;
+            }
+            self.sync();
             self.hw.write8(a, value);
         }
     }
@@ -79,17 +98,32 @@ impl Game {
             self.ram[(a & 0xFFFF) as usize] = hi;
             self.ram[((a + 1) & 0xFFFF) as usize] = lo;
         } else if a >= ROM_TO {
+            if z80_side(a) {
+                self.clock += 7;
+            }
+            self.sync();
+            let control = a & 0xFF_FFFC == 0xC0_0004;
+            let before = if control { self.hw.irq_level() } else { 0 };
             self.hw.write16(a, value);
+            let stall = self.hw.take_stall();
+            if stall > self.clock {
+                self.clock = stall;
+            }
             if a & 0xFF_FFF8 == 0xC0_0000 {
                 self.dma();
+            }
+            if control && self.hw.irq_level() > before {
+                self.irq_raised();
             }
         }
     }
 
     #[inline]
     pub fn write32(&mut self, addr: u32, value: u32) {
+        self.long_write = true;
         self.write16(addr, (value >> 16) as u16);
         self.write16(addr.wrapping_add(2), value as u16);
+        self.long_write = false;
     }
 
     /// `move.w sr,...`: supervisor mode, the interrupt mask and the flags.
@@ -102,6 +136,53 @@ impl Game {
             | u16::from(z) << 2
             | u16::from(v) << 1
             | u16::from(c)
+    }
+
+    /// A shift or rotate by a register's count: 2 cycles a bit, and a
+    /// refresh due meanwhile skipped (none of it for a count of 0).
+    #[inline]
+    pub fn shift_time(&mut self, count: u32) {
+        let n = count & 63;
+        if n != 0 {
+            self.extra(2 * n);
+            self.skip_refresh();
+        }
+    }
+
+    /// `mulu.w`: 38 cycles and 2 for each bit set in the source.
+    #[inline]
+    pub fn mulu_time(&mut self, source: u16) {
+        self.extra(38 + 2 * source.count_ones());
+    }
+
+    /// `divu.w`: 76 cycles at least, more by how the division goes, bit
+    /// by bit (the 68000's microcode, as Genesis Plus GX counts it); an
+    /// overflow is found in 10; a refresh due meanwhile is skipped.
+    pub fn divu_time(&mut self, dividend: u32, divisor: u16) {
+        if divisor == 0 {
+            return;
+        }
+        if dividend / u32::from(divisor) >= 0x1_0000 {
+            self.extra(10);
+            return;
+        }
+        let mut t = 76;
+        let d = u32::from(divisor) << 16;
+        let mut n = dividend;
+        for _ in 0..15 {
+            if (n as i32) < 0 {
+                n = (n << 1).wrapping_sub(d);
+            } else {
+                n <<= 1;
+                t += 4;
+                if n >= d {
+                    n = n.wrapping_sub(d);
+                    t -= 2;
+                }
+            }
+        }
+        self.extra(t);
+        self.skip_refresh();
     }
 
     /// `divu.w`: the 32-bit dividend by a 16-bit divisor, the remainder
