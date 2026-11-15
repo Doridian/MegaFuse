@@ -40,9 +40,29 @@ impl Game {
         u32::from(hi) << 16 | u32::from(lo)
     }
 
+    /// Debugging: MEGAFUSE_TRAP=ADDR (hex) panics, with a backtrace,
+    /// at the first write of something other than zero that covers the
+    /// byte at ADDR (after MEGAFUSE_TRAP_AFTER cycles).
+    fn trap(&self, a: u32, n: u32, value: u32) {
+        static TRAP: std::sync::OnceLock<Option<u32>> = std::sync::OnceLock::new();
+        let t = TRAP.get_or_init(|| {
+            std::env::var("MEGAFUSE_TRAP").ok().and_then(|v| u32::from_str_radix(&v, 16).ok())
+        });
+        static AFTER: std::sync::OnceLock<u64> = std::sync::OnceLock::new();
+        let after = *AFTER.get_or_init(|| {
+            std::env::var("MEGAFUSE_TRAP_AFTER").ok().and_then(|v| v.parse().ok()).unwrap_or(0)
+        });
+        if let Some(t) = *t {
+            if self.cycles >= after && value != 0 && (t & 0xFF_FFFF).wrapping_sub(a) < n {
+                panic!("a write to {a:06X} (cycle {})", self.cycles);
+            }
+        }
+    }
+
     #[inline]
     pub fn write8(&mut self, addr: u32, value: u8) {
         let a = addr & 0xFF_FFFF;
+        self.trap(a, 1, u32::from(value));
         if a >= RAM_FROM {
             self.ram[(a & 0xFFFF) as usize] = value;
         } else if a >= ROM_TO {
@@ -53,12 +73,16 @@ impl Game {
     #[inline]
     pub fn write16(&mut self, addr: u32, value: u16) {
         let a = addr & 0xFF_FFFF;
+        self.trap(a, 2, u32::from(value));
         if a >= RAM_FROM {
             let [hi, lo] = value.to_be_bytes();
             self.ram[(a & 0xFFFF) as usize] = hi;
             self.ram[((a + 1) & 0xFFFF) as usize] = lo;
         } else if a >= ROM_TO {
             self.hw.write16(a, value);
+            if a & 0xFF_FFF8 == 0xC0_0000 {
+                self.dma();
+            }
         }
     }
 
@@ -68,11 +92,11 @@ impl Game {
         self.write16(addr.wrapping_add(2), value as u16);
     }
 
-    /// `move.w sr,...`: the interrupt mask at 7 (the port takes the
-    /// interrupts between frames) and the flags.
+    /// `move.w sr,...`: supervisor mode, the interrupt mask and the flags.
     #[must_use]
     pub fn sr_word(&self, x: bool, n: bool, z: bool, v: bool, c: bool) -> u16 {
-        0x2700
+        0x2000
+            | u16::from(self.ipl) << 8
             | u16::from(x) << 4
             | u16::from(n) << 3
             | u16::from(z) << 2

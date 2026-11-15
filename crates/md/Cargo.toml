@@ -1,0 +1,13 @@
+[package]
+name = "md"
+version = "0.1.0"
+description = "The Mega Drive hardware Mega Bomberman drives, but its 68000"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+game = { path = "../game" }
+
+[lints]
+workspace = true

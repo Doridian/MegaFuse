@@ -164,6 +164,8 @@ class Emitter:
                         live |= set(op[2].uses)
                     elif op[0] == 'store':
                         live |= set(op[2].uses) | set(op[3].uses)
+                    elif op[0] == 'eff':
+                        live |= set(op[1].uses)
                     else:
                         u, df = self.call_io(op)
                         unw = self.p.routines.get(op[1]) \
@@ -189,6 +191,7 @@ class Emitter:
                     '        unimplemented!("routine %06X: %s");\n    }\n' % (
                         fname(e), e, r.error.replace('"', "'")))
         self.r = r
+        self.waits = set()
         self.live = self.liveness(r)
         self.family = self.is_family(e)
         self.root = e in self.roots
@@ -265,8 +268,13 @@ class Emitter:
             return (['%s: {' % n[1]] + ind(self.node(n[2], depth + 1)) +
                     ['}'])
         if k == 'loop':
-            return (['%s: loop {' % n[1]] + ind(self.node(n[2], depth + 1)) +
-                    ['}'])
+            wait = self.polls(n[2])
+            if wait:
+                self.waits.add(n[1])
+            body = self.node(n[2], depth + 1)
+            self.waits.discard(n[1])
+            head = ['// waits for %s' % wait] if wait else []
+            return head + ['%s: loop {' % n[1]] + ind(body) + ['}']
         if k == 'break':
             return ['break %s;' % n[1]]
         if k == 'continue':
@@ -277,8 +285,61 @@ class Emitter:
             return self.exit(n[1])
         raise ValueError(k)
 
+    def blocks_in(self, n, out):
+        if n[0] in ('code', 'exit'):
+            out.add(n[1])
+        elif n[0] == 'if':
+            out.add(n[1])
+            self.blocks_in(n[2], out)
+            self.blocks_in(n[3], out)
+        elif n[0] == 'seq':
+            for c in n[1]:
+                self.blocks_in(c, out)
+        elif n[0] in ('labeled', 'loop'):
+            self.blocks_in(n[2], out)
+        return out
+
+    def polls(self, n):
+        """A loop that only reads work RAM (at fixed addresses) and
+        branches: it waits for an interrupt handler to change what it
+        reads.  Returns what it reads, or None."""
+        reads = set()
+        for start in self.blocks_in(n, set()):
+            for op in self.r.ops[start]:
+                if op[0] != 'set':
+                    return None
+                t = op[2].t
+                if 'self.read' in t:
+                    import re
+                    for m in re.finditer(r'self\.read\d+\(0x([0-9A-F_]+)_u32\)', t):
+                        a = int(m.group(1).replace('_', ''), 16)
+                        if a < 0xE00000:
+                            return None
+                        reads.add(a)
+                    if 'self.read' in re.sub(
+                            r'self\.read\d+\(0x[0-9A-F_]+_u32\)', '', t):
+                        return None
+            term = self.r.term.get(start)
+            b = self.r.blocks[start]
+            if term is None:
+                if b.kind == 'exit':
+                    return None          # falls into another routine
+            elif term[0] in ('ret', 'rte'):
+                pass
+            elif term[0] == 'cond' and term[2] in self.r.blocks:
+                pass
+            elif term[0] == 'jump' and term[1] in self.r.blocks:
+                pass
+            else:
+                return None
+        if not reads:
+            return None
+        return ', '.join('0x%06X' % (a & 0xFFFFFF) for a in sorted(reads))
+
     def code(self, start):
-        out = []
+        # the block's time: the beam moves on, interrupts may come
+        # (docs/PORT.md, "Time")
+        out = ['self.tick(%d);' % self.r.cycles.get(start, 4)]
         for k, op in enumerate(self.r.ops[start]):
             live = self.live.get((start, k), set())
             if op[0] == 'set':
@@ -293,6 +354,8 @@ class Emitter:
                 size, a, v = op[1], op[2], op[3]
                 out.append('self.write%s(%s, %s);' % (
                     {'b': '8', 'w': '16', 'l': '32'}[size], a.t, v.t))
+            elif op[0] == 'eff':
+                out.append('%s;' % op[1].t)
             else:
                 out += self.call(op, live)
         return out

@@ -5,3 +5,18 @@ version = 4
 [[package]]
 name = "game"
 version = "0.1.0"
+
+[[package]]
+name = "md"
+version = "0.1.0"
+dependencies = [
+ "game",
+]
+
+[[package]]
+name = "megafuse"
+version = "0.1.0"
+dependencies = [
+ "game",
+ "md",
+]

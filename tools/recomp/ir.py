@@ -23,7 +23,7 @@ CRASH_RANGE = (0x200, 0x26A)
 class Routine:
     __slots__ = ('entry', 'body', 'blocks', 'tree', 'ops', 'term',
                  'depth', 'crash', 'unwind', 'reads_ret', 'args', 'error',
-                 'slot_types')
+                 'slot_types', 'cycles', 'preserved')
 
     def __init__(self, entry, body):
         self.entry = entry
@@ -41,6 +41,10 @@ class Routine:
         self.args = set()      # argN slots it reads
         self.error = None
         self.slot_types = {}   # stack local -> its Rust type
+        self.cycles = {}       # block start -> its 68000 cycles
+        # registers it saves and restores (dataflow.drop_saves): its
+        # callers' are untouched whatever it does with them
+        self.preserved = set()
 
 
 class Program:
@@ -66,12 +70,14 @@ def build(d):
             for start, b in r.blocks.items():
                 ops = []
                 term = None
+                r.cycles[start] = 0
                 for k, a in enumerate(b.insns):
                     i = d.insns[a]
                     if a == 0x7C4A and i.mn == 'movem.l':
                         continue     # us: sp reloaded before the main loop
                     lw = low.lower(a)
                     ops += lw.stmts
+                    r.cycles[start] += lw.cycles
                     # popping the routine's own return address: it returns
                     # from its caller too (the local `unw`, emit.py)
                     if i.mn != 'unlk' and i.flow != 'ret':

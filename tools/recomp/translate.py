@@ -37,7 +37,7 @@ def main():
     p = ir.build(d)
     for r in p.routines.values():
         if not (r.error or r.crash):
-            dataflow.drop_saves(r, p)
+            r.preserved = dataflow.drop_saves(r, p)
     fams = families.families(d, p.routines, 'us', taken_routines(d, p))
     vectors = [int.from_bytes(d.rom[4 * k:4 * k + 4], 'big')
                for k in range(1, 64)]
@@ -91,7 +91,15 @@ def main():
         f.write('\n/// The reset routine (the vector at 4).\n')
         f.write('pub const RESET: u32 = 0x%06X;\n\n' % reset)
         f.write('impl crate::Game {\n    pub(crate) fn call_reset(&mut self) '
-                '{\n        self.%s();\n    }\n}\n' % emit.fname(reset))
+                '{\n        self.%s();\n    }\n\n' % emit.fname(reset))
+        f.write('    /// The handler of interrupt level (the vectors at 0x60 '
+                'on).\n    pub(crate) fn call_interrupt(&mut self, level: '
+                'u8) {\n        match level {\n')
+        for lv in range(1, 8):
+            v = int.from_bytes(d.rom[0x60 + 4 * lv:0x64 + 4 * lv], 'big')
+            if v in p.routines:
+                f.write('            %d => self.%s(),\n' % (lv, emit.fname(v)))
+        f.write('            _ => {}\n        }\n    }\n}\n')
     print('%d routines, %d families, %d files' % (
         len(entries), len(flow.fams), len(files)))
 

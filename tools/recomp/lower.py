@@ -16,6 +16,8 @@ restores registers through slots, which the printer turns into nothing
 where the value comes back unchanged.
 """
 
+from recomp import timing
+
 REGS = ['d%d' % k for k in range(8)] + ['a%d' % k for k in range(7)]
 FLAGS = ['x', 'n', 'z', 'v', 'c']
 TY = {'b': 'u8', 'w': 'u16', 'l': 'u32'}
@@ -106,7 +108,7 @@ def is_zero(x):
 
 class Lowered:
     """An instruction's statements and its way out."""
-    __slots__ = ('stmts', 'term')
+    __slots__ = ('stmts', 'term', 'cycles')
 
     def __init__(self):
         self.stmts = []
@@ -188,7 +190,13 @@ class Lowerer:
                 raise LowerError('sp as a value')
             return ('a', o.reg)
         if k in ('absw', 'absl'):
-            return ('mem', const(o.addr, 'u32'), True)
+            # the register gets all 32 bits: a word address sign-extended
+            # (0x800A is 0xFFFF800A), a long one as written; the bus
+            # sees 24
+            v = o.val & 0xFFFF if k == 'absw' else o.val
+            if k == 'absw' and v & 0x8000:
+                v |= 0xFFFF0000
+            return ('mem', const(v, 'u32'), True)
         if k in ('pcdisp', 'pcindex') and k == 'pcdisp':
             return ('mem', const(o.addr, 'u32'), True)
         dep = self.cur_depth
@@ -345,6 +353,8 @@ class Lowerer:
         if f is None:
             raise LowerError('no lowering for %s' % mn)
         f(out, i, base, size, ops)
+        # the instruction's time (timing.py): tools/recomp adds a block's up
+        out.cycles = timing.cycles(i)
         return out
 
     def op_nop(self, out, i, base, size, ops):
@@ -364,6 +374,10 @@ class Lowerer:
             for k, name in enumerate(['c', 'v', 'z', 'n', 'x']):
                 out.stmts.append(('set', name, mk('(%s >> %d) & 1 != 0' % (
                     v.t, k), 'bool', v)))
+            if dst.kind == 'sr':
+                # the interrupt mask: interrupts wait while it is up
+                out.stmts.append(('eff', mk('self.set_ipl((%s >> 8) as u8 '
+                                            '& 7)' % v.t, '()', v)))
             return
         if dst.kind == 'usp':
             return          # the game stays in supervisor mode
@@ -516,6 +530,16 @@ class Lowerer:
     def logic(self, out, i, size, ops, op):
         if ops[-1].kind in ('ccr', 'sr'):
             v = ops[0].val
+            if ops[-1].kind == 'sr':
+                m = (v >> 8) & 7
+                if op == '&':
+                    e = 'self.set_ipl(self.ipl() & %d)' % m
+                elif op == '|':
+                    e = 'self.set_ipl(self.ipl() | %d)' % m
+                else:
+                    e = 'self.set_ipl(self.ipl() ^ %d)' % m
+                if m or op == '&':
+                    out.stmts.append(('eff', X(e, '()')))
             for k, name in enumerate(['c', 'v', 'z', 'n', 'x']):
                 bit = v >> k & 1
                 cur = var(name, 'bool')

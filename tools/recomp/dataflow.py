@@ -31,6 +31,8 @@ def op_uses_defs(op, sig):
         return set(op[2].uses) & RES, {op[1]} & RES
     if k == 'store':
         return set(op[2].uses | op[3].uses) & RES, set()
+    if k == 'eff':
+        return set(op[1].uses) & RES, set()
     if k == 'call':
         i, o = sig(op[1])
         return set(i), set(o)
@@ -98,6 +100,7 @@ class Flow:
                             m |= self.MOD[x]
                     else:
                         m |= self.MOD.get(t, set())
+                m -= r.preserved
                 if not m <= self.MOD[e]:
                     self.MOD[e] |= m
                     changed = True
@@ -310,12 +313,17 @@ def drop_saves(r, prog=None):
                     tags_in[nxt] = dict(t)
     for s, b in r.blocks.items():
         term = r.term.get(s)
-        leaves = b.kind == 'exit' or term is not None and (
-            term[0] in ('ret', 'jumpx', 'table') or
-            (term[0] == 'jump' and term[1] not in r.blocks) or
-            (term[0] == 'cond' and term[2] not in r.blocks))
-        if leaves and s in out_of:
+        if s not in out_of:
+            continue
+        if term is not None and term[0] in ('ret', 'rte'):
             exits.append(out_of[s])
+        elif b.kind == 'exit' or term is not None and (
+                term[0] in ('jumpx', 'table') or
+                (term[0] == 'jump' and term[1] not in r.blocks) or
+                (term[0] == 'cond' and term[2] not in r.blocks)):
+            # a tail call: what it calls may change any register and hand
+            # it back, so nothing is preserved through it
+            exits.append({})
     if not exits:
         return set()
     preserved = set(x for x in regs if all(e.get(x) == x for e in exits))

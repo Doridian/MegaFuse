@@ -78,3 +78,36 @@ them, docs/LAYOUT.md "SHIFT"; the port's comparisons allow for them):
 - `func_00D652` returns with d0 still pushed when `func_001222` can't
   make the task it asks for (`0xD6DA`): the `rts` would jump to d0's
   value. The port returns.
+
+## Time
+
+Time passes a basic block at a time: each block starts with
+`self.tick(N)`, its instructions' 68000 cycles (tools/recomp/timing.py,
+the 68000's tables in outline). As the cycles add up the VDP draws its
+lines (488 cycles each, 262 a frame) and the interrupts come where the
+VDP raises them, between two blocks as between two instructions on the
+console: the horizontal one where its line counter runs out, the vertical
+one at line 224, unless the mask (SR, `set_ipl`) holds them back. Code
+that runs for frames without waiting (the ROM checksum at power-on,
+decompression) lets the interrupts in as on the console, a loop that
+polls what an interrupt handler writes just lets time pass, and a write
+to the VDP lands on the line it would. A DMA from memory holds the 68000
+as long as it takes (18 bytes a line while the picture is drawn, 205 in
+the blank).
+
+The figures are close, not exact (no VDP access waits, no refresh): over
+the power-on checksum, some 150 frames, the port is 2 frames early, and
+the drift grows over loads. The game's random numbers mix in the frame
+count (0xA400), so after a few frames of drift they differ.
+
+## Checking it
+
+`tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`,
+headless: tools/mdtrace's pad scripts, RAM dumps and screenshots) and the
+original in Genesis Plus GX on the same scripts and compares work RAM at
+checkpoints, each port frame with the original's closest within a window
+(the drift), the stack and the frame counters aside; and the screens at
+that offset, pixel for pixel. With no input (`none`): the same RAM and
+screens through the SEGA logo, the power-on checksum, the Hudson screen
+and the title, to frame 760, where the drift has reached the random
+numbers.
