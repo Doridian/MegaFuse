@@ -15,9 +15,11 @@ import collections
 
 from recomp import lower, routines, stack, structure
 
-# entries of the exception handlers (vectors 2-23 but the interrupts):
-# crash screens, a panic in the port
-CRASH_RANGE = (0x200, 0x26A)
+# the exception handlers (vectors 2-23, the traps' 0x254) and their
+# stubs: crash screens, a panic in the port.  0x260 (the unused
+# interrupts: it waits forever) and 0x266 (`rte`) are ordinary, and
+# 0x268 on is the game's code
+CRASH_RANGE = (0x200, 0x260)
 
 
 class Routine:

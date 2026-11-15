@@ -61,7 +61,7 @@ Drive hardware the game drives, the platform) are.
 - **Shared epilogues.** A tail that restores registers and returns,
   jumped to with them saved (`0x5010`, `0x502E`, `0x91F0`, `0x91F4`), is
   copied into each routine that jumps to it rather than made a routine.
-- **Crashes.** The exception handlers (0x200-0x26A) read the exception's
+- **Crashes.** The exception handlers (0x200-0x25F) read the exception's
   frame and show where it happened: in the port, a panic.
 
 - **Waiting.** Most of the game runs in the tasks, once a frame. Some code

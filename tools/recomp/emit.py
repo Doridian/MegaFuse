@@ -74,9 +74,14 @@ class Emitter:
             u, d = dataflow.op_uses_defs(op, self.f.sig)
             if callee is not None:
                 for n in callee.args:
-                    u.add(self.slot_name(op[2] - n,
-                                         size_of(callee.slot_types.get(
-                                             'arg%d' % n))))
+                    pos = op[2] - n
+                    if pos > 0:
+                        sv = self.slot_value(pos, callee.slot_types.get(
+                            'arg%d' % n, 'u32'))
+                        if sv is not None:
+                            u.add(sv[0])
+                    else:
+                        u.add(self.slot_name(pos))
             if callee is not None and self.is_family(op[1]):
                 fk = self.f.fam_of[op[1]]
                 u |= set(self.f.fam_in[fk])
@@ -85,6 +90,33 @@ class Emitter:
         u, d = dataflow.op_uses_defs(op, self.f.sig)
         u |= set(op[1].uses)
         return u, d
+
+    def slot_value(self, pos, ty):
+        """(the caller's local holding the n bytes at pos, the expression
+        for them as ty): a slot of its own (s<position>_<size>, position
+        bytes below the entry, covering pos down to pos - bytes + 1) that
+        contains them, read big-endian (the DMA routine's length is a word
+        its callers push and it reads as two bytes), or None."""
+        n = {'u8': 1, 'u16': 2, 'u32': 4}.get(ty, 4)
+        best = None
+        for name, st in self.r.slot_types.items():
+            if not dataflow.is_slot(name):
+                continue
+            P = int(name[1:].partition('_')[0])
+            S = {'u8': 1, 'u16': 2, 'u32': 4}[st]
+            if st == 'u8':
+                S = 1
+            if P >= pos and pos - n + 1 >= P - S + 1:
+                if best is None or S < best[2]:
+                    best = (name, st, S, P)
+        if best is None:
+            return None
+        name, st, S, P = best
+        if S == n and P == pos:
+            return name, name
+        shift = 8 * (S - (P - pos) - n)
+        return name, '((%s >> %d) as %s)' % (name, shift, ty) if shift else \
+            '(%s as %s)' % (name, ty)
 
     def slot_name(self, pos, size=None):
         """The caller's local at pos: a slot of its own (the size the
@@ -391,14 +423,19 @@ class Emitter:
             if n == 'ret':
                 args.append('0x%X_u32' % ret)
             elif n.startswith('arg'):
-                slot = self.slot_name(depth - int(n[3:]), size_of(t))
-                have = self.r.slot_types.get(slot)
-                if have is None:
-                    args.append('0')
-                elif have != t:
-                    args.append('%s as %s' % (slot, t))
+                pos = depth - int(n[3:])
+                if pos > 0:
+                    sv = self.slot_value(pos, t)
+                    args.append(sv[1] if sv else '0')
                 else:
-                    args.append(slot)
+                    slot = self.slot_name(pos)
+                    have = self.r.slot_types.get(slot)
+                    if have is None:
+                        args.append('0')
+                    elif have != t:
+                        args.append('%s as %s' % (slot, t))
+                    else:
+                        args.append(slot)
             else:
                 args.append(n)
         res = self.results(callee)

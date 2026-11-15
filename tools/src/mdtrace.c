@@ -27,6 +27,12 @@
  *     --pcs FILE         every instruction executed, `FRAME PC` per line,
  *                        and every read of the ROM, `FRAME ADDR Rn VALUE`,
  *     --pcs-frames A:B   in frames A to B-1 (default 0:1)
+ *     --snap ADDR        each call of the routine at ADDR (hex): the
+ *                        registers and work RAM when it is entered and when
+ *                        it returns, PREFIX<n>-in.bin and PREFIX<n>-out.bin
+ *                        (--snap-out PREFIX, up to --snap-limit N calls,
+ *                        default 50): D0-D7 A0-A7 PC SR as big-endian longs,
+ *                        then the 64 KB of work RAM (tools/routine_check.py)
  *     --edges FILE       every jump between instructions that ran (from the
  *                        start of one to the next that ran, where that isn't
  *                        2-10 bytes on), `FROM TO` once per pair: the
@@ -105,6 +111,65 @@ enum {
     HOOK_M68K_W = 1 << 2,
 };
 
+/* --snap: calls of one routine, entered and returned */
+static unsigned snap_addr = 0xFFFFFFFF;
+static const char *snap_out = "snap-";
+static int snap_limit = 50, snap_n;
+#define SNAP_DEPTH 64
+static struct { unsigned sp, ret; int n; } snap_open[SNAP_DEPTH];
+static int snap_open_n;
+
+static void snap_write(int n, const char *what)
+{
+    char path[1024];
+    FILE *f;
+    int r;
+    const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+    size_t k, size = p_get_memory_size(RETRO_MEMORY_SYSTEM_RAM);
+    snprintf(path, sizeof path, "%s%d-%s.bin", snap_out, n, what);
+    f = fopen(path, "wb");
+    if (!f)
+        return;
+    for (r = 0; r < 18; r++) {
+        unsigned v = p_get_reg(r);
+        uint8_t b[4] = { v >> 24, v >> 16, v >> 8, v };
+        fwrite(b, 1, 4, f);
+    }
+    for (k = 0; k + 1 < size; k += 2) {
+        uint16_t v;
+        uint8_t b[2];
+        memcpy(&v, w + k, 2);
+        b[0] = v >> 8;
+        b[1] = v & 0xFF;
+        fwrite(b, 1, 2, f);
+    }
+    fclose(f);
+}
+
+static void snap_step(unsigned pc)
+{
+    unsigned sp = p_get_reg(REG_A7) & 0xFFFFFF;
+    if (snap_open_n && pc == snap_open[snap_open_n - 1].ret &&
+        sp == snap_open[snap_open_n - 1].sp + 4) {
+        snap_open_n--;
+        snap_write(snap_open[snap_open_n].n, "out");
+    }
+    if (pc == snap_addr && snap_n < snap_limit && snap_open_n < SNAP_DEPTH) {
+        const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+        unsigned a = sp & 0xFFFF, ret = 0;
+        int k;
+        for (k = 0; k < 4; k++) {
+            unsigned b = (a + k) & 0xFFFF;
+            ret = ret << 8 | w[b ^ 1];
+        }
+        snap_open[snap_open_n].sp = sp;
+        snap_open[snap_open_n].ret = ret & 0xFFFFFF;
+        snap_open[snap_open_n].n = snap_n;
+        snap_open_n++;
+        snap_write(snap_n++, "in");
+    }
+}
+
 /* --edges: a set of (from, to) pairs, open addressing */
 #define EDGE_BITS 20
 static unsigned long long *edges;
@@ -130,6 +195,8 @@ static void hook(int type, int width, unsigned address, unsigned value)
 {
     address &= 0xFFFFFF;
     if (type == HOOK_M68K_E) {
+        if (snap_addr != 0xFFFFFFFF)
+            snap_step(address);
         if (edges && prev_pc != 0xFFFFFFFF &&
             (address <= prev_pc || address > prev_pc + 10))
             edge(prev_pc, address);
@@ -582,6 +649,9 @@ int main(int argc, char **argv)
         }
         else if (ARG("--log")) log_path = argv[++i];
         else if (ARG("--edges")) edges_path = argv[++i];
+        else if (ARG("--snap")) snap_addr = strtoul(argv[++i], NULL, 16);
+        else if (ARG("--snap-out")) snap_out = argv[++i];
+        else if (ARG("--snap-limit")) snap_limit = strtol(argv[++i], NULL, 0);
         else if (ARG("--ignore-reads") && n_ignore < 16)
             ignore_pc[n_ignore++] = strtoul(argv[++i], NULL, 16);
         else if (ARG("--watch") && n_watch < 16)

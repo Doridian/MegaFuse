@@ -9,6 +9,8 @@ from the code:
 
 - a table the code calls through (`movea.l (tbl,pc,dn),an; jsr (an)`,
   `jmp (tbl,pc,dn)`): its entries, with its site's family;
+- a routine in a table of pointers: the family of its traced neighbours
+  in the table (an area record's handlers);
 - any other routine whose address the code stores (`move.l #f,...`)
   goes with the family most traced routines stored the same way belong
   to: pushed as an argument to func_001222, func_00053E or func_0003E8
@@ -103,6 +105,29 @@ def families(d, routines, version, taken):
             for p in store_patterns(d, ks, t):
                 vote[p][root] += 1
     known = set().union(*members.values()) if members else set()
+    # a routine in a table of pointers goes with the family its traced
+    # neighbours in the table belong to (an area record's handlers,
+    # D_00A0D0, are called through 0x9E80 one by one)
+    fam_of = {}
+    for root, ms in members.items():
+        for m in ms:
+            fam_of[m] = root
+    runs = []
+    for a in sorted(d.ptrs):
+        if runs and a == runs[-1][-1] + 4:
+            runs[-1].append(a)
+        else:
+            runs.append([a])
+    for run in runs:
+        targets = [d.ptrs[a] for a in run]
+        roots = collections.Counter(fam_of[t] for t in targets if t in fam_of)
+        if not roots:
+            continue
+        root = roots.most_common(1)[0][0]
+        for t in targets:
+            if t in routines and t not in known:
+                members[root].add(t)
+                known.add(t)
     left = set()
     for t in sorted(taken - known):
         best = collections.Counter()

@@ -100,6 +100,10 @@ impl Vdp {
         self.pending = false;
         self.addr = (self.addr & 0x3FFF) | (u32::from(w & 3) << 14);
         self.code = (self.code & 0x03) | ((w >> 2) & 0x3C) as u8;
+        if std::env::var_os("MEGAFUSE_DMA").is_some() && self.code & 0x20 != 0 {
+            eprintln!("dma code {:02X} addr {:04X} mode {:02X} len {:02X}{:02X} src {:02X}{:02X}{:02X} reg1 {:02X}",
+                self.code, self.addr, self.regs[23] >> 6, self.regs[20], self.regs[19], self.regs[23], self.regs[22], self.regs[21], self.regs[1]);
+        }
         if self.code & 0x20 != 0 && self.regs[1] & 0x10 != 0 {
             match self.regs[23] >> 6 {
                 0 | 1 => {

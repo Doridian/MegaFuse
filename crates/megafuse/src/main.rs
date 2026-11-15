@@ -107,8 +107,57 @@ impl Frontend for Headless {
     }
 }
 
+struct Silent;
+
+impl Frontend for Silent {
+    fn frame(&mut self, _: &[u32], _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
+}
+
+/// `megafuse --routine ROM ENTRY IN OUT`: one routine from a state of the
+/// original's (tools/mdtrace --snap: D0-D7 A0-A7 PC SR as big-endian
+/// longs, then work RAM), the result written the same way
+/// (tools/routine_check.py compares it with the original's).
+fn routine(args: &[String]) {
+    let rom = std::fs::read(&args[2]).expect("the ROM");
+    let entry = u32::from_str_radix(&args[3], 16).expect("ENTRY in hex");
+    let snap = std::fs::read(&args[4]).expect("IN");
+    let reg = |k: usize| u32::from_be_bytes([snap[4 * k], snap[4 * k + 1], snap[4 * k + 2], snap[4 * k + 3]]);
+    let mut regs = game::Regs {
+        d0: reg(0), d1: reg(1), d2: reg(2), d3: reg(3), d4: reg(4), d5: reg(5), d6: reg(6), d7: reg(7),
+        a0: reg(8), a1: reg(9), a2: reg(10), a3: reg(11), a4: reg(12), a5: reg(13), a6: reg(14),
+        ..game::Regs::default()
+    };
+    let sr = reg(17);
+    regs.c = sr & 1 != 0;
+    regs.v = sr & 2 != 0;
+    regs.z = sr & 4 != 0;
+    regs.n = sr & 8 != 0;
+    regs.x = sr & 16 != 0;
+    let mut game = game::Game::new(rom, Box::new(Md::new(Box::new(Silent))));
+    game.ram.copy_from_slice(&snap[72..72 + 0x10000]);
+    game.mask_interrupts();
+    if !game.call_by_address(entry, &mut regs) {
+        eprintln!("{entry:06X}: not callable on its own");
+        std::process::exit(3);
+    }
+    let mut out = Vec::new();
+    for v in [regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
+              regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, 0, 0,
+              u32::from(regs.c) | u32::from(regs.v) << 1 | u32::from(regs.z) << 2
+                  | u32::from(regs.n) << 3 | u32::from(regs.x) << 4] {
+        out.extend_from_slice(&v.to_be_bytes());
+    }
+    out.extend_from_slice(&game.ram[..]);
+    std::fs::write(&args[5], out).expect("OUT");
+    println!("{}", game::Game::routine_outputs(entry).join(" "));
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    if args.get(1).map(String::as_str) == Some("--routine") {
+        routine(&args);
+        return;
+    }
     let mut rom_path = None;
     let mut input = None;
     let mut h = Headless {

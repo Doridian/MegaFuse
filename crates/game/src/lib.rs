@@ -145,6 +145,11 @@ impl Game {
         self.ipl = saved;
     }
 
+    /// Tests: the interrupt mask as it is, for a routine run on its own.
+    pub fn mask_interrupts(&mut self) {
+        self.ipl = 7;
+    }
+
     /// The interrupt mask (SR bits 8-10).
     #[must_use]
     pub fn ipl(&self) -> u8 {

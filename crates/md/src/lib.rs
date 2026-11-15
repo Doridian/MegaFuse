@@ -189,6 +189,10 @@ impl game::Hardware for Md {
     }
 
     fn end_frame(&mut self, ram: &mut [u8; 0x10000]) {
+        if std::env::var("MEGAFUSE_VDP").ok().and_then(|v| v.parse::<u64>().ok()) == Some(self.frames) {
+            eprintln!("regs {:02X?}", self.vdp.regs);
+            eprintln!("cram {:03X?}", &self.vdp.cram[..32]);
+        }
         self.vdp.vint_pending = false;
         self.vdp.line = 0;
         self.frames += 1;
