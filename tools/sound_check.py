@@ -117,8 +117,11 @@ def check(script, n, tmp, a):
     if script:
         cmd[2:2] = ['--input', script]
         mt[4:4] = ['--input', script]
-        if '# teamplayer\n' in open(script).read():
+        text = open(script).read()
+        if '# teamplayer\n' in text:
             mt.insert(4, '--teamplayer')
+        if '# wayplay\n' in text:
+            mt.insert(4, '--wayplay')
     r = subprocess.run(['nice'] + cmd, cwd=TOP, capture_output=True,
                        text=True)
     subprocess.run(mt, cwd=TOP, check=True, capture_output=True)

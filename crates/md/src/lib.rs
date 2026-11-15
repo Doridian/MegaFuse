@@ -44,9 +44,13 @@ pub struct Md {
     pub sound: Sound,
     frontend: Box<dyn Frontend>,
     pub frames: u64,
-    /// The Team Player on port A (its TH/TR state and where it is in its
-    /// sequence), if one is plugged in.
-    teamplayer: Option<(u8, u8)>,
+    /// What is plugged into the pad ports.
+    plug: Plug,
+    /// The 3-button pads' TH (as last written; 0x40 high) and when, let
+    /// go high, it reads high: pads 1-4, and port B's behind a Team
+    /// Player.
+    pad_th: [u8; 5],
+    pad_latency: [u64; 5],
     /// The time of the access being made (master clocks) and the rest of
     /// the instruction making it.
     clock: u64,
@@ -87,6 +91,19 @@ const FIFO_H32: [u64; 28] = [
     LINE + 1770, LINE + 2090, LINE + 2250, LINE + 2410, LINE + 2730,
 ];
 
+/// What is plugged into the pad ports.
+#[derive(Clone, Copy)]
+enum Plug {
+    /// A 3-button pad in each (pads 1 and 2).
+    Pads,
+    /// Sega's Team Player on port A: where its TH/TR are and how far into
+    /// its sequence it is.
+    TeamPlayer { state: u8, counter: u8 },
+    /// EA's 4 Way Play: port B's latched TH, TR, TL pick the pad port A
+    /// reads (TH high: its ID).
+    WayPlay { latch: u8 },
+}
+
 /// What a DMA moves.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum DmaKind {
@@ -111,7 +128,9 @@ impl Md {
             sound: Sound::new(rom),
             frontend,
             frames: 0,
-            teamplayer: None,
+            plug: Plug::Pads,
+            pad_th: [0x40; 5],
+            pad_latency: [0; 5],
             clock: 0,
             rest: 0,
             line_clock: 0,
@@ -127,41 +146,102 @@ impl Md {
 
     /// A Team Player on port A, pads 1-4 behind it.
     pub fn plug_teamplayer(&mut self) {
-        self.teamplayer = Some((0x60, 0));
+        self.plug = Plug::TeamPlayer { state: 0x60, counter: 0 };
+    }
+
+    /// EA's 4 Way Play on both ports, pads 1-4 behind it.
+    pub fn plug_wayplay(&mut self) {
+        self.plug = Plug::WayPlay { latch: 0 };
     }
 
     /// A pad port's data: what the device puts out, but for the output
     /// bits and bit 7, which read back as written.
     fn pad_read(&self, port: usize) -> u8 {
-        let v = if port == 0 && self.teamplayer.is_some() {
-            self.teamplayer_read()
-        } else {
-            let pad = if self.teamplayer.is_some() { None } else { self.pads.get(port) };
-            self.pad3_read(port, pad.copied().unwrap_or(0))
+        let v = match (self.plug, port) {
+            (Plug::Pads, p) => self.pad3_read(p, self.pads[p]),
+            (Plug::TeamPlayer { state, counter }, 0) => self.teamplayer_read(state, counter),
+            (Plug::TeamPlayer { .. }, _) => self.pad3_read(4, 0),
+            // the 4 Way Play's ID (port B's TH high), else the pad port B
+            // picks
+            (Plug::WayPlay { latch }, 0) => {
+                if latch & 4 != 0 {
+                    0x7C
+                } else {
+                    let k = usize::from(latch & 3);
+                    self.pad3_read(k, self.pads[k])
+                }
+            }
+            (Plug::WayPlay { .. }, _) => 0x7F,
         };
         let out = 0x80 | self.ctrl[port];
         (v & !out) | (self.data_out[port] & out)
     }
 
-    /// A 3-button pad: TH high gives C B Right Left Down Up, low Start A 0
-    /// 0 Down Up (active low).
-    fn pad3_read(&self, port: usize, buttons: u16) -> u8 {
-        let p = !buttons;
-        let th = self.data_out[port] & 0x40 != 0 || self.ctrl[port] & 0x40 == 0;
-        if th {
-            0x40 | (p & 0x3F) as u8
-        } else {
-            (((p >> 2) & 0x30) as u8) | (p & 0x03) as u8
+    /// A port's output bits change (a data write, or a control write
+    /// that changes the directions): the device sees them.
+    fn pad_write(&mut self, port: usize) {
+        let (data, mask) = (self.data_out[port], self.ctrl[port]);
+        match (self.plug, port) {
+            (Plug::Pads, p) => self.pad3_write(p, data, mask),
+            (Plug::TeamPlayer { state, counter }, 0) => {
+                let new = (state & !mask) | (data & mask);
+                let counter = if new & 0x40 != 0 {
+                    0
+                } else if (state ^ new) & 0x60 != 0 {
+                    counter.saturating_add(1)
+                } else {
+                    counter
+                };
+                self.plug = Plug::TeamPlayer { state: new, counter };
+            }
+            (Plug::TeamPlayer { .. }, _) => self.pad3_write(4, data, mask),
+            (Plug::WayPlay { latch }, 0) => self.pad3_write(usize::from(latch & 3), data, mask),
+            (Plug::WayPlay { .. }, _) => {
+                // inputs read high; Up and Down low latch TH, TR, TL: the
+                // pad port A reads
+                let d = data | !mask;
+                if d & 3 == 0 {
+                    self.plug = Plug::WayPlay { latch: (d >> 4) & 7 };
+                }
+            }
         }
     }
 
-    /// The Team Player on port A, four 3-button pads behind it: TH high
-    /// starts over; each change of TH or TR the 68000 makes moves it on
-    /// through its header (0011, 1111, 0000, 0000), the pads' types
-    /// (0000: 3 buttons) and each pad's two nibbles (RLDU, SACB; active
-    /// low); TL follows TR.
-    fn teamplayer_read(&self) -> u8 {
-        let (state, counter) = self.teamplayer.unwrap_or((0x60, 0));
+    /// A 3-button pad (`pad` of the five Genesis Plus GX keeps: four, and
+    /// port B's behind a Team Player): TH high gives C B Right Left Down
+    /// Up, low Start A 0 0 Down Up (active low).  TH is what was last
+    /// written to it; let go as an input it rises only a little later.
+    fn pad3_read(&self, pad: usize, buttons: u16) -> u8 {
+        let p = !buttons;
+        let th = self.pad_th[pad];
+        let high = th != 0 && self.clock >= self.pad_latency[pad];
+        let low = if high {
+            (p & 0x3F) as u8
+        } else {
+            (((p >> 2) & 0x30) as u8) | (p & 0x03) as u8
+        };
+        th | low
+    }
+
+    fn pad3_write(&mut self, pad: usize, data: u8, mask: u8) {
+        if mask & 0x40 != 0 {
+            self.pad_th[pad] = data & 0x40;
+            self.pad_latency[pad] = 0;
+        } else {
+            // pulled high, 172 clocks on
+            if self.pad_th[pad] == 0 {
+                self.pad_latency[pad] = self.clock + 172;
+            }
+            self.pad_th[pad] = 0x40;
+        }
+    }
+
+    /// The Team Player, four 3-button pads behind it: TH high starts
+    /// over; each change of TH or TR the 68000 makes moves it on through
+    /// its header (0011, 1111, 0000, 0000), the pads' types (0000: 3
+    /// buttons) and each pad's two nibbles (RLDU, SACB; active low); TL
+    /// follows TR.
+    fn teamplayer_read(&self, state: u8, counter: u8) -> u8 {
         let tl = (state & 0x20) >> 1;
         let low = match counter {
             0 => 0x03,
@@ -178,23 +258,6 @@ impl Md {
             }
         };
         tl | low
-    }
-
-    /// A write to port A's data or control: the Team Player sees the
-    /// output bits.
-    fn teamplayer_write(&mut self) {
-        if let Some((state, counter)) = self.teamplayer {
-            let mask = self.ctrl[0];
-            let new = (state & !mask) | (self.data_out[0] & mask);
-            let counter = if new & 0x40 != 0 {
-                0
-            } else if (state ^ new) & 0x60 != 0 {
-                counter.saturating_add(1)
-            } else {
-                counter
-            };
-            self.teamplayer = Some((new, counter));
-        }
     }
 
     fn io_read(&self, a: u32) -> u8 {
@@ -225,17 +288,20 @@ impl Md {
         match a & 0x1F {
             0x03 => {
                 self.data_out[0] = v;
-                self.teamplayer_write();
+                self.pad_write(0);
             }
-            0x05 => self.data_out[1] = v,
+            0x05 => {
+                self.data_out[1] = v;
+                self.pad_write(1);
+            }
             0x07 => self.data_out[2] = v,
-            0x09 => {
-                if v != self.ctrl[0] {
-                    self.ctrl[0] = v;
-                    self.teamplayer_write();
+            0x09 | 0x0B => {
+                let port = usize::from((a & 0x1F) as u8 - 0x09) / 2;
+                if v != self.ctrl[port] {
+                    self.ctrl[port] = v;
+                    self.pad_write(port);
                 }
             }
-            0x0B => self.ctrl[1] = v,
             0x0D => self.ctrl[2] = v,
             _ => {}
         }

@@ -85,8 +85,11 @@ def check(script, frames, every, window, tmp):
           '--shot-every', '1', 'baserom.us.bin']
     if script:
         mt[4:4] = ['--input', script]
-        if '# teamplayer\n' in open(script).read():
+        text = open(script).read()
+        if '# teamplayer\n' in text:
             mt.insert(4, '--teamplayer')
+        if '# wayplay\n' in text:
+            mt.insert(4, '--wayplay')
     subprocess.run(mt, cwd=TOP, check=True, capture_output=True)
     last = 0
     for f in range(every, frames + 1, every):

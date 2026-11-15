@@ -933,8 +933,11 @@ int main(int argc, char **argv)
     /* libretro's 3-button pad, or the Team Player (subclass 5) on port 1 */
     /* the core's MD Joypad 3 Button (0), + 4-WayPlay (3, both ports), +
      * Teamplayer (5) */
-    p_set_port(0, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD,
-                                        wayplay ? 3 : teamplayer ? 5 : 0));
+    {
+        /* (the macro doesn't parenthesize its id: computed apart) */
+        unsigned sub = wayplay ? 3 : teamplayer ? 5 : 0;
+        p_set_port(0, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, sub));
+    }
     if (wayplay)    /* the core takes it on either port; both, to be sure */
         p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 3));
     else if (!teamplayer)

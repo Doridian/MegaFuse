@@ -35,8 +35,11 @@ def run(script, frames, out, at=None, z=False):
     if script:
         port[2:2] = ['--input', script]
         orig[4:4] = ['--input', script]
-        if '# teamplayer\n' in open(script).read():
+        text = open(script).read()
+        if '# teamplayer\n' in text:
             orig.insert(4, '--teamplayer')
+        if '# wayplay\n' in text:
+            orig.insert(4, '--wayplay')
     p = subprocess.run(['nice'] + port, cwd=TOP, capture_output=True,
                        text=True)
     subprocess.run(orig, cwd=TOP, check=True, capture_output=True)

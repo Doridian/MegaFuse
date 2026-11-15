@@ -161,6 +161,16 @@ port_check does for RAM. It needs uv (it brings numpy). Over the attract mode
 drift from the original's (some 5000-7000 frames in: the enemies move
 apart), the sound is 0.995 alike and its levels within a few percent.
 
+## Pads
+
+`crates/md` has what the game reads its pads through, as Genesis Plus GX
+has it: 3-button pads (each keeps the TH it was last given; let go as an
+input, TH reads high 172 clocks later), Sega's Team Player on port A
+(its handshake: header, pad types, two nibbles a pad) and EA's 4 Way Play
+(port B picks the pad port A reads, or its ID). `megafuse` plugs the one
+a pad script asks for (`# teamplayer`, `# wayplay`), as tools/mdtrace
+does.
+
 ## Checking it
 
 `tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`,
