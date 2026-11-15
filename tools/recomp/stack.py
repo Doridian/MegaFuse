@@ -123,6 +123,9 @@ def depths(d, body):
     inside = set(body)
     out = {entry: 0}
     alias = {entry: {}}
+    # bytes of the caller's frame a return pops past the return address
+    # (it returns from the caller too): stack.UNWINDS[entry]
+    unwinds = set()
     todo = [entry]
     while todo:
         a = todo.pop()
@@ -142,11 +145,15 @@ def depths(d, body):
         if i.flow == 'ret' and i.mn == 'rts' and 0 < after and \
                 a not in BUGS:
             raise StackError('rts at depth %d at %06X' % (after, a))
+        if i.mn == 'rts' and after <= -4:
+            unwinds.add(-after - 4)
         for s, _ in successors(d, a):
             if s not in inside:
                 if after > 0:
                     raise StackError('tail call at depth %d at %06X' %
                                      (after, a), tail=s)
+                if after <= -4:
+                    unwinds.add(-after - 4)
                 continue
             if s in out:
                 if out[s] != after:
@@ -158,6 +165,8 @@ def depths(d, body):
                             x <= -4 or x == 0 for x in (out[s], after)))):
                         raise StackError('depths %d and %d meet at %06X' %
                                          (out[s], after, s))
+                    if after <= -4:
+                        unwinds.add(-after - 4)
                 if alias[s] != al_after:
                     alias[s] = {k: v for k, v in alias[s].items()
                                 if al_after.get(k) == v}
@@ -165,4 +174,8 @@ def depths(d, body):
             out[s] = after
             alias[s] = al_after
             todo.append(s)
+    UNWINDS[entry] = unwinds
     return out, alias
+
+
+UNWINDS = {}

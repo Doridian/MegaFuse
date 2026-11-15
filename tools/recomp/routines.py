@@ -43,6 +43,10 @@ def entries_of(d):
         for t, kind in i.refs():
             if kind == 'imm' and t in d.insns:
                 out.add(t)       # `move.l #code,...`: a code pointer
+    # where the traces saw calls through registers go (calls.VERSION.txt)
+    from recomp import families
+    out |= set(t for _, t in families.load_calls(d.version)
+               if t in d.insns)
     return out
 
 

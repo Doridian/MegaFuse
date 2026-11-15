@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run every pad script in tools/inputs/ headless (tools/mdtrace) on one
-# version, then regenerate code.VERSION.txt and data.VERSION.txt from the
-# combined coverage (tools/coverage.py --write).  Screenshots every 3000
+# version, then regenerate code.VERSION.txt, data.VERSION.txt,
+# longs.VERSION.txt and calls.VERSION.txt from the combined coverage and
+# jumps (tools/coverage.py --write).  Screenshots every 3000
 # frames land next to the coverage in build/VERSION/trace/.
 #
 #   tools/trace_all.sh VERSION [FRAMES]
@@ -25,7 +26,8 @@ for f in tools/inputs/*.txt; do
     grep -q '^# teamplayer' "$f" && tp=--teamplayer
     grep -q '^# wayplay' "$f" && tp=--wayplay
     nice -n 10 tools/mdtrace $tp --frames "$frames" --input "$f" $IGNORE \
-        --cover "$OUT/$n.cov" --shot "$OUT/$n-" --shot-every 3000 \
+        --cover "$OUT/$n.cov" --edges "$OUT/$n.edges" \
+        --shot "$OUT/$n-" --shot-every 3000 \
         "baserom.$V.bin" &
 done
 wait

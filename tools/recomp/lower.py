@@ -129,6 +129,9 @@ class Lowerer:
         self.depth = depth          # {addr: sp's depth before it}
         self.frames = frames        # {addr: {an: depth of its link}}
         self.tmp = 0
+        # the type each stack local is used at (arguments: the callee's
+        # parameter types)
+        self.slot_types = {}
 
     # --- values -----------------------------------------------------------
 
@@ -166,7 +169,9 @@ class Lowerer:
             return 'ret'
         if pos <= 0:
             raise LowerError('a part of the return address read')
-        return 's%d' % pos
+        # by size too: the same place holds a word now and a long later
+        # (pushes and pops pair up by size)
+        return 's%d_%s' % (pos, size or 'l')
 
     # --- effective addresses -----------------------------------------------
 
@@ -246,6 +251,7 @@ class Lowerer:
         if loc[0] == 'a':
             return self.reg(loc[1] + 8, ty)
         if loc[0] == 'slot':
+            self.slot_types.setdefault(loc[1], ty)
             return var(loc[1], ty)
         if loc[0] == 'imm':
             return const(loc[1], ty)
@@ -266,6 +272,7 @@ class Lowerer:
         elif loc[0] == 'a':
             out.stmts.append(('set', REGS[loc[1] + 8], cast(val, 'u32')))
         elif loc[0] == 'slot':
+            self.slot_types.setdefault(loc[1], ty)
             out.stmts.append(('set', loc[1], val))
         else:
             out.stmts.append(('store', size, loc[1], val))
@@ -678,14 +685,17 @@ class Lowerer:
                     self.cur_depth += step
                     if k == 15:
                         continue        # sp itself: its value is unused
-                    out.stmts.append(('set', self.slot(self.cur_depth, size),
-                                      self.reg(k, TY[size])))
+                    name = self.slot(self.cur_depth, size)
+                    self.slot_types.setdefault(name, TY[size])
+                    out.stmts.append(('set', name, self.reg(k, TY[size])))
                 return
             raise LowerError('movem to memory')
         regs = [k for k in range(16) if dst.val >> k & 1]
         if src.kind == 'postinc' and src.reg == 7:
             for k in regs:
-                v = var(self.slot(self.cur_depth, size), TY[size])
+                name = self.slot(self.cur_depth, size)
+                self.slot_types.setdefault(name, TY[size])
+                v = var(name, TY[size])
                 self.cur_depth -= step
                 if k == 15:
                     continue
@@ -708,8 +718,9 @@ class Lowerer:
     def op_link(self, out, i, base, size, ops):
         # an = the frame (stack.py tracks it as an alias)
         self.cur_depth += 4
-        out.stmts.append(('set', self.slot(self.cur_depth, 'l'),
-                          self.reg(ops[0].reg + 8)))
+        name = self.slot(self.cur_depth, 'l')
+        self.slot_types.setdefault(name, 'u32')
+        out.stmts.append(('set', name, self.reg(ops[0].reg + 8)))
 
     def op_unlk(self, out, i, base, size, ops):
         n = ops[0].reg

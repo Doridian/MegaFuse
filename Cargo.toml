@@ -1,0 +1,14 @@
+[workspace]
+resolver = "3"
+members = ["crates/game"]
+
+[workspace.package]
+edition = "2024"
+license = "AGPL-3.0-or-later"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.dev]
+opt-level = 1

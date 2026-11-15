@@ -76,6 +76,11 @@ def main():
     print('unconfirmed: %d instructions never ran' % len(spec))
     if a.write:
         write_known(a.version, rom, cov, d)
+        edges = [p[:-4] + '.edges' for p in a.cover
+                 if os.path.exists(p[:-4] + '.edges')]
+        if edges:
+            print('wrote %d to calls.%s.txt' % (
+                write_calls(a.version, rom, d, edges), a.version))
 
 
 def entries(rom, cov, d):
@@ -95,6 +100,34 @@ def entries(rom, cov, d):
         if ins.target is not None:
             reached.add(ins.target)
     return [s for s in range(len(rom)) if cov[s] & 1 and s not in reached]
+
+
+def write_calls(version, rom, d, edge_files):
+    """calls.VERSION.txt: the targets each indirect `jsr`/`jmp` went to
+    in the traces (mdtrace --edges): which routines a call through a
+    register or a table reaches (tools/recomp groups them by it)."""
+    import m68k
+    pairs = set()
+    for p in edge_files:
+        for line in open(p):
+            a, b = line.split()
+            pairs.add((int(a, 16), int(b, 16)))
+    out = []
+    for a, b in sorted(pairs):
+        if a >= len(rom):
+            continue
+        ins = d.insns.get(a) or m68k.decode(rom, a)
+        if ins is None or ins.mn not in ('jsr', 'jmp'):
+            continue
+        if ins.ops[0].kind in ('absw', 'absl'):
+            continue
+        out.append((a, b))
+    with open(os.path.join(TOP, 'calls.%s.txt' % version), 'w') as f:
+        f.write('# indirect jsr/jmp and where a runtime trace saw them go\n'
+                '# (tools/coverage.py --write; mdtrace --edges)\n')
+        for a, b in out:
+            f.write('%06X %06X\n' % (a, b))
+    return len(out)
 
 
 def write_known(version, rom, cov, d):

@@ -62,8 +62,14 @@ def basic_blocks(d, body):
             nxt = a + i.size
             if nxt in inside:
                 leaders.add(nxt)
+    # a block also starts where the code isn't contiguous (an epilogue
+    # copied in, routines.partition's inline)
+    order = sorted(body)
+    for prev, a in zip(order, order[1:]):
+        if prev + d.insns[prev].size != a:
+            leaders.add(a)
     blocks = {}
-    for a in body:
+    for a in order:
         if a in leaders:
             cur = blocks[a] = Block(a)
         cur.insns.append(a)

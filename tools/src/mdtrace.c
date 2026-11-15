@@ -27,6 +27,10 @@
  *     --pcs FILE         every instruction executed, `FRAME PC` per line,
  *                        and every read of the ROM, `FRAME ADDR Rn VALUE`,
  *     --pcs-frames A:B   in frames A to B-1 (default 0:1)
+ *     --edges FILE       every jump between instructions that ran (from the
+ *                        start of one to the next that ran, where that isn't
+ *                        2-10 bytes on), `FROM TO` once per pair: the
+ *                        targets of indirect calls (tools/recomp)
  *
  * Coverage flags (tools/coverage.py reads them):
  *     0x01  an instruction started here
@@ -101,10 +105,35 @@ enum {
     HOOK_M68K_W = 1 << 2,
 };
 
+/* --edges: a set of (from, to) pairs, open addressing */
+#define EDGE_BITS 20
+static unsigned long long *edges;
+static unsigned long n_edges;
+static unsigned prev_pc = 0xFFFFFFFF;
+
+static void edge(unsigned from, unsigned to)
+{
+    unsigned long long key = (unsigned long long)from << 32 | to | 1ULL << 63;
+    unsigned long h = (unsigned long)((key * 0x9E3779B97F4A7C15ULL) >> (64 - EDGE_BITS));
+    while (edges[h]) {
+        if (edges[h] == key)
+            return;
+        h = (h + 1) & ((1UL << EDGE_BITS) - 1);
+    }
+    if (n_edges < (1UL << EDGE_BITS) / 2) {
+        edges[h] = key;
+        n_edges++;
+    }
+}
+
 static void hook(int type, int width, unsigned address, unsigned value)
 {
     address &= 0xFFFFFF;
     if (type == HOOK_M68K_E) {
+        if (edges && prev_pc != 0xFFFFFFFF &&
+            (address <= prev_pc || address > prev_pc + 10))
+            edge(prev_pc, address);
+        prev_pc = address;
         last_pc = address;
         if (track_sp) {
             unsigned sp = p_get_reg(REG_A7) & 0xFFFFFF;
@@ -528,6 +557,7 @@ int main(int argc, char **argv)
     const char *core = "tools/gpgx/genesis_plus_gx_libretro.so";
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
     const char *shot = NULL, *ram = NULL, *log_path = NULL;
+    const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
     void *h;
@@ -551,6 +581,7 @@ int main(int argc, char **argv)
                    : !strcmp(r, "ntsc-j") ? "ntsc-j" : "auto";
         }
         else if (ARG("--log")) log_path = argv[++i];
+        else if (ARG("--edges")) edges_path = argv[++i];
         else if (ARG("--ignore-reads") && n_ignore < 16)
             ignore_pc[n_ignore++] = strtoul(argv[++i], NULL, 16);
         else if (ARG("--watch") && n_watch < 16)
@@ -649,6 +680,13 @@ int main(int argc, char **argv)
     else if (!teamplayer)
         p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0));
     p_set_cpu_hook(hook);
+    if (edges_path) {
+        edges = calloc(1UL << EDGE_BITS, sizeof *edges);
+        if (!edges) {
+            perror("calloc");
+            return 1;
+        }
+    }
     if (log_path) {
         logf = fopen(log_path, "w");
         if (!logf) {
@@ -691,6 +729,20 @@ int main(int argc, char **argv)
         fclose(logf);
     if (pcs_file)
         fclose(pcs_file);
+    if (edges_path) {
+        FILE *f = fopen(edges_path, "w");
+        unsigned long h;
+        if (!f) {
+            perror(edges_path);
+            return 1;
+        }
+        for (h = 0; h < 1UL << EDGE_BITS; h++)
+            if (edges[h])
+                fprintf(f, "%06X %06X\n",
+                        (unsigned)(edges[h] >> 32) & 0xFFFFFF,
+                        (unsigned)edges[h] & 0xFFFFFF);
+        fclose(f);
+    }
     p_set_cpu_hook(NULL);
     p_retro_deinit();
     return 0;
