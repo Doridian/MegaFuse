@@ -22,6 +22,12 @@
  *                        (PC, clock) in order; the clock counts master
  *                        clocks from power-on (896040 a frame)
  *     --timeline-at F    and frame F in full: "PC CLOCK" an instruction
+ *     --vram PREFIX      VRAM, VSRAM, the sprite table's copy (big-endian)
+ *                        and the registers as PREFIX<frame>.vram/.vsram/
+ *                        .sat/.regs, the frames --shot takes
+ *     --hashes FILE      each frame: "FRAME RAM SCREEN", the CRC-32s of work
+ *                        RAM to the stack (0xFE00, big-endian) and of the
+ *                        picture (RGB, its width by its height)
  *     --ztimeline FILE   the same for the Z80 (its PC, the master clock;
  *                        in full, the YM2612's timer B counter too)
  *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
@@ -745,9 +751,63 @@ static uint8_t *read_file(const char *path, size_t *n)
     return d;
 }
 
+/* --hashes */
+static FILE *hash_file;
+
+static void hashes(long frame)
+{
+    const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
+    uint8_t be[0xFE00];
+    size_t k;
+    for (k = 0; k < sizeof be; k += 2) {
+        uint16_t v;
+        memcpy(&v, w + k, 2);
+        be[k] = v >> 8;
+        be[k + 1] = v & 0xff;
+    }
+    fprintf(hash_file, "%ld %08lX %08lX\n", frame,
+            crc32(0, be, sizeof be),
+            frame_rgb ? crc32(0, frame_rgb, frame_w * frame_h * 3) : 0UL);
+}
+
+static unsigned char *(*p_vdp)(int);
+static const char *vram_prefix;
+
+static void dump_be(const char *path, const uint8_t *host, size_t n)
+{
+    FILE *f = fopen(path, "wb");
+    size_t k;
+    if (!f) {
+        perror(path);
+        exit(1);
+    }
+    for (k = 0; k + 1 < n; k += 2) {
+        uint16_t v;
+        memcpy(&v, host + k, 2);
+        fputc(v >> 8, f);
+        fputc(v & 0xff, f);
+    }
+    fclose(f);
+}
+
 static void snapshot(const char *shot, const char *ram, long frame)
 {
     char path[1024];
+    if (vram_prefix) {
+        FILE *f;
+        snprintf(path, sizeof path, "%s%06ld.vram", vram_prefix, frame);
+        dump_be(path, p_vdp(0), 0x10000);
+        snprintf(path, sizeof path, "%s%06ld.vsram", vram_prefix, frame);
+        dump_be(path, p_vdp(1), 0x80);
+        snprintf(path, sizeof path, "%s%06ld.sat", vram_prefix, frame);
+        dump_be(path, p_vdp(3), 0x400);
+        snprintf(path, sizeof path, "%s%06ld.regs", vram_prefix, frame);
+        f = fopen(path, "wb");
+        if (f) {
+            fwrite(p_vdp(2), 1, 0x20, f);
+            fclose(f);
+        }
+    }
     if (shot) {
         snprintf(path, sizeof path, "%s%06ld.png", shot, frame);
         write_png(path);
@@ -796,7 +856,7 @@ int main(int argc, char **argv)
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
     const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL,
                *cycles_path = NULL, *timeline_path = NULL,
-               *ztimeline_path = NULL;
+               *ztimeline_path = NULL, *hashes_path = NULL;
     const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
@@ -818,6 +878,8 @@ int main(int argc, char **argv)
         else if (ARG("--timeline")) timeline_path = argv[++i];
         else if (ARG("--timeline-at")) tl_at = strtol(argv[++i], NULL, 0);
         else if (ARG("--ztimeline")) ztimeline_path = argv[++i];
+        else if (ARG("--hashes")) hashes_path = argv[++i];
+        else if (ARG("--vram")) vram_prefix = argv[++i];
         else if (ARG("--shot-every")) every = strtol(argv[++i], NULL, 0);
         else if (ARG("--ram")) ram = argv[++i];
         else if (ARG("--region")) {
@@ -883,6 +945,7 @@ int main(int argc, char **argv)
     p_m68k_refresh = sym(h, "mdtrace_m68k_refresh");
     p_z80_cycles = sym(h, "mdtrace_z80_cycles");
     p_ym_timer_b = sym(h, "mdtrace_ym_timer_b");
+    p_vdp = sym(h, "mdtrace_vdp");
     p_get_memory_data = sym(h, "retro_get_memory_data");
     p_get_memory_size = sym(h, "retro_get_memory_size");
     p_set_port = sym(h, "retro_set_controller_port_device");
@@ -965,6 +1028,13 @@ int main(int argc, char **argv)
             return 1;
         }
     }
+    if (hashes_path) {
+        hash_file = fopen(hashes_path, "w");
+        if (!hash_file) {
+            perror(hashes_path);
+            return 1;
+        }
+    }
     if (ztimeline_path) {
         zl_file = fopen(ztimeline_path, "w");
         if (!zl_file) {
@@ -994,22 +1064,26 @@ int main(int argc, char **argv)
             timeline_frame(frame);
         if (zl_file)
             ztimeline_frame(frame);
+        if (hash_file)
+            hashes(frame);
         if (logf) {
             uint8_t *wram = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
             fprintf(logf, "%ld %04x %04x %04x %04x %08lx\n", frame, pads[0],
                     pads[1], pads[2], pads[3],
                     crc32(0, wram, p_get_memory_size(RETRO_MEMORY_SYSTEM_RAM)));
         }
-        if ((shot || ram) && every > 0 && (frame + 1) % every == 0)
+        if ((shot || ram || vram_prefix) && every > 0 && (frame + 1) % every == 0)
             snapshot(shot, ram, frame + 1);
     }
-    if ((shot || ram) && (every <= 0 || frames % every))
+    if ((shot || ram || vram_prefix) && (every <= 0 || frames % every))
         snapshot(shot, ram, frames);
 
     if (tl_file)
         fclose(tl_file);
     if (zl_file)
         fclose(zl_file);
+    if (hash_file)
+        fclose(hash_file);
     if (cycles_path) {
         FILE *f = fopen(cycles_path, "w");
         size_t a;

@@ -6,6 +6,7 @@
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
 //!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
 //!                [--timeline FILE] [--ztimeline FILE] [--timeline-at F]
+//!                [--hashes FILE] [--vram PREFIX]
 
 mod png;
 
@@ -64,6 +65,10 @@ struct Headless {
     shot_prefix: Option<String>,
     frame: u64,
     held: [u16; 4],
+    /// VRAM, VSRAM and the registers, as tools/mdtrace --vram writes them.
+    vram_prefix: Option<String>,
+    /// Each frame's CRC-32s of work RAM and the picture (--hashes).
+    hashes: Option<std::io::BufWriter<std::fs::File>>,
     /// The script wants a Team Player, a 4 Way Play.
     teamplayer: bool,
     wayplay: bool,
@@ -93,17 +98,29 @@ impl Headless {
 }
 
 impl Frontend for Headless {
-    fn frame(&mut self, picture: &[u32], width: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
+    fn frame(&mut self, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
         // the frame that just ended is self.frame + 1 (mdtrace counts
         // frames run)
         self.frame += 1;
         let f = self.frame;
+        if let Some(out) = &mut self.hashes {
+            // as tools/mdtrace --hashes: RAM to the stack, the picture's RGB
+            use std::io::Write as _;
+            let mut rgb = Vec::with_capacity(width * height * 3);
+            for y in 0..height {
+                for &p in &picture[y * md::vdp::WIDTH..y * md::vdp::WIDTH + width] {
+                    rgb.extend_from_slice(&[(p >> 16) as u8, (p >> 8) as u8, p as u8]);
+                }
+            }
+            let _ = writeln!(out, "{} {:08X} {:08X}", f - 1, png::crc32(&ram[..0xFE00]), png::crc32(&rgb));
+            let _ = out.flush();
+        }
         if self.every > 0 && (f.is_multiple_of(self.every) || f == self.frames) {
             if let Some(p) = &self.ram_prefix {
                 let _ = std::fs::write(format!("{p}{f:06}.bin"), &ram[..]);
             }
             if let Some(p) = &self.shot_prefix {
-                let _ = png::write(&format!("{p}{f:06}.png"), width, md::vdp::WIDTH, md::vdp::HEIGHT, picture);
+                let _ = png::write(&format!("{p}{f:06}.png"), width, md::vdp::WIDTH, height, picture);
             }
         }
         if f >= self.frames {
@@ -115,6 +132,22 @@ impl Frontend for Headless {
             std::process::exit(0);
         }
         self.apply(f, ram, pads);
+    }
+
+    fn vdp(&mut self, vdp: &md::vdp::Vdp) {
+        let f = self.frame + 1;
+        if let Some(p) = &self.vram_prefix
+            && self.every > 0
+            && (f.is_multiple_of(self.every) || f == self.frames)
+        {
+            let _ = std::fs::write(format!("{p}{f:06}.vram"), &vdp.vram[..]);
+            let vs: Vec<u8> = vdp.vsram.iter().flat_map(|w| w.to_be_bytes()).chain(std::iter::repeat(0)).take(0x80).collect();
+            let _ = std::fs::write(format!("{p}{f:06}.vsram"), vs);
+            let _ = std::fs::write(format!("{p}{f:06}.sat"), &vdp.sat[..]);
+            let mut regs = vdp.regs.to_vec();
+            regs.resize(0x20, 0);
+            let _ = std::fs::write(format!("{p}{f:06}.regs"), regs);
+        }
     }
 
     fn audio(&mut self, samples: &[f32]) {
@@ -150,7 +183,7 @@ fn write_wav(path: &str, samples: &[i16]) -> std::io::Result<()> {
 struct Silent;
 
 impl Frontend for Silent {
-    fn frame(&mut self, _: &[u32], _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
+    fn frame(&mut self, _: &[u32], _: usize, _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
 }
 
 /// `megafuse --routine ROM ENTRY IN OUT`: one routine from a state of the
@@ -214,6 +247,8 @@ fn main() {
         wav: None,
         teamplayer: false,
         wayplay: false,
+        hashes: None,
+        vram_prefix: None,
     };
     let mut i = 1;
     while i < args.len() {
@@ -232,6 +267,15 @@ fn main() {
             "--timeline" => timeline = Some(next(&mut i)),
             "--timeline-at" => timeline_at = next(&mut i).parse().ok(),
             "--ztimeline" => ztimeline = Some(next(&mut i)),
+            "--vram" => h.vram_prefix = Some(next(&mut i)),
+            "--hashes" => {
+                let p = next(&mut i);
+                let f = std::fs::File::create(&p).unwrap_or_else(|e| {
+                    eprintln!("{p}: {e}");
+                    std::process::exit(1)
+                });
+                h.hashes = Some(std::io::BufWriter::new(f));
+            }
             _ => rom_path = Some(a.to_string()),
         }
         i += 1;

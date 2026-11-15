@@ -26,12 +26,10 @@ pub trait Hardware {
     /// A DMA from 68000 memory the last write started: (source, words,
     /// to VRAM).
     fn take_dma(&mut self) -> Option<(u32, u32, bool)>;
-    fn dma_word(&mut self, w: u16);
-    fn dma_done(&mut self, source: u32, words: u32);
-    /// When a DMA from 68000 memory started at `start` ends (the 68000
-    /// waits for it), and whether it ran on past the line (or the
-    /// blank) it started in.
-    fn dma_end(&mut self, start: u64, words: u64, vram: bool) -> (u64, bool);
+    /// A DMA from 68000 memory starts at `start` with these words (the
+    /// 68000 waits; the VDP takes them a window at a time): when it ends,
+    /// and whether it ran on past the line (or the blank) it started in.
+    fn dma_run(&mut self, start: u64, source: u32, data: Vec<u16>, vram: bool) -> (u64, bool);
     /// When the 68000 may go on after the access just made (0: at once).
     fn take_stall(&mut self) -> u64;
     /// The frame starts: line 224, the vertical blank's first.
@@ -367,13 +365,11 @@ impl Game {
     /// then on from each line's start.
     pub(crate) fn dma(&mut self) {
         while let Some((source, words, vram)) = self.hw.take_dma() {
-            for k in 0..words {
-                let a = (source & 0xFF_0000) | (source.wrapping_add(2 * k) & 0xFFFF);
-                let w = self.read16(a);
-                self.hw.dma_word(w);
-            }
-            self.hw.dma_done(source, words);
-            let (end, on) = self.hw.dma_end(self.clock, u64::from(words), vram);
+            // the 68000 is held meanwhile: its memory can be read now
+            let data = (0..words)
+                .map(|k| self.read16((source & 0xFF_0000) | (source.wrapping_add(2 * k) & 0xFFFF)))
+                .collect();
+            let (end, on) = self.hw.dma_run(self.clock, source, data, vram);
             self.clock = end;
             if on {
                 // Genesis Plus GX sets the 68000's clock to the DMA's end

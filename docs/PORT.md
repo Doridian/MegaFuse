@@ -171,14 +171,26 @@ input, TH reads high 172 clocks later), Sega's Team Player on port A
 a pad script asks for (`# teamplayer`, `# wayplay`), as tools/mdtrace
 does.
 
+## The picture
+
+`crates/md/src/vdp.rs` draws a line at its start, as Genesis Plus GX
+does, and keeps to its rules where they show: colours as its 4-bit
+levels widened through RGB565; sprites from the VDP's own copy of the
+sprite table (written along with VRAM), found on the line before, 16 or
+20 a line, masked by a sprite at X 0, 256 or 320 sprite pixels a line;
+a DMA's data a window at a time (each line's before it is drawn); the
+display switched off or on mid-line (the rest of the line blanked, or
+the line drawn again); a change of width taken in the vertical blank or
+the first three lines at once, else from the next frame.
+
 ## Checking it
 
-`tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`,
-headless: tools/mdtrace's pad scripts, RAM dumps and screenshots) and the
-original in Genesis Plus GX on the same scripts and compares work RAM at
-checkpoints, the stack aside, and the screens, pixel for pixel. With the
-port's time the console's, the frames line up: stage-1-1 has the same
-RAM at every 100th frame through its 20000, and the same 68000 and Z80
-timelines.
-`tools/timeline_check.py` finds where a run first parts, to the
-instruction; `tools/sound_check.py` compares the sound.
+`tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`)
+and the original in Genesis Plus GX on the pad scripts with `--hashes`
+(each frame's CRC-32 of work RAM, the stack aside, and of the picture)
+and reports the first frame that differs, dumped: the RAM bytes, the
+pixels. Every pad script has the same RAM and the same picture, frame
+for frame, for its whole length, and the same 68000 and Z80 timelines
+(`tools/timeline_check.py`). `--vram PREFIX` on both dumps VRAM, VSRAM,
+the sprite table's copy and the registers; `tools/sound_check.py`
+compares the sound.

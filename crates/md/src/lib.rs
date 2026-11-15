@@ -28,7 +28,12 @@ pub mod button {
 pub trait Frontend {
     /// picture: 320 pixels a line, of which the first `width` are the
     /// picture (H40 320, H32 256).
-    fn frame(&mut self, picture: &[u32], width: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]);
+    /// (`width` x `height` of it: the mode at the frame's start.)
+    fn frame(&mut self, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]);
+
+    /// The VDP as the frame ends, before [`Frontend::frame`] (debugging:
+    /// `megafuse --vram`).
+    fn vdp(&mut self, _vdp: &Vdp) {}
 
     /// The frame's sound, before [`Frontend::frame`]: stereo samples,
     /// interleaved, at [`sound::SAMPLE_RATE`].
@@ -46,6 +51,8 @@ pub struct Md {
     pub frames: u64,
     /// What is plugged into the pad ports.
     plug: Plug,
+    /// The picture's width and height this frame.
+    picture_size: (usize, usize),
     /// The 3-button pads' TH (as last written; 0x40 high) and when, let
     /// go high, it reads high: pads 1-4, and port B's behind a Team
     /// Player.
@@ -67,6 +74,8 @@ pub struct Md {
     /// GX moves it on at each line's start).
     busy_until: u64,
     busy_last: u64,
+    /// The DMA under way (its windows after the first).
+    dma: Option<DmaRun>,
     /// The vertical interrupt was raised this frame.
     vint_raised: bool,
     /// The 68000 has to wait until then (a write to a full FIFO).
@@ -104,6 +113,16 @@ enum Plug {
     WayPlay { latch: u8 },
 }
 
+/// A DMA under way: what it moves in each window still to come (when
+/// the window starts, how much), and from 68000 memory, the words.
+struct DmaRun {
+    kind: DmaKind,
+    windows: std::collections::VecDeque<(u64, u32)>,
+    words: Vec<u16>,
+    next: usize,
+    source: u32,
+}
+
 /// What a DMA moves.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum DmaKind {
@@ -129,6 +148,7 @@ impl Md {
             frontend,
             frames: 0,
             plug: Plug::Pads,
+            picture_size: (256, 192),
             pad_th: [0x40; 5],
             pad_latency: [0; 5],
             clock: 0,
@@ -139,6 +159,7 @@ impl Md {
             fifo_idx: 0,
             busy_until: 0,
             busy_last: 0,
+            dma: None,
             vint_raised: false,
             stall: 0,
         }
@@ -360,7 +381,46 @@ impl Md {
         self.fifo_idx = (self.fifo_idx + 1) & 3;
         if let Some(len) = self.vdp.write_data(w) {
             let start = self.clock.max(self.stall);
-            (self.busy_until, self.busy_last, _) = self.dma_time(start, u64::from(len), DmaKind::Fill);
+            let (end, last, _, windows) = self.dma_plan(start, u64::from(len), DmaKind::Fill);
+            (self.busy_until, self.busy_last) = (end, last);
+            self.dma_start(DmaRun { kind: DmaKind::Fill, windows: windows.into(), words: Vec::new(), next: 0, source: 0 });
+        }
+    }
+
+    /// A DMA starts: its first window now, the rest as their lines start
+    /// (each before the line is drawn).
+    fn dma_start(&mut self, run: DmaRun) {
+        self.dma = Some(run);
+        self.dma_progress(0);
+    }
+
+    /// The DMA's windows that have started by `t`.
+    fn dma_progress(&mut self, t: u64) {
+        while let Some(run) = &mut self.dma {
+            let Some(&(at, n)) = run.windows.front() else { break };
+            if at > t {
+                break;
+            }
+            run.windows.pop_front();
+            match run.kind {
+                DmaKind::Vram | DmaKind::Other => {
+                    for _ in 0..n {
+                        if let Some(&w) = run.words.get(run.next) {
+                            self.vdp.dma_word(w);
+                        }
+                        run.next += 1;
+                    }
+                }
+                DmaKind::Fill => self.vdp.fill_step(n),
+                DmaKind::Copy => self.vdp.copy_step(n),
+            }
+            if run.windows.is_empty() {
+                let run = self.dma.take().unwrap_or_else(|| unreachable!());
+                match run.kind {
+                    DmaKind::Vram | DmaKind::Other => self.vdp.dma_done(run.source, run.words.len() as u32),
+                    _ => self.vdp.fill_done(),
+                }
+            }
         }
     }
 
@@ -370,6 +430,15 @@ impl Md {
     /// where its last window starts (0: the first) and whether it ran
     /// past the first.
     fn dma_time(&self, start: u64, len: u64, kind: DmaKind) -> (u64, u64, bool) {
+        let p = self.dma_plan(start, len, kind);
+        (p.0, p.1, p.2)
+    }
+
+    /// The same, and how much it moves in each of its windows: (when the
+    /// window starts, 0 for the first; how many words or bytes).
+    #[allow(clippy::type_complexity)]
+    fn dma_plan(&self, start: u64, len: u64, kind: DmaKind) -> (u64, u64, bool, Vec<(u64, u32)>) {
+        let mut windows = Vec::new();
         let h40 = self.vdp.regs[12] & 1 != 0;
         let display = self.vdp.display_on();
         let mut t = start as i64;
@@ -407,11 +476,13 @@ impl Md {
             let can = (end - t) * rate / LINE as i64;
             let last = if first { 0 } else { t.max(0) as u64 };
             if left < can {
-                return ((t + left * LINE as i64 / rate).max(0) as u64, last, !first);
+                windows.push((last, left as u32));
+                return ((t + left * LINE as i64 / rate).max(0) as u64, last, !first, windows);
             }
+            windows.push((last, can.max(0) as u32));
             if left == can {
                 // done with the window: no more updates
-                return (end.max(0) as u64, last, !first);
+                return (end.max(0) as u64, last, !first, windows);
             }
             first = false;
             left -= can;
@@ -472,10 +543,25 @@ impl game::Hardware for Md {
         match addr {
             0xC0_0000 | 0xC0_0002 => self.data_write(value),
             0xC0_0004 | 0xC0_0006 => {
+                let display = self.vdp.display_on();
+                let mode = self.vdp.regs[12] & 1;
                 self.vdp.write_control(value);
+                if self.vdp.display_on() != display {
+                    self.vdp.display_switched(self.clock - self.line_clock);
+                }
+                if self.vdp.regs[12] & 1 != mode {
+                    self.vdp.mode_switched();
+                }
                 if let Some(len) = self.vdp.copied.take() {
-                    (self.busy_until, self.busy_last, _) =
-                        self.dma_time(self.clock, u64::from(len), DmaKind::Copy);
+                    let (end, last, _, windows) = self.dma_plan(self.clock, u64::from(len), DmaKind::Copy);
+                    (self.busy_until, self.busy_last) = (end, last);
+                    self.dma_start(DmaRun {
+                        kind: DmaKind::Copy,
+                        windows: windows.into(),
+                        words: Vec::new(),
+                        next: 0,
+                        source: 0,
+                    });
                 }
             }
             0xC0_0010..=0xC0_0017 => self.sound.bus.psg.write(value as u8),
@@ -499,18 +585,12 @@ impl game::Hardware for Md {
         self.vdp.take_dma().map(|Dma::Memory { source, words, vram }| (source, words, vram))
     }
 
-    fn dma_word(&mut self, w: u16) {
-        self.vdp.dma_word(w);
-    }
-
-    fn dma_done(&mut self, source: u32, words: u32) {
-        self.vdp.dma_done(source, words);
-    }
-
     /// Accesses a line (Genesis Plus GX's table): VRAM takes two a word;
     /// to CRAM or VSRAM in the blank a refresh slot is lost every so often.
-    fn dma_end(&mut self, start: u64, words: u64, vram: bool) -> (u64, bool) {
-        let (end, _, on) = self.dma_time(start, words, if vram { DmaKind::Vram } else { DmaKind::Other });
+    fn dma_run(&mut self, start: u64, source: u32, data: Vec<u16>, vram: bool) -> (u64, bool) {
+        let kind = if vram { DmaKind::Vram } else { DmaKind::Other };
+        let (end, _, on, windows) = self.dma_plan(start, data.len() as u64, kind);
+        self.dma_start(DmaRun { kind, windows: windows.into(), words: data, next: 0, source });
         // the Z80 waits for the 68000's bus meanwhile
         self.sound.bus.dma_until = end;
         (end, on)
@@ -525,6 +605,11 @@ impl game::Hardware for Md {
     }
 
     fn frame_start(&mut self) {
+        self.dma_progress(self.clock);
+        // the picture's lines are the mode's at the frame's start (mode 4,
+        // the VDP's at power-on, has 192); its width the VDP's at its end
+        let lines = if self.vdp.regs[1] & 4 != 0 { vdp::HEIGHT } else { 192 };
+        self.picture_size.1 = lines;
         self.line_clock = self.clock;
         self.frame_clock = self.clock;
         self.fifo = [self.clock; 4];
@@ -545,6 +630,7 @@ impl game::Hardware for Md {
 
     fn line_start(&mut self, line: u16) {
         self.line_clock = self.clock;
+        self.dma_progress(self.clock);
         if line == vdp::HEIGHT as u16 + 1 {
             // the Z80's interrupt is held through line 224
             self.sound.irq = false;
@@ -580,11 +666,12 @@ impl game::Hardware for Md {
             eprintln!("cram {:03X?}", &self.vdp.cram[..32]);
         }
         self.frames += 1;
+        self.frontend.vdp(&self.vdp);
         self.frontend.audio(&self.sound.bus.samples);
         self.sound.bus.samples.clear();
         let pads = &mut self.pads;
-        let width = self.vdp.width();
-        self.frontend.frame(&self.vdp.frame, width, ram, pads);
+        let (width, height) = (self.vdp.width(), self.picture_size.1);
+        self.frontend.frame(&self.vdp.frame, width, height, ram, pads);
     }
 
 }

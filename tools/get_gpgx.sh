@@ -15,7 +15,7 @@ set -euo pipefail
 REPO=https://github.com/libretro/Genesis-Plus-GX
 COMMIT=b9c2316441978d4015ba30e9a95d9b0e6f8ee981
 # bumped when the build below changes, so `make setup` rebuilds
-BUILD=6
+BUILD=8
 TOP=$(cd "$(dirname "$0")" && pwd)
 DEST=$TOP/gpgx
 SO=$DEST/genesis_plus_gx_libretro.so
@@ -34,6 +34,7 @@ cat > "$SRC/libretro/link.T" <<'EOF'
 {
    global: retro_*; set_cpu_hook; m68k_get_reg; mdtrace_m68k_cycles;
            mdtrace_m68k_refresh; mdtrace_z80_cycles; mdtrace_ym_timer_b;
+           mdtrace_vdp;
    local: *;
 };
 EOF
@@ -78,6 +79,15 @@ EOF
 cat >> "$SRC/core/z80/z80.c" <<'EOF'
 
 unsigned int mdtrace_z80_cycles(void) { return Z80.cycles; }
+EOF
+# the VDP's memories (VRAM, VSRAM, registers, its copy of the sprite
+# table: host-order words), for mdtrace --vram
+cat >> "$SRC/core/vdp_ctrl.c" <<'EOF'
+
+unsigned char *mdtrace_vdp(int which)
+{
+  return which == 0 ? vram : which == 1 ? vsram : which == 2 ? reg : sat;
+}
 EOF
 # the YM2612's timer B counter (as of its last update), for mdtrace
 cat >> "$SRC/core/sound/ym2612.c" <<'EOF'

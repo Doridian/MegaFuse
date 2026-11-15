@@ -1,13 +1,23 @@
 //! A PNG writer without dependencies: RGB, filter 0, stored (uncompressed)
 //! deflate blocks.
 
-fn crc32(data: &[u8]) -> u32 {
+/// CRC-32 (zlib's), a byte at a time from a table.
+pub fn crc32(data: &[u8]) -> u32 {
+    static TABLE: std::sync::OnceLock<[u32; 256]> = std::sync::OnceLock::new();
+    let t = TABLE.get_or_init(|| {
+        let mut t = [0u32; 256];
+        for (n, e) in t.iter_mut().enumerate() {
+            let mut c = n as u32;
+            for _ in 0..8 {
+                c = if c & 1 != 0 { 0xEDB8_8320 ^ (c >> 1) } else { c >> 1 };
+            }
+            *e = c;
+        }
+        t
+    });
     let mut c = 0xFFFF_FFFFu32;
     for &b in data {
-        c ^= u32::from(b);
-        for _ in 0..8 {
-            c = if c & 1 != 0 { 0xEDB8_8320 ^ (c >> 1) } else { c >> 1 };
-        }
+        c = t[((c ^ u32::from(b)) & 0xFF) as usize] ^ (c >> 8);
     }
     !c
 }
