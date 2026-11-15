@@ -1,9 +1,13 @@
 name: CI
 
 # What can be checked without a ROM: the 68000 decoder against gas (every
-# encoding it accepts must assemble back to the same bytes) and that the
-# Python tools parse.  The matching builds need a baserom and run locally
-# (README, "Build").
+# encoding it accepts must assemble back to the same bytes), that the
+# Python tools parse, and the Rust port: it builds (natively and for the
+# browser), clippy has nothing to say, and its tests pass.  The translated
+# game is generated from the ROM (make port), so here the port builds
+# against crates/game/src/stub.rs; the matching builds and the checks
+# against the original (port_check, timeline_check) need a baserom and
+# run locally (README, "Build"; docs/PORT.md).
 
 on:
   push:
@@ -25,4 +29,37 @@ jobs:
         run: make test CROSS=m68k-linux-gnu-
 
       - name: Python tools parse
-        run: python3 -m py_compile tools/*.py
+        run: python3 -m py_compile tools/*.py tools/recomp/*.py
+
+  rust:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy --target wasm32-unknown-unknown
+          rustup default stable
+
+      - name: Install libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: rust-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: rust-${{ runner.os }}-
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Tests
+        run: cargo test --workspace
+
+      - name: The browser build
+        run: cargo clippy -p megafuse -p platform --target wasm32-unknown-unknown -- -D warnings

@@ -3,6 +3,10 @@
 //! is generated from the ROM (`make port`), this file is written by hand.
 
 mod ops;
+#[cfg(translated)]
+mod translated;
+#[cfg(not(translated))]
+#[path = "stub.rs"]
 mod translated;
 
 pub use translated::RESET;

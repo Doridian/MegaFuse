@@ -37,7 +37,7 @@ impl Game {
     #[must_use]
     pub fn read16(&mut self, addr: u32) -> u16 {
         let a = addr & 0xFF_FFFF;
-        if a >= RAM_FROM || a < ROM_TO {
+        if !(ROM_TO..RAM_FROM).contains(&a) {
             u16::from_be_bytes([self.read8(a), self.read8(a + 1)])
         } else {
             if z80_side(a) && self.hw.z80_granted() {
@@ -68,10 +68,12 @@ impl Game {
         let after = *AFTER.get_or_init(|| {
             std::env::var("MEGAFUSE_TRAP_AFTER").ok().and_then(|v| v.parse().ok()).unwrap_or(0)
         });
-        if let Some(t) = *t {
-            if self.clock >= after && value != 0 && (t & 0xFF_FFFF).wrapping_sub(a) < n {
-                panic!("a write to {a:06X} (clock {})", self.clock);
-            }
+        if let Some(t) = *t
+            && self.clock >= after
+            && value != 0
+            && (t & 0xFF_FFFF).wrapping_sub(a) < n
+        {
+            panic!("a write to {a:06X} (clock {})", self.clock);
         }
     }
 
