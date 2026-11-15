@@ -23,6 +23,7 @@ pub enum Dma {
     Memory { source: u32, words: u32, vram: bool },
 }
 
+#[derive(Clone)]
 pub struct Vdp {
     pub regs: [u8; 24],
     pub vram: Box<[u8; 0x10000]>,

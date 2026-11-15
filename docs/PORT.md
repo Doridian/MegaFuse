@@ -23,6 +23,25 @@ its own (it never returns; frames pass as it runs) at the console's pace,
 a frame every 16.69 ms, and hands the window each picture and its sound.
 Headless (`--frames N`) it runs some 1100 frames a second.
 
+## A step
+
+The game runs as its main loop does: `Game::boot` runs the reset routine
+to the main loop's head (0x9368), `Game::step` one pass of the loop, from
+its wait for the vertical blank to the next: a frame, or more when the
+game lags (from the state, the same on every host). tools/recomp makes
+the loop's head a routine of its own (`routines.STEP`) whose jumps back
+return, and gives it and the reset routine one `Regs` (the registers
+carry from one pass to the next, as on the 68000). Between steps the Rust
+stack is empty and the game's whole state is plain data: `Game::state`
+(work RAM, the time, the interrupt mask, the registers) and `md::State`
+(the VDP, the Z80 and the sound chips, the pads, the I/O ports, a DMA
+under way). `Game::save` copies it (some 450 KB), `Game::restore` puts it
+back; the frontend gets the frame number with each frame, so what it
+feeds the game (pads) depends on the frame, not on how it got there.
+`megafuse --restore-check` takes a snapshot every 37 steps, runs 25,
+restores and runs them again: the same clock and RAM after each, on every
+script tried.
+
 ## Translation
 
 `tools/recomp/` works on tools/disasm.py's analysis, in passes:

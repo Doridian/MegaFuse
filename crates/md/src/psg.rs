@@ -14,6 +14,7 @@ const VOLUME: [f32; 16] = {
     t
 };
 
+#[derive(Clone)]
 pub struct Psg {
     /// Tone periods (10 bits) and the noise control (3 bits).
     period: [u16; 4],

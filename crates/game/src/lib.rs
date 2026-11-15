@@ -53,6 +53,10 @@ pub trait Hardware {
     fn z80_granted(&self) -> bool;
     /// The frame is over: the picture and RAM out, the pads in.
     fn end_frame(&mut self, ram: &mut [u8; 0x10000]);
+    /// The hardware's state (a copy: [`Game::save`]).
+    fn save(&self) -> Box<dyn std::any::Any + Send>;
+    /// The hardware's state back.
+    fn restore(&mut self, state: &dyn std::any::Any);
 }
 
 /// The registers a family of routines called through a pointer share
@@ -86,11 +90,23 @@ pub struct Regs {
 }
 
 pub struct Game {
-    /// Work RAM, 0xFF0000-0xFFFFFF (mirrored from 0xE00000).
-    pub ram: Box<[u8; 0x10000]>,
+    /// The 68000's side of the state between steps (plain data: a copy
+    /// is a snapshot, [`Game::save`]).
+    pub state: State,
     /// The cartridge.
     pub rom: Vec<u8>,
     pub hw: Box<dyn Hardware>,
+    /// The 68000's time, instruction by instruction, for
+    /// tools/timeline_check.py.
+    pub timeline: Option<Timeline>,
+}
+
+/// What the 68000's side keeps: work RAM, the time, the interrupt mask,
+/// the registers between steps.
+#[derive(Clone)]
+pub struct State {
+    /// Work RAM, 0xFF0000-0xFFFFFF (mirrored from 0xE00000).
+    pub ram: Box<[u8; 0x10000]>,
     /// Master clocks since power-on (docs/PORT.md, "Time"): where the
     /// instruction being run started, but for its base time, `pending`,
     /// spent when the next one starts.
@@ -112,9 +128,28 @@ pub struct Game {
     delayed: u8,
     /// A 32-bit write is being made (its interrupt comes at once).
     pub(crate) long_write: bool,
-    /// The 68000's time, instruction by instruction, for
-    /// tools/timeline_check.py.
-    pub timeline: Option<Timeline>,
+    /// The registers between steps.
+    pub regs: Regs,
+}
+
+impl std::ops::Deref for Game {
+    type Target = State;
+    fn deref(&self) -> &State {
+        &self.state
+    }
+}
+
+impl std::ops::DerefMut for Game {
+    fn deref_mut(&mut self) -> &mut State {
+        &mut self.state
+    }
+}
+
+/// The whole game between two steps: the 68000's side and the
+/// hardware's.
+pub struct Snapshot {
+    pub state: State,
+    pub hw: Box<dyn std::any::Any + Send>,
 }
 
 /// Master clocks: a line, a frame.
@@ -138,7 +173,7 @@ const INTERRUPT: [u64; 10] = [50, 59, 58, 57, 56, 55, 54, 53, 52, 51];
 /// of their (PC, clock), as tools/mdtrace --timeline writes it; one frame
 /// in full.
 pub struct Timeline {
-    pub out: Box<dyn std::io::Write>,
+    pub out: Box<dyn std::io::Write + Send>,
     pub full: Option<u64>,
     frame: u64,
     count: u64,
@@ -149,7 +184,7 @@ const FNV: u64 = 0xCBF2_9CE4_8422_2325;
 
 impl Timeline {
     #[must_use]
-    pub fn new(out: Box<dyn std::io::Write>, full: Option<u64>) -> Self {
+    pub fn new(out: Box<dyn std::io::Write + Send>, full: Option<u64>) -> Self {
         Timeline { out, full, frame: 0, count: 0, hash: FNV }
     }
 
@@ -184,26 +219,61 @@ impl Game {
     pub fn new(rom: Vec<u8>, hw: Box<dyn Hardware>) -> Self {
         let clock = POWER_ON / 7 * 7 + RESET_TIME;
         Game {
-            ram: Box::new([0; 0x10000]),
+            state: State {
+                ram: Box::new([0; 0x10000]),
+                clock,
+                pending: 0,
+                refresh_due: clock / REFRESH_EVERY * REFRESH_EVERY + REFRESH_EVERY,
+                frame_base: 0,
+                seg: SEGMENTS,
+                seg_end: 0,
+                ipl: 7,
+                delayed: 0,
+                long_write: false,
+                regs: Regs::default(),
+            },
             rom,
             hw,
-            clock,
-            pending: 0,
-            refresh_due: clock / REFRESH_EVERY * REFRESH_EVERY + REFRESH_EVERY,
-            frame_base: 0,
-            seg: SEGMENTS,
-            seg_end: 0,
-            ipl: 7,
-            delayed: 0,
-            long_write: false,
             timeline: None,
         }
     }
 
-    /// Power on: the reset routine, which runs the game; it never
-    /// returns, the frames pass as it runs ([`Game::insn`]).
-    pub fn run(&mut self) {
-        self.call_reset();
+    /// Power on and play: [`Game::boot`], then [`Game::step`] for ever;
+    /// the frames pass as it runs ([`Game::insn`]).
+    pub fn run(&mut self) -> ! {
+        self.boot();
+        loop {
+            self.step();
+        }
+    }
+
+    /// Power on: the reset routine, to the main loop.
+    pub fn boot(&mut self) {
+        let mut regs = Regs::default();
+        self.call_reset(&mut regs);
+        self.regs = regs;
+    }
+
+    /// The game as it is between two steps.
+    #[must_use]
+    pub fn save(&self) -> Snapshot {
+        Snapshot { state: self.state.clone(), hw: self.hw.save() }
+    }
+
+    /// The game back as it was.
+    pub fn restore(&mut self, s: &Snapshot) {
+        self.state = s.state.clone();
+        self.hw.restore(&*s.hw);
+    }
+
+    /// A pass of the main loop (docs/PORT.md, "A step"): from its wait
+    /// for the vertical blank to the next, a frame (more when the game
+    /// lags).  Between steps the game's whole state is plain data: this
+    /// struct and the hardware's.
+    pub fn step(&mut self) {
+        let mut regs = self.regs;
+        self.call_step(&mut regs);
+        self.regs = regs;
     }
 
     /// An instruction starts (at `pc`; `base` its time but what depends
@@ -223,7 +293,7 @@ impl Game {
             }
         }
         if let Some(t) = &mut self.timeline {
-            t.record(pc, self.clock);
+            t.record(pc, self.state.clock);
         }
         if self.clock >= self.refresh_due {
             self.refresh_due = self.clock + REFRESH_EVERY;
@@ -241,7 +311,7 @@ impl Game {
             self.clock += self.pending;
             self.pending = u64::from(base) * 7;
             if let Some(t) = &mut self.timeline {
-                t.record(pc, self.clock);
+                t.record(pc, self.state.clock);
             }
             self.delayed = 2;
             return;
@@ -292,7 +362,7 @@ impl Game {
                     if let Some(t) = &mut self.timeline {
                         t.end_frame();
                     }
-                    self.hw.end_frame(&mut self.ram);
+                    self.hw.end_frame(&mut self.state.ram);
                 }
                 self.seg = 0;
             }

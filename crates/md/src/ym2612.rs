@@ -77,6 +77,7 @@ struct Channel {
     fb_out: [f32; 2],
 }
 
+#[derive(Clone)]
 pub struct Ym2612 {
     ch: [Channel; 6],
     /// Channel 3's special mode: its operators 1-3 have their own

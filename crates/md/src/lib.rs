@@ -28,12 +28,14 @@ pub mod button {
 pub trait Frontend {
     /// picture: 320 pixels a line, of which the first `width` are the
     /// picture (H40 320, H32 256).
-    /// (`width` x `height` of it: the mode at the frame's start.)
-    fn frame(&mut self, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]);
+    /// (`width` x `height` of it: the mode at the frame's start; `frame`,
+    /// the frames ended so far, this one included: the machine's count,
+    /// which a restored state takes back.)
+    fn frame(&mut self, frame: u64, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]);
 
     /// The VDP as the frame ends, before [`Frontend::frame`] (debugging:
     /// `megafuse --vram`).
-    fn vdp(&mut self, _vdp: &Vdp) {}
+    fn vdp(&mut self, _frame: u64, _vdp: &Vdp) {}
 
     /// The frame's sound, before [`Frontend::frame`]: stereo samples,
     /// interleaved, at [`sound::SAMPLE_RATE`].
@@ -41,13 +43,21 @@ pub trait Frontend {
 }
 
 pub struct Md {
+    /// The hardware's state between steps (plain data: a copy is a
+    /// snapshot).
+    pub state: State,
+    frontend: Box<dyn Frontend>,
+}
+
+/// Everything the hardware keeps.
+#[derive(Clone)]
+pub struct State {
     pub vdp: Vdp,
     pub pads: [u16; 4],
     /// The data ports' output bits (TH selects the pad's halves).
     data_out: [u8; 3],
     ctrl: [u8; 3],
     pub sound: Sound,
-    frontend: Box<dyn Frontend>,
     pub frames: u64,
     /// What is plugged into the pad ports.
     plug: Plug,
@@ -80,6 +90,19 @@ pub struct Md {
     vint_raised: bool,
     /// The 68000 has to wait until then (a write to a full FIFO).
     stall: u64,
+}
+
+impl std::ops::Deref for Md {
+    type Target = State;
+    fn deref(&self) -> &State {
+        &self.state
+    }
+}
+
+impl std::ops::DerefMut for Md {
+    fn deref_mut(&mut self) -> &mut State {
+        &mut self.state
+    }
 }
 
 /// Master clocks: a line, a frame; the vertical blank's lines from the
@@ -115,6 +138,7 @@ enum Plug {
 
 /// A DMA under way: what it moves in each window still to come (when
 /// the window starts, how much), and from 68000 memory, the words.
+#[derive(Clone)]
 struct DmaRun {
     kind: DmaKind,
     windows: std::collections::VecDeque<(u64, u32)>,
@@ -140,12 +164,12 @@ impl Md {
     /// The ROM is for the Z80, which reads it through its window.
     pub fn new(rom: Vec<u8>, frontend: Box<dyn Frontend>) -> Self {
         Md {
+            state: State {
             vdp: Vdp::new(),
             pads: [0; 4],
             data_out: [0; 3],
             ctrl: [0; 3],
             sound: Sound::new(rom),
-            frontend,
             frames: 0,
             plug: Plug::Pads,
             picture_size: (256, 192),
@@ -162,9 +186,14 @@ impl Md {
             dma: None,
             vint_raised: false,
             stall: 0,
+            },
+            frontend,
         }
     }
 
+}
+
+impl State {
     /// A Team Player on port A, pads 1-4 behind it.
     pub fn plug_teamplayer(&mut self) {
         self.plug = Plug::TeamPlayer { state: 0x60, counter: 0 };
@@ -329,7 +358,7 @@ impl Md {
     }
 }
 
-impl Md {
+impl State {
     /// The status register, as of the end of the instruction reading
     /// it: DMA busy, the FIFO empty or full, the blanks, the vertical
     /// interrupt (its flag up from its time, even before it is raised).
@@ -346,7 +375,7 @@ impl Md {
         }
         let x = t.saturating_sub(self.line_clock);
         let h40 = self.vdp.regs[12] & 1 != 0;
-        if self.vdp.line == vdp::HEIGHT as u16 && !self.vint_raised && x >= game::Hardware::vint_clock(self) {
+        if self.vdp.line == vdp::HEIGHT as u16 && !self.vint_raised && x >= self.vint_clock() {
             s |= 0x0080;
         }
         let (from, to) = if h40 { (228, 872) } else { (280, 860) };
@@ -376,7 +405,8 @@ impl Md {
             let h40 = self.vdp.regs[12] & 1 != 0;
             let slots: &[u64] = if h40 { &FIFO_H40 } else { &FIFO_H32 };
             let at = slots.iter().copied().find(|&s| x < s).unwrap_or(slots[slots.len() - 1]);
-            self.fifo[self.fifo_idx] = self.line_clock + at;
+            let (k, at) = (self.fifo_idx, self.line_clock + at);
+            self.fifo[k] = at;
         }
         self.fifo_idx = (self.fifo_idx + 1) & 3;
         if let Some(len) = self.vdp.write_data(w) {
@@ -429,13 +459,8 @@ impl Md {
     /// it), then on from each line's start (Genesis Plus GX's model);
     /// where its last window starts (0: the first) and whether it ran
     /// past the first.
-    fn dma_time(&self, start: u64, len: u64, kind: DmaKind) -> (u64, u64, bool) {
-        let p = self.dma_plan(start, len, kind);
-        (p.0, p.1, p.2)
-    }
-
-    /// The same, and how much it moves in each of its windows: (when the
-    /// window starts, 0 for the first; how many words or bytes).
+    /// And how much it moves in each of its windows: (when the window
+    /// starts, 0 for the first; how many words or bytes).
     #[allow(clippy::type_complexity)]
     fn dma_plan(&self, start: u64, len: u64, kind: DmaKind) -> (u64, u64, bool, Vec<(u64, u32)>) {
         let mut windows = Vec::new();
@@ -491,8 +516,8 @@ impl Md {
     }
 }
 
-impl game::Hardware for Md {
-    fn read8(&mut self, addr: u32) -> u8 {
+impl State {
+    pub(crate) fn read8(&mut self, addr: u32) -> u8 {
         match addr {
             // the Z80's side answers while the 68000 has its bus
             0xA0_0000..=0xA0_FFFF if !self.sound.granted() => 0xFF,
@@ -511,7 +536,7 @@ impl game::Hardware for Md {
         }
     }
 
-    fn read16(&mut self, addr: u32) -> u16 {
+    pub(crate) fn read16(&mut self, addr: u32) -> u16 {
         match addr {
             0xC0_0000 | 0xC0_0002 => self.vdp.read_data(),
             0xC0_0004 | 0xC0_0006 => self.status(),
@@ -522,7 +547,7 @@ impl game::Hardware for Md {
         }
     }
 
-    fn write8(&mut self, addr: u32, value: u8) {
+    pub(crate) fn write8(&mut self, addr: u32, value: u8) {
         match addr {
             0xA0_0000..=0xA0_FFFF => {
                 if self.sound.granted() {
@@ -539,7 +564,7 @@ impl game::Hardware for Md {
         }
     }
 
-    fn write16(&mut self, addr: u32, value: u16) {
+    pub(crate) fn write16(&mut self, addr: u32, value: u16) {
         match addr {
             0xC0_0000 | 0xC0_0002 => self.data_write(value),
             0xC0_0004 | 0xC0_0006 => {
@@ -576,18 +601,18 @@ impl game::Hardware for Md {
         }
     }
 
-    fn set_time(&mut self, clock: u64, rest: u64) {
+    pub(crate) fn set_time(&mut self, clock: u64, rest: u64) {
         self.clock = clock;
         self.rest = rest;
     }
 
-    fn take_dma(&mut self) -> Option<(u32, u32, bool)> {
+    pub(crate) fn take_dma(&mut self) -> Option<(u32, u32, bool)> {
         self.vdp.take_dma().map(|Dma::Memory { source, words, vram }| (source, words, vram))
     }
 
     /// Accesses a line (Genesis Plus GX's table): VRAM takes two a word;
     /// to CRAM or VSRAM in the blank a refresh slot is lost every so often.
-    fn dma_run(&mut self, start: u64, source: u32, data: Vec<u16>, vram: bool) -> (u64, bool) {
+    pub(crate) fn dma_run(&mut self, start: u64, source: u32, data: Vec<u16>, vram: bool) -> (u64, bool) {
         let kind = if vram { DmaKind::Vram } else { DmaKind::Other };
         let (end, _, on, windows) = self.dma_plan(start, data.len() as u64, kind);
         self.dma_start(DmaRun { kind, windows: windows.into(), words: data, next: 0, source });
@@ -596,15 +621,15 @@ impl game::Hardware for Md {
         (end, on)
     }
 
-    fn take_stall(&mut self) -> u64 {
+    pub(crate) fn take_stall(&mut self) -> u64 {
         std::mem::take(&mut self.stall)
     }
 
-    fn display_on(&self) -> bool {
+    pub(crate) fn display_on(&self) -> bool {
         self.vdp.display_on()
     }
 
-    fn frame_start(&mut self) {
+    pub(crate) fn frame_start(&mut self) {
         self.dma_progress(self.clock);
         // the picture's lines are the mode's at the frame's start (mode 4,
         // the VDP's at power-on, has 192); its width the VDP's at its end
@@ -618,17 +643,17 @@ impl game::Hardware for Md {
         self.vdp.frame_start();
     }
 
-    fn vint(&mut self) {
+    pub(crate) fn vint(&mut self) {
         self.vdp.vint_pending = true;
         self.vint_raised = true;
         self.sound.irq = true;
     }
 
-    fn vint_clock(&self) -> u64 {
+    pub(crate) fn vint_clock(&self) -> u64 {
         if self.vdp.regs[12] & 1 != 0 { 788 } else { 770 }
     }
 
-    fn line_start(&mut self, line: u16) {
+    pub(crate) fn line_start(&mut self, line: u16) {
         self.line_clock = self.clock;
         self.dma_progress(self.clock);
         if line == vdp::HEIGHT as u16 + 1 {
@@ -638,40 +663,123 @@ impl game::Hardware for Md {
         self.vdp.line_start(line);
     }
 
-    fn irq_level(&self) -> u8 {
+    pub(crate) fn irq_level(&self) -> u8 {
         self.vdp.irq_level()
     }
 
-    fn int_ack(&mut self, _level: u8) {
+    pub(crate) fn int_ack(&mut self, _level: u8) {
         self.vdp.int_ack();
     }
 
-    fn sync(&mut self, t: u64) {
+
+
+    pub(crate) fn sync(&mut self, t: u64) {
         self.clock = t;
         self.rest = 0;
         self.sound.run_until(t);
     }
 
-    fn z80_granted(&self) -> bool {
+    pub(crate) fn z80_granted(&self) -> bool {
         self.sound.granted()
     }
 
-    fn end_frame(&mut self, ram: &mut [u8; 0x10000]) {
-        self.sound.bus.frame_end(self.clock);
-        if let Some(t) = &mut self.sound.timeline {
-            t.end_frame();
-        }
-        if std::env::var("MEGAFUSE_VDP").ok().and_then(|v| v.parse::<u64>().ok()) == Some(self.frames) {
-            eprintln!("regs {:02X?}", self.vdp.regs);
-            eprintln!("cram {:03X?}", &self.vdp.cram[..32]);
-        }
-        self.frames += 1;
-        self.frontend.vdp(&self.vdp);
-        self.frontend.audio(&self.sound.bus.samples);
-        self.sound.bus.samples.clear();
-        let pads = &mut self.pads;
-        let (width, height) = (self.vdp.width(), self.picture_size.1);
-        self.frontend.frame(&self.vdp.frame, width, height, ram, pads);
+
+}
+
+impl game::Hardware for Md {
+    fn read8(&mut self, addr: u32) -> u8 {
+        self.state.read8(addr)
     }
 
+    fn read16(&mut self, addr: u32) -> u16 {
+        self.state.read16(addr)
+    }
+
+    fn write8(&mut self, addr: u32, value: u8) {
+        self.state.write8(addr, value)
+    }
+
+    fn write16(&mut self, addr: u32, value: u16) {
+        self.state.write16(addr, value)
+    }
+
+    fn set_time(&mut self, clock: u64, rest: u64) {
+        self.state.set_time(clock, rest)
+    }
+
+    fn take_dma(&mut self) -> Option<(u32, u32, bool)> {
+        self.state.take_dma()
+    }
+
+    fn dma_run(&mut self, start: u64, source: u32, data: Vec<u16>, vram: bool) -> (u64, bool) {
+        self.state.dma_run(start, source, data, vram)
+    }
+
+    fn take_stall(&mut self) -> u64 {
+        self.state.take_stall()
+    }
+
+    fn display_on(&self) -> bool {
+        self.state.display_on()
+    }
+
+    fn frame_start(&mut self) {
+        self.state.frame_start()
+    }
+
+    fn vint(&mut self) {
+        self.state.vint()
+    }
+
+    fn vint_clock(&self) -> u64 {
+        self.state.vint_clock()
+    }
+
+    fn line_start(&mut self, line: u16) {
+        self.state.line_start(line)
+    }
+
+    fn irq_level(&self) -> u8 {
+        self.state.irq_level()
+    }
+
+    fn int_ack(&mut self, _level: u8) {
+        self.state.int_ack(_level)
+    }
+
+    fn sync(&mut self, t: u64) {
+        self.state.sync(t)
+    }
+
+    fn z80_granted(&self) -> bool {
+        self.state.z80_granted()
+    }
+
+    fn save(&self) -> Box<dyn std::any::Any + Send> {
+        Box::new(self.state.clone())
+    }
+
+    fn restore(&mut self, state: &dyn std::any::Any) {
+        if let Some(s) = state.downcast_ref::<State>() {
+            self.state = s.clone();
+        }
+    }
+
+    fn end_frame(&mut self, ram: &mut [u8; 0x10000]) {
+        self.state.sound.bus.frame_end(self.state.clock);
+        if let Some(t) = &self.state.sound.timeline {
+            t.lock().unwrap_or_else(std::sync::PoisonError::into_inner).end_frame();
+        }
+        if std::env::var("MEGAFUSE_VDP").ok().and_then(|v| v.parse::<u64>().ok()) == Some(self.state.frames) {
+            eprintln!("regs {:02X?}", self.state.vdp.regs);
+            eprintln!("cram {:03X?}", &self.state.vdp.cram[..32]);
+        }
+        self.state.frames += 1;
+        self.frontend.vdp(self.state.frames, &self.state.vdp);
+        self.frontend.audio(&self.state.sound.bus.samples);
+        self.state.sound.bus.samples.clear();
+        let pads = &mut self.state.pads;
+        let (width, height) = (self.state.vdp.width(), self.state.picture_size.1);
+        self.frontend.frame(self.state.frames, &self.state.vdp.frame, width, height, ram, pads);
+    }
 }

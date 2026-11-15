@@ -98,6 +98,11 @@ def build(d):
                         ops.append(call_op(t, r.depth[a], a + i.size, a))
                         t = None
                     if last:
+                        # a jump to the main loop's head (the end of the
+                        # boot, a pass of the loop) returns: the step
+                        if t is not None and t[0] == 'jump' and \
+                                t[1] == routines.STEP:
+                            t = ('ret',)
                         term = t
                         if t is not None and t[0] in ('call', 'callx',
                                                       'calltable'):

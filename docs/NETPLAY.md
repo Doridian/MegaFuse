@@ -34,6 +34,13 @@ pointers, so the same holds.
 
 ## Requirements the port has to meet first
 
+Where the port is (docs/PORT.md, "Time" and "A step"): the port keeps
+the console's time, so the game advances by its inputs alone (1; the HV
+counter and the like are the console's, from the state); `Game::step`
+is one pass of the main loop, lag frames from the state (2, 3); the game
+is integers (4); `Game::save` and `Game::restore` (5). Still to do: the
+hash across hosts (6) and a step that doesn't draw.
+
 From B64's list, adapted:
 
 1. **The game advances by inputs alone.** A step is a pure function of

@@ -39,13 +39,14 @@ const PSG_GAIN: f32 = 2100.0 / 32768.0;
 const DC_POLE: f32 = 0.999;
 
 /// Everything on the Z80's bus but the Z80.
+#[derive(Clone)]
 pub struct ZBus {
     pub ram: Box<[u8; 0x2000]>,
     pub ym: Ym2612,
     pub psg: Psg,
     /// Bits 15-23 of the 68000 address the window at 0x8000 shows.
     bank: u32,
-    rom: Vec<u8>,
+    rom: std::sync::Arc<[u8]>,
     /// The time of the access being made.
     now: u64,
     /// The frame's start (the YM2612's busy time is counted from it).
@@ -195,6 +196,7 @@ impl z80::Bus for Peek<'_> {
     fn write(&mut self, _: u16, _: u8) {}
 }
 
+#[derive(Clone)]
 pub struct Sound {
     pub z80: Z80,
     pub bus: ZBus,
@@ -208,8 +210,9 @@ pub struct Sound {
     /// Where the Z80 got to (master clocks; it may run a little past
     /// the time it was run to).
     pub z80_clock: u64,
-    /// The Z80's time, instruction by instruction (`--ztimeline`).
-    pub timeline: Option<game::Timeline>,
+    /// The Z80's time, instruction by instruction (`--ztimeline`; one
+    /// for every copy of the state).
+    pub timeline: Option<std::sync::Arc<std::sync::Mutex<game::Timeline>>>,
 }
 
 impl Sound {
@@ -222,7 +225,7 @@ impl Sound {
                 ym: Ym2612::new(),
                 psg: Psg::new(),
                 bank: 0,
-                rom,
+                rom: rom.into(),
                 now: 0,
                 frame_clock: 0,
                 dma_until: 0,
@@ -290,8 +293,8 @@ impl Sound {
                         break;
                     }
                 }
-                if let Some(tl) = &mut self.timeline {
-                    tl.record(u32::from(self.z80.pc), self.z80_clock);
+                if let Some(tl) = &self.timeline {
+                    tl.lock().unwrap_or_else(std::sync::PoisonError::into_inner).record(u32::from(self.z80.pc), self.z80_clock);
                 }
                 let base = self.z80.base_cycles(&mut Peek(&self.bus.ram));
                 let start = self.z80_clock;

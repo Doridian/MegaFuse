@@ -9,7 +9,11 @@
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
 //!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
 //!                [--timeline FILE] [--ztimeline FILE] [--timeline-at F]
-//!                [--hashes FILE] [--vram PREFIX]
+//!                [--hashes FILE] [--vram PREFIX] [--restore-check]
+//!
+//! --restore-check: every so many steps a snapshot, some steps run, the
+//! snapshot restored and the same steps run again: the clock and RAM
+//! after each have to be the same (Game::save, Game::restore).
 
 mod png;
 mod window;
@@ -68,7 +72,6 @@ struct Headless {
     ram_prefix: Option<String>,
     shot_prefix: Option<String>,
     frame: u64,
-    held: [u16; 4],
     /// VRAM, VSRAM and the registers, as tools/mdtrace --vram writes them.
     vram_prefix: Option<String>,
     /// Each frame's CRC-32s of work RAM and the picture (--hashes).
@@ -82,14 +85,22 @@ struct Headless {
 
 impl Headless {
     fn apply(&mut self, frame: u64, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
-        if let Some(changes) = self.script.pads.get(&frame) {
-            for &(p, m) in changes {
-                if p < 4 {
-                    self.held[p] = m;
+        // each pad as the script's last change by this frame has it (a
+        // function of the frame: a restored run gets the same pads)
+        let mut held = [0u16; 4];
+        let mut set = [false; 4];
+        for (_, changes) in self.script.pads.range(..=frame).rev() {
+            for &(p, m) in changes.iter().rev() {
+                if p < 4 && !set[p] {
+                    held[p] = m;
+                    set[p] = true;
                 }
             }
+            if set.iter().all(|&s| s) {
+                break;
+            }
         }
-        *pads = self.held;
+        *pads = held;
         if let Some(pokes) = self.script.pokes.get(&frame) {
             for &(a, v, n) in pokes {
                 for k in 0..n {
@@ -102,11 +113,11 @@ impl Headless {
 }
 
 impl Frontend for Headless {
-    fn frame(&mut self, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
+    fn frame(&mut self, frame: u64, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
         // the frame that just ended is self.frame + 1 (mdtrace counts
         // frames run)
-        self.frame += 1;
-        let f = self.frame;
+        self.frame = frame;
+        let f = frame;
         if let Some(out) = &mut self.hashes {
             // as tools/mdtrace --hashes: RAM to the stack, the picture's RGB
             use std::io::Write as _;
@@ -138,8 +149,8 @@ impl Frontend for Headless {
         self.apply(f, ram, pads);
     }
 
-    fn vdp(&mut self, vdp: &md::vdp::Vdp) {
-        let f = self.frame + 1;
+    fn vdp(&mut self, frame: u64, vdp: &md::vdp::Vdp) {
+        let f = frame;
         if let Some(p) = &self.vram_prefix
             && self.every > 0
             && (f.is_multiple_of(self.every) || f == self.frames)
@@ -187,7 +198,7 @@ fn write_wav(path: &str, samples: &[i16]) -> std::io::Result<()> {
 struct Silent;
 
 impl Frontend for Silent {
-    fn frame(&mut self, _: &[u32], _: usize, _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
+    fn frame(&mut self, _: u64, _: &[u32], _: usize, _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
 }
 
 /// `megafuse --routine ROM ENTRY IN OUT`: one routine from a state of the
@@ -241,6 +252,7 @@ fn main() {
     let mut timeline_at = None;
     let mut ztimeline = None;
     let mut headless = false;
+    let mut restore_check = false;
     let mut h = Headless {
         script: Script { pads: BTreeMap::new(), pokes: BTreeMap::new() },
         frames: 3600,
@@ -248,7 +260,6 @@ fn main() {
         ram_prefix: None,
         shot_prefix: None,
         frame: 0,
-        held: [0; 4],
         wav: None,
         teamplayer: false,
         wayplay: false,
@@ -276,6 +287,7 @@ fn main() {
             "--timeline-at" => timeline_at = next(&mut i).parse().ok(),
             "--ztimeline" => ztimeline = Some(next(&mut i)),
             "--vram" => h.vram_prefix = Some(next(&mut i)),
+            "--restore-check" => restore_check = true,
             "--hashes" => {
                 let p = next(&mut i);
                 let f = std::fs::File::create(&p).unwrap_or_else(|e| {
@@ -310,6 +322,11 @@ fn main() {
     let mut pads = [0u16; 4];
     h.apply(0, &mut ram, &mut pads);
     let (teamplayer, wayplay) = (h.teamplayer, h.wayplay);
+    let frames_wanted = h.frames;
+    if restore_check {
+        // the frontend must not end the run (the check does)
+        h.frames = u64::MAX;
+    }
     let mut md = Md::new(rom.clone(), Box::new(h));
     if teamplayer {
         md.plug_teamplayer();
@@ -322,8 +339,12 @@ fn main() {
             eprintln!("{p}: {e}");
             std::process::exit(1)
         });
-        md.sound.timeline = Some(game::Timeline::new(Box::new(std::io::BufWriter::new(f)), timeline_at));
+        md.sound.timeline = Some(std::sync::Arc::new(std::sync::Mutex::new(game::Timeline::new(
+            Box::new(std::io::BufWriter::new(f)),
+            timeline_at,
+        ))));
     }
+    let h_frames = frames_wanted;
     let mut game = game::Game::new(rom, Box::new(md));
     if let Some(p) = timeline {
         let f = std::fs::File::create(&p).unwrap_or_else(|e| {
@@ -332,5 +353,46 @@ fn main() {
         });
         game.timeline = Some(game::Timeline::new(Box::new(std::io::BufWriter::new(f)), timeline_at));
     }
+    if restore_check {
+        let frames = h_frames;
+        check_restore(&mut game, frames);
+    }
     game.run();
+}
+
+/// Snapshots, taken back: every 37th step, 25 steps run, restored and
+/// run again, the clock and RAM after each compared.
+fn check_restore(game: &mut game::Game, frames: u64) -> ! {
+    game.boot();
+    let mut checks = 0;
+    let mut step = 0u64;
+    while game.clock / game::FRAME < frames.saturating_sub(40) {
+        step += 1;
+        if !step.is_multiple_of(37) {
+            game.step();
+            continue;
+        }
+        let snap = game.save();
+        let run = |g: &mut game::Game| -> Vec<(u64, u32)> {
+            (0..25)
+                .map(|_| {
+                    g.step();
+                    (g.clock, png::crc32(&g.ram[..]))
+                })
+                .collect()
+        };
+        let first = run(game);
+        game.restore(&snap);
+        let again = run(game);
+        if let Some(k) = (0..first.len()).find(|&k| first[k] != again[k]) {
+            eprintln!(
+                "restore-check: step {} + {k}: clock {} / {}, RAM {:08X} / {:08X}",
+                step, first[k].0, again[k].0, first[k].1, again[k].1
+            );
+            std::process::exit(1);
+        }
+        checks += 1;
+    }
+    println!("restore-check: {checks} snapshots restored, the same");
+    std::process::exit(0)
 }

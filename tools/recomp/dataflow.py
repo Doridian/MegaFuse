@@ -244,6 +244,11 @@ class Flow:
                 if not o <= self.OUT[e]:
                     self.OUT[e] |= o
                     changed = True
+            # the step's next pass reads what this one leaves
+            from recomp.routines import STEP
+            for f, (_, ms) in enumerate(self.fams):
+                if STEP in ms:
+                    needed_fam[f] |= self.IN[STEP]
             for f, (_, ms) in enumerate(self.fams):
                 fi = set().union(*(self.IN[m] for m in ms)) if ms else set()
                 fo = needed_fam[f] & fam_mod[f]

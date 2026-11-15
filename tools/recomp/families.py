@@ -61,9 +61,14 @@ def store_patterns(d, ks, t):
     return pats
 
 
-def families(d, routines, version, taken):
+def families(d, routines, version, taken, step=()):
     """[(sites, members)]: taken, the routines whose address the code or
-    a pointer names (they may be called through a pointer)."""
+    a pointer names (they may be called through a pointer); step, the
+    reset routine and the main loop's (Game::boot, Game::step: the
+    registers go from one to the next in a Regs), a family of their
+    own."""
+    step = set(e for e in step if e in routines)
+    taken = set(taken) - step
     ks = sorted(d.insns)
     calls = [(s, t) for s, t in load_calls(version) if t in routines]
     parent = {}
@@ -145,6 +150,8 @@ def families(d, routines, version, taken):
         out.append((ss, members.get(root, set())))
     if left:
         out.append((set(), left))
+    if step:
+        out.append((set(), step))
     return out
 
 

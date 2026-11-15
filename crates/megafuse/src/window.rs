@@ -42,7 +42,7 @@ impl Windowed {
 }
 
 impl Frontend for Windowed {
-    fn frame(&mut self, picture: &[u32], width: usize, height: usize, _: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
+    fn frame(&mut self, _: u64, picture: &[u32], width: usize, height: usize, _: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
         if self.shared.quit.load(Ordering::Relaxed) {
             std::process::exit(0);
         }

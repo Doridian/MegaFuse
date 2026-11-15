@@ -15,7 +15,7 @@ TOP = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(TOP, 'tools'))
 import disasm  # noqa: E402
-from recomp import dataflow, emit, families, ir  # noqa: E402
+from recomp import dataflow, emit, families, ir, routines  # noqa: E402
 
 PER_FILE = 150
 
@@ -38,13 +38,16 @@ def main():
     for r in p.routines.values():
         if not (r.error or r.crash):
             r.preserved = dataflow.drop_saves(r, p)
-    fams = families.families(d, p.routines, 'us', taken_routines(d, p))
+    reset = int.from_bytes(d.rom[4:8], 'big')
+    fams = families.families(d, p.routines, 'us', taken_routines(d, p),
+                             step=(reset, routines.STEP))
     vectors = [int.from_bytes(d.rom[4 * k:4 * k + 4], 'big')
                for k in range(1, 64)]
     roots = set(v for v in vectors if v in p.routines)
     flow = dataflow.Flow(p, fams)
     flow.solve(roots)
-    em = emit.Emitter(p, flow, roots)
+    # the reset routine is called as one of the step's family (Regs)
+    em = emit.Emitter(p, flow, roots - {reset})
     os.makedirs(out, exist_ok=True)
     for f in os.listdir(out):
         if f.endswith('.rs'):
@@ -133,8 +136,13 @@ def main():
         reset = int.from_bytes(d.rom[4:8], 'big')
         f.write('\n/// The reset routine (the vector at 4).\n')
         f.write('pub const RESET: u32 = 0x%06X;\n\n' % reset)
-        f.write('impl crate::Game {\n    pub(crate) fn call_reset(&mut self) '
-                '{\n        self.%s();\n    }\n\n' % emit.fname(reset))
+        f.write('impl crate::Game {\n    /// The reset routine, to the main '
+                'loop (the jump to it returns).\n    pub(crate) fn call_reset('
+                '&mut self, regs: &mut crate::Regs) {\n        self.%s(regs);'
+                '\n    }\n\n' % emit.fname(reset))
+        f.write('    /// A pass of the main loop (routines.STEP).\n'
+                '    pub(crate) fn call_step(&mut self, regs: &mut crate::Regs) {\n'
+                '        self.%s(regs);\n    }\n\n' % emit.fname(routines.STEP))
         f.write('    /// The handler of interrupt level (the vectors at 0x60 '
                 'on).\n    pub(crate) fn call_interrupt(&mut self, level: '
                 'u8) {\n        match level {\n')

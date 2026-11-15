@@ -29,13 +29,22 @@ def successors(d, a):
         if i.target is not None:
             out.append((i.target, 'branch'))
     elif i.flow == 'jump':
-        if i.target is not None:
+        # a jump to the main loop's head ends a pass of it (the step
+        # returns; ir.py)
+        if i.target is not None and i.target != STEP:
             out.append((i.target, 'branch'))
     return [(t, k) for t, k in out if t in d.insns]
 
 
+# The main loop's head (us): a routine of its own, one pass of the loop a
+# call (ir.py turns the jumps to it into returns): the game's step
+# (docs/PORT.md, "A step").
+STEP = 0x9368
+
+
 def entries_of(d):
     out = set(a for a in d.funcs if a in d.insns)
+    out.add(STEP)
     out |= set(a for a in d.extra if a in d.insns)
     out |= set(a for a in d.jtbl_entries if a in d.insns)
     out |= set(t for t in d.ptrs.values() if t in d.insns)
