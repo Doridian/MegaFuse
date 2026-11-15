@@ -53,7 +53,25 @@ Drive hardware the game drives, the platform) are.
 - **Returning from the caller.** `addq.l #4,sp; rts` (`func_001BB4`,
   `func_017950`) or `movem.l (sp)+,d0; rts` (`func_00D554`) drops the
   caller's return address: the callee returns a flag and the caller
-  returns when it is set.
+  returns when it is set. `func_010BA2` (a loop's step) does it with the
+  registers its callers saved too: it pops them, they are arguments, and
+  the four loops that call it end when it says so. A jump to another
+  routine after dropping the return address (`0x19BB0`) is a call and
+  then that return.
+- **Shared epilogues.** A tail that restores registers and returns,
+  jumped to with them saved (`0x5010`, `0x502E`, `0x91F0`, `0x91F4`), is
+  copied into each routine that jumps to it rather than made a routine.
+- **Crashes.** The exception handlers (0x200-0x26A) read the exception's
+  frame and show where it happened: in the port, a panic.
+
+## Bugs
+
+What the game does wrong that the port does right (the SHIFT build keeps
+them, docs/LAYOUT.md "SHIFT"; the port's comparisons allow for them):
+
+- `func_00D652` returns with d0 still pushed when `func_001222` can't
+  make the task it asks for (`0xD6DA`): the `rts` would jump to d0's
+  value. The port returns.
 - **Waiting.** Most of the game runs in the tasks, once a frame. Some code
   waits in a loop: for the hardware (the Z80's bus, the VDP's DMA: done
   at once in the port), for a raster line (the HV counter: a hook at that

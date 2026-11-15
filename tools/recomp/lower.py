@@ -156,10 +156,16 @@ class Lowerer:
             old.t, keep, val.t), 'u32', old, val)))
 
     def slot(self, pos, size):
+        """The local for the stack at pos bytes below the routine's
+        entry: a slot of its own (s8), an argument the caller pushed above
+        its return address (arg0 the first long above it), or the return
+        address itself (ret, which the caller passes: the yield)."""
         if pos <= -4:
             return 'arg%d' % (-pos - 4)
+        if pos == 0 and size == 'l':
+            return 'ret'
         if pos <= 0:
-            raise LowerError('the return address read')
+            raise LowerError('a part of the return address read')
         return 's%d' % pos
 
     # --- effective addresses -----------------------------------------------
