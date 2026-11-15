@@ -268,6 +268,24 @@ def is_slot(name):
     return pos.isdigit() and size in ('b', 'w', 'l')
 
 
+def dead_after(r, s, k, x):
+    """Is register x read by nothing after statement k of block s before
+    the routine returns (the rest of the block, which returns)?"""
+    term = r.term.get(s)
+    if term is None or term[0] not in ('ret', 'rte'):
+        return False
+    for op in r.ops[s][k + 1:]:
+        if op[0] in ('call', 'callx', 'calltable'):
+            return False
+        if op[0] == 'set' and x in op[2].uses:
+            return False
+        if op[0] == 'store' and (x in op[2].uses or x in op[3].uses):
+            return False
+        if op[0] == 'eff' and x in op[1].uses:
+            return False
+    return True
+
+
 def drop_saves(r, prog=None):
     """Registers r saves and restores (`movem` to the stack and back): in
     Rust they are the caller's locals anyway, so the save and the restore
@@ -345,7 +363,12 @@ def drop_saves(r, prog=None):
             if is_slot(op[1]) and src in preserved and t.get(src) == src:
                 saves[(s, k)] = (op[1], src)
             elif op[1] in preserved and is_slot(src) and \
-                    t.get(src) == op[1]:
+                    t.get(src) == op[1] and (
+                        t.get(op[1]) == op[1] or
+                        dead_after(r, s, k, op[1])):
+                # a restore that changes nothing, or whose value nothing
+                # reads before the return (else the register was changed
+                # meanwhile and is read again: func_017828's d0)
                 restores[(s, k)] = (op[1], src)
             for u in op[2].uses:
                 if is_slot(u):

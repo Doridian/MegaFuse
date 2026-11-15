@@ -44,6 +44,9 @@ pub struct Md {
     pub sound: Sound,
     frontend: Box<dyn Frontend>,
     pub frames: u64,
+    /// The Team Player on port A (its TH/TR state and where it is in its
+    /// sequence), if one is plugged in.
+    teamplayer: Option<(u8, u8)>,
     /// The time of the access being made (master clocks) and the rest of
     /// the instruction making it.
     clock: u64,
@@ -55,8 +58,11 @@ pub struct Md {
     /// out, and the next to fill.
     fifo: [u64; 4],
     fifo_idx: usize,
-    /// A fill runs until then (the status's DMA busy flag).
+    /// A fill or copy runs until then (the status's DMA busy flag), and
+    /// is done only once the line it ends in has started (Genesis Plus
+    /// GX moves it on at each line's start).
     busy_until: u64,
+    busy_last: u64,
     /// The vertical interrupt was raised this frame.
     vint_raised: bool,
     /// The 68000 has to wait until then (a write to a full FIFO).
@@ -100,11 +106,12 @@ impl Md {
         Md {
             vdp: Vdp::new(),
             pads: [0; 4],
-            data_out: [0x40; 3],
+            data_out: [0; 3],
             ctrl: [0; 3],
             sound: Sound::new(rom),
             frontend,
             frames: 0,
+            teamplayer: None,
             clock: 0,
             rest: 0,
             line_clock: 0,
@@ -112,23 +119,82 @@ impl Md {
             fifo: [0; 4],
             fifo_idx: 0,
             busy_until: 0,
+            busy_last: 0,
             vint_raised: false,
             stall: 0,
         }
     }
 
-    /// A 3-button pad's port: TH high gives C B Right Left Down Up, low
-    /// Start A 0 0 Down Up (active low).
+    /// A Team Player on port A, pads 1-4 behind it.
+    pub fn plug_teamplayer(&mut self) {
+        self.teamplayer = Some((0x60, 0));
+    }
+
+    /// A pad port's data: what the device puts out, but for the output
+    /// bits and bit 7, which read back as written.
     fn pad_read(&self, port: usize) -> u8 {
-        let p = !self.pads.get(port).copied().unwrap_or(0);
+        let v = if port == 0 && self.teamplayer.is_some() {
+            self.teamplayer_read()
+        } else {
+            let pad = if self.teamplayer.is_some() { None } else { self.pads.get(port) };
+            self.pad3_read(port, pad.copied().unwrap_or(0))
+        };
+        let out = 0x80 | self.ctrl[port];
+        (v & !out) | (self.data_out[port] & out)
+    }
+
+    /// A 3-button pad: TH high gives C B Right Left Down Up, low Start A 0
+    /// 0 Down Up (active low).
+    fn pad3_read(&self, port: usize, buttons: u16) -> u8 {
+        let p = !buttons;
         let th = self.data_out[port] & 0x40 != 0 || self.ctrl[port] & 0x40 == 0;
-        let v = if th {
+        if th {
             0x40 | (p & 0x3F) as u8
         } else {
             (((p >> 2) & 0x30) as u8) | (p & 0x03) as u8
+        }
+    }
+
+    /// The Team Player on port A, four 3-button pads behind it: TH high
+    /// starts over; each change of TH or TR the 68000 makes moves it on
+    /// through its header (0011, 1111, 0000, 0000), the pads' types
+    /// (0000: 3 buttons) and each pad's two nibbles (RLDU, SACB; active
+    /// low); TL follows TR.
+    fn teamplayer_read(&self) -> u8 {
+        let (state, counter) = self.teamplayer.unwrap_or((0x60, 0));
+        let tl = (state & 0x20) >> 1;
+        let low = match counter {
+            0 => 0x03,
+            1 => 0x0F,
+            2..=7 => 0x00,
+            n => {
+                let k = usize::from(n - 8);
+                if k >= 8 {
+                    0x0F
+                } else {
+                    let pad = self.pads[k / 2];
+                    0x0F & !((pad >> (4 * (k % 2))) as u8)
+                }
+            }
         };
-        // the output bits read back as written
-        (v & !self.ctrl[port]) | (self.data_out[port] & self.ctrl[port])
+        tl | low
+    }
+
+    /// A write to port A's data or control: the Team Player sees the
+    /// output bits.
+    fn teamplayer_write(&mut self) {
+        if let Some((state, counter)) = self.teamplayer {
+            let mask = self.ctrl[0];
+            let new = (state & !mask) | (self.data_out[0] & mask);
+            let counter = if new & 0x40 != 0 {
+                0
+            } else if (state ^ new) & 0x60 != 0 {
+                counter.saturating_add(1)
+            } else {
+                counter
+            };
+            self.teamplayer = Some((new, counter));
+        }
     }
 
     fn io_read(&self, a: u32) -> u8 {
@@ -157,10 +223,18 @@ impl Md {
             eprintln!("io write {a:06X} = {v:02X}");
         }
         match a & 0x1F {
-            0x03 => self.data_out[0] = v,
+            0x03 => {
+                self.data_out[0] = v;
+                self.teamplayer_write();
+            }
             0x05 => self.data_out[1] = v,
             0x07 => self.data_out[2] = v,
-            0x09 => self.ctrl[0] = v,
+            0x09 => {
+                if v != self.ctrl[0] {
+                    self.ctrl[0] = v;
+                    self.teamplayer_write();
+                }
+            }
             0x0B => self.ctrl[1] = v,
             0x0D => self.ctrl[2] = v,
             _ => {}
@@ -175,7 +249,7 @@ impl Md {
     fn status(&mut self) -> u16 {
         let t = self.clock + self.rest;
         let mut s = self.vdp.read_status();
-        if t < self.busy_until {
+        if t < self.busy_until || self.line_clock < self.busy_last {
             s |= 0x0002;
         }
         if t >= self.fifo[(self.fifo_idx + 3) & 3] {
@@ -220,15 +294,16 @@ impl Md {
         self.fifo_idx = (self.fifo_idx + 1) & 3;
         if let Some(len) = self.vdp.write_data(w) {
             let start = self.clock.max(self.stall);
-            self.busy_until = self.dma_time(start, u64::from(len), DmaKind::Fill).0;
+            (self.busy_until, self.busy_last, _) = self.dma_time(start, u64::from(len), DmaKind::Fill);
         }
     }
 
     /// When a DMA started at `start` ends: so many accesses a line by
     /// the mode, to the line's end (the vertical blank's, line 261, in
     /// it), then on from each line's start (Genesis Plus GX's model);
-    /// and whether it ran past the first.
-    fn dma_time(&self, start: u64, len: u64, kind: DmaKind) -> (u64, bool) {
+    /// where its last window starts (0: the first) and whether it ran
+    /// past the first.
+    fn dma_time(&self, start: u64, len: u64, kind: DmaKind) -> (u64, u64, bool) {
         let h40 = self.vdp.regs[12] & 1 != 0;
         let display = self.vdp.display_on();
         let mut t = start as i64;
@@ -264,12 +339,13 @@ impl Md {
                 t + LINE as i64
             };
             let can = (end - t) * rate / LINE as i64;
+            let last = if first { 0 } else { t.max(0) as u64 };
             if left < can {
-                return ((t + left * LINE as i64 / rate).max(0) as u64, !first);
+                return ((t + left * LINE as i64 / rate).max(0) as u64, last, !first);
             }
             if left == can {
                 // done with the window: no more updates
-                return (end.max(0) as u64, !first);
+                return (end.max(0) as u64, last, !first);
             }
             first = false;
             left -= can;
@@ -332,7 +408,8 @@ impl game::Hardware for Md {
             0xC0_0004 | 0xC0_0006 => {
                 self.vdp.write_control(value);
                 if let Some(len) = self.vdp.copied.take() {
-                    self.busy_until = self.dma_time(self.clock, u64::from(len), DmaKind::Copy).0;
+                    (self.busy_until, self.busy_last, _) =
+                        self.dma_time(self.clock, u64::from(len), DmaKind::Copy);
                 }
             }
             0xC0_0010..=0xC0_0017 => self.sound.bus.psg.write(value as u8),
@@ -367,10 +444,10 @@ impl game::Hardware for Md {
     /// Accesses a line (Genesis Plus GX's table): VRAM takes two a word;
     /// to CRAM or VSRAM in the blank a refresh slot is lost every so often.
     fn dma_end(&mut self, start: u64, words: u64, vram: bool) -> (u64, bool) {
-        let end = self.dma_time(start, words, if vram { DmaKind::Vram } else { DmaKind::Other });
+        let (end, _, on) = self.dma_time(start, words, if vram { DmaKind::Vram } else { DmaKind::Other });
         // the Z80 waits for the 68000's bus meanwhile
-        self.sound.bus.dma_until = end.0;
-        end
+        self.sound.bus.dma_until = end;
+        (end, on)
     }
 
     fn take_stall(&mut self) -> u64 {

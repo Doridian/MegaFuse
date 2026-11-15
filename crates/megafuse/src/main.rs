@@ -64,6 +64,8 @@ struct Headless {
     shot_prefix: Option<String>,
     frame: u64,
     held: [u16; 4],
+    /// The script wants a Team Player.
+    teamplayer: bool,
     /// The sound so far (16-bit stereo), for --wav.
     wav: Option<(String, Vec<i16>)>,
 }
@@ -209,6 +211,7 @@ fn main() {
         frame: 0,
         held: [0; 4],
         wav: None,
+        teamplayer: false,
     };
     let mut i = 1;
     while i < args.len() {
@@ -242,11 +245,17 @@ fn main() {
     if let Some(p) = input {
         let text = std::fs::read_to_string(&p).unwrap_or_default();
         h.script = parse_script(&text);
+        // tools/mdtrace's mark: a Team Player on port A
+        h.teamplayer = text.lines().any(|l| l.trim() == "# teamplayer");
     }
     let mut ram = [0u8; 0x10000];
     let mut pads = [0u16; 4];
     h.apply(0, &mut ram, &mut pads);
+    let teamplayer = h.teamplayer;
     let mut md = Md::new(rom.clone(), Box::new(h));
+    if teamplayer {
+        md.plug_teamplayer();
+    }
     if let Some(p) = ztimeline {
         let f = std::fs::File::create(&p).unwrap_or_else(|e| {
             eprintln!("{p}: {e}");
