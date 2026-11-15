@@ -4,7 +4,7 @@
 //! Genesis Plus GX (tools/port_check.py).
 //!
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
-//!                [--ram PREFIX] [--shot PREFIX]
+//!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
 
 mod png;
 
@@ -63,6 +63,8 @@ struct Headless {
     shot_prefix: Option<String>,
     frame: u64,
     held: [u16; 4],
+    /// The sound so far (16-bit stereo), for --wav.
+    wav: Option<(String, Vec<i16>)>,
 }
 
 impl Headless {
@@ -92,7 +94,7 @@ impl Frontend for Headless {
         // frames run)
         self.frame += 1;
         let f = self.frame;
-        if self.every > 0 && (f % self.every == 0 || f == self.frames) {
+        if self.every > 0 && (f.is_multiple_of(self.every) || f == self.frames) {
             if let Some(p) = &self.ram_prefix {
                 let _ = std::fs::write(format!("{p}{f:06}.bin"), &ram[..]);
             }
@@ -101,10 +103,44 @@ impl Frontend for Headless {
             }
         }
         if f >= self.frames {
+            if let Some((path, samples)) = &self.wav
+                && let Err(e) = write_wav(path, samples)
+            {
+                eprintln!("{path}: {e}");
+            }
             std::process::exit(0);
         }
         self.apply(f, ram, pads);
     }
+
+    fn audio(&mut self, samples: &[f32]) {
+        if let Some((_, out)) = &mut self.wav {
+            out.extend(samples.iter().map(|&v| (v.clamp(-1.0, 1.0) * 32767.0) as i16));
+        }
+    }
+}
+
+/// A 16-bit stereo WAV at the YM2612's rate.
+fn write_wav(path: &str, samples: &[i16]) -> std::io::Result<()> {
+    let rate = md::sound::SAMPLE_RATE;
+    let data = u32::try_from(samples.len() * 2).unwrap_or(u32::MAX);
+    let mut out = Vec::with_capacity(44 + samples.len() * 2);
+    out.extend_from_slice(b"RIFF");
+    out.extend_from_slice(&(36 + data).to_le_bytes());
+    out.extend_from_slice(b"WAVEfmt ");
+    out.extend_from_slice(&16u32.to_le_bytes());
+    out.extend_from_slice(&1u16.to_le_bytes());
+    out.extend_from_slice(&2u16.to_le_bytes());
+    out.extend_from_slice(&rate.to_le_bytes());
+    out.extend_from_slice(&(rate * 4).to_le_bytes());
+    out.extend_from_slice(&4u16.to_le_bytes());
+    out.extend_from_slice(&16u16.to_le_bytes());
+    out.extend_from_slice(b"data");
+    out.extend_from_slice(&data.to_le_bytes());
+    for v in samples {
+        out.extend_from_slice(&v.to_le_bytes());
+    }
+    std::fs::write(path, out)
 }
 
 struct Silent;
@@ -133,7 +169,7 @@ fn routine(args: &[String]) {
     regs.z = sr & 4 != 0;
     regs.n = sr & 8 != 0;
     regs.x = sr & 16 != 0;
-    let mut game = game::Game::new(rom, Box::new(Md::new(Box::new(Silent))));
+    let mut game = game::Game::new(rom.clone(), Box::new(Md::new(rom, Box::new(Silent))));
     game.ram.copy_from_slice(&snap[72..72 + 0x10000]);
     game.mask_interrupts();
     if !game.call_by_address(entry, &mut regs) {
@@ -168,6 +204,7 @@ fn main() {
         shot_prefix: None,
         frame: 0,
         held: [0; 4],
+        wav: None,
     };
     let mut i = 1;
     while i < args.len() {
@@ -182,12 +219,13 @@ fn main() {
             "--every" => h.every = next(&mut i).parse().unwrap_or(600),
             "--ram" => h.ram_prefix = Some(next(&mut i)),
             "--shot" => h.shot_prefix = Some(next(&mut i)),
+            "--wav" => h.wav = Some((next(&mut i), Vec::new())),
             _ => rom_path = Some(a.to_string()),
         }
         i += 1;
     }
     let Some(rom_path) = rom_path else {
-        eprintln!("usage: megafuse ROM [--input FILE] [--frames N] [--every N] [--ram PREFIX] [--shot PREFIX]");
+        eprintln!("usage: megafuse ROM [--input FILE] [--frames N] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE]");
         std::process::exit(2);
     };
     let rom = std::fs::read(&rom_path).unwrap_or_else(|e| {
@@ -201,7 +239,7 @@ fn main() {
     let mut ram = [0u8; 0x10000];
     let mut pads = [0u16; 4];
     h.apply(0, &mut ram, &mut pads);
-    let md = Md::new(Box::new(h));
+    let md = Md::new(rom.clone(), Box::new(h));
     let mut game = game::Game::new(rom, Box::new(md));
     game.run();
 }

@@ -1,8 +1,14 @@
 //! The Mega Drive as the translated game sees it (docs/PORT.md): the VDP,
-//! the pads, the Z80's side; the 68000 is the translated code itself.
+//! the pads, the Z80 and the sound chips; the 68000 is the translated
+//! code itself.
 
+pub mod psg;
+pub mod sound;
 pub mod vdp;
+pub mod ym2612;
+pub mod z80;
 
+use sound::Sound;
 use vdp::{Dma, Vdp};
 
 /// A pad's buttons (set = pressed).
@@ -23,6 +29,10 @@ pub trait Frontend {
     /// picture: 320 pixels a line, of which the first `width` are the
     /// picture (H40 320, H32 256).
     fn frame(&mut self, picture: &[u32], width: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]);
+
+    /// The frame's sound, before [`Frontend::frame`]: stereo samples,
+    /// interleaved, at [`sound::SAMPLE_RATE`].
+    fn audio(&mut self, _samples: &[f32]) {}
 }
 
 pub struct Md {
@@ -31,24 +41,21 @@ pub struct Md {
     /// The data ports' output bits (TH selects the pad's halves).
     data_out: [u8; 3],
     ctrl: [u8; 3],
-    pub z80_ram: Box<[u8; 0x2000]>,
-    z80_busreq: bool,
-    z80_reset: bool,
+    pub sound: Sound,
     frontend: Box<dyn Frontend>,
     pub frames: u64,
 }
 
 impl Md {
     #[must_use]
-    pub fn new(frontend: Box<dyn Frontend>) -> Self {
+    /// The ROM is for the Z80, which reads it through its window.
+    pub fn new(rom: Vec<u8>, frontend: Box<dyn Frontend>) -> Self {
         Md {
             vdp: Vdp::new(),
             pads: [0; 4],
             data_out: [0x40; 3],
             ctrl: [0; 3],
-            z80_ram: Box::new([0; 0x2000]),
-            z80_busreq: false,
-            z80_reset: true,
+            sound: Sound::new(rom),
             frontend,
             frames: 0,
         }
@@ -65,7 +72,7 @@ impl Md {
             (((p >> 2) & 0x30) as u8) | (p & 0x03) as u8
         };
         // the output bits read back as written
-        (v & !self.ctrl[port]) | (self.data_out[port] & self.ctrl[port]) | 0x80 & 0
+        (v & !self.ctrl[port]) | (self.data_out[port] & self.ctrl[port])
     }
 
     fn io_read(&self, a: u32) -> u8 {
@@ -108,10 +115,11 @@ impl Md {
 impl game::Hardware for Md {
     fn read8(&mut self, addr: u32) -> u8 {
         match addr {
-            0xA0_0000..=0xA0_FFFF => self.z80_ram[(addr & 0x1FFF) as usize],
+            0xA0_0000..=0xA0_3FFF => self.sound.bus.ram[(addr & 0x1FFF) as usize],
+            0xA0_4000..=0xA0_5FFF => self.sound.bus.ym.status,
             0xA1_0000..=0xA1_001F => self.io_read(addr),
             // the Z80's bus is granted at once (bit 0 clear)
-            0xA1_1100 => u8::from(!self.z80_busreq),
+            0xA1_1100 => u8::from(!self.sound.busreq),
             0xA1_1101 => 0,
             0xC0_0000..=0xC0_001F => {
                 let w = self.read16(addr & !1);
@@ -132,15 +140,12 @@ impl game::Hardware for Md {
 
     fn write8(&mut self, addr: u32, value: u8) {
         match addr {
-            0xA0_0000..=0xA0_FFFF => {
-                if addr & 0xF000 < 0x2000 {
-                    self.z80_ram[(addr & 0x1FFF) as usize] = value;
-                }
-            }
+            0xA0_0000..=0xA0_FFFF => z80::Bus::write(&mut self.sound.bus, (addr & 0x7FFF) as u16, value),
             0xA1_0000..=0xA1_001F => self.io_write(addr, value),
-            0xA1_1100 => self.z80_busreq = value & 1 != 0,
-            0xA1_1200 => self.z80_reset = value & 1 == 0,
+            0xA1_1100 => self.sound.busreq = value & 1 != 0,
+            0xA1_1200 => self.sound.set_reset(value & 1 == 0),
             0xC0_0000..=0xC0_000F => self.write16(addr & !1, u16::from(value) << 8 | u16::from(value)),
+            0xC0_0011 | 0xC0_0013 | 0xC0_0015 | 0xC0_0017 => self.sound.bus.psg.write(value),
             _ => {}
         }
     }
@@ -149,9 +154,9 @@ impl game::Hardware for Md {
         match addr {
             0xC0_0000 | 0xC0_0002 => self.vdp.write_data(value),
             0xC0_0004 | 0xC0_0006 => self.vdp.write_control(value),
-            0xC0_0011..=0xC0_0017 => {} // the PSG
-            0xA1_1100 => self.z80_busreq = value & 0x100 != 0,
-            0xA1_1200 => self.z80_reset = value & 0x100 == 0,
+            0xC0_0010..=0xC0_0017 => self.sound.bus.psg.write(value as u8),
+            0xA1_1100 => self.sound.busreq = value & 0x100 != 0,
+            0xA1_1200 => self.sound.set_reset(value & 0x100 == 0),
             _ => {
                 self.write8(addr, (value >> 8) as u8);
                 self.write8(addr + 1, value as u8);
@@ -160,10 +165,7 @@ impl game::Hardware for Md {
     }
 
     fn take_dma(&mut self) -> Option<(u32, u32)> {
-        match self.vdp.take_dma() {
-            Some(Dma::Memory { source, words }) => Some((source, words)),
-            None => None,
-        }
+        self.vdp.take_dma().map(|Dma::Memory { source, words }| (source, words))
     }
 
     fn dma_word(&mut self, w: u16) {
@@ -179,12 +181,14 @@ impl game::Hardware for Md {
     }
 
     fn run_line(&mut self, line: u16) -> bool {
+        self.sound.run_line();
         self.vdp.run_line(line)
     }
 
     fn vint(&mut self) -> bool {
         self.vdp.line = vdp::HEIGHT as u16;
         self.vdp.vint_pending = true;
+        self.sound.irq = true;
         self.vdp.vint_enabled()
     }
 
@@ -196,6 +200,8 @@ impl game::Hardware for Md {
         self.vdp.vint_pending = false;
         self.vdp.line = 0;
         self.frames += 1;
+        self.frontend.audio(&self.sound.samples);
+        self.sound.samples.clear();
         let pads = &mut self.pads;
         let width = self.vdp.width();
         self.frontend.frame(&self.vdp.frame, width, ram, pads);

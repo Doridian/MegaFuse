@@ -100,6 +100,32 @@ the power-on checksum, some 150 frames, the port is 2 frames early, and
 the drift grows over loads. The game's random numbers mix in the frame
 count (0xA400), so after a few frames of drift they differ.
 
+## Sound
+
+The game uploads a Z80 sound driver and leaves the music and effects to
+it; the 68000 only resets the Z80, holds its bus and writes its RAM.
+Until the driver is translated too (docs/ROADMAP.md, phase 4), it runs on
+an interpreter, `crates/md/src/z80.rs`, with the YM2612 (`ym2612.rs`)
+and the PSG (`psg.rs`) on its bus and the 68000's ROM through its bank
+window (`sound.rs`). They run a line at a time, in master clocks (a
+line is 3420, a Z80 cycle 15, a YM2612 sample 1008): the Z80 runs up
+to each sample, so what a driver times itself (the DAC) comes out at its
+pace. The Z80's interrupt is raised for the first line of the vertical
+blank.
+
+The YM2612 is the Model 1's (Genesis Plus GX's default, "mame
+(ym2612)"): a 9-bit DAC, the carriers truncated to it, and the DAC's
+ladder effect, which makes quiet notes louder and harsher than the
+total levels say (`Ym2612::model1_dac`). The mix is Genesis Plus GX's:
+an FM channel a quarter of full scale, a PSG channel 1/16.
+
+Sound comes out at the YM2612's rate (53267 Hz), a frame's worth
+through `Frontend::audio`; `megafuse --wav FILE` and `tools/mdtrace --wav
+FILE` write it out for both. Against Genesis Plus GX the attract mode's
+music has the same notes at the same times, levels within a few percent
+and spectra 0.99 alike (half-second windows), as long as the game hasn't
+drifted.
+
 ## Checking it
 
 `tools/port_check.py [SCRIPT...]` runs the port (`target/release/megafuse`,

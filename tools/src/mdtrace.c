@@ -11,6 +11,7 @@
  *                        existing file of the right size (so runs add up)
  *     --shot PREFIX      screenshots PREFIX<frame>.png, at --shot-every N
  *                        frames (default 600) and the last frame
+ *     --wav FILE         the sound, a 16-bit stereo WAV at the core's rate
  *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
  *                        same frames, and PREFIX<frame>.sp: the stack
  *                        pointer and the lowest it has been, in hex
@@ -80,6 +81,7 @@ static void (*p_set_poll)(retro_input_poll_t);
 static void (*p_set_state)(retro_input_state_t);
 static bool (*p_load_game)(const struct retro_game_info *);
 static void (*p_run)(void);
+static void (*p_get_av_info)(struct retro_system_av_info *);
 static void *(*p_get_memory_data)(unsigned);
 static size_t (*p_get_memory_size)(unsigned);
 static void (*p_set_port)(unsigned, unsigned);
@@ -489,8 +491,46 @@ static int16_t state(unsigned port, unsigned device, unsigned index,
     return (pads[port] >> id) & 1;
 }
 
-static void audio(int16_t l, int16_t r) { (void)l; (void)r; }
-static size_t audio_batch(const int16_t *d, size_t n) { (void)d; return n; }
+/* --wav: 16-bit stereo, the header written at the end */
+static FILE *wav_file;
+static uint32_t wav_frames;
+
+static void audio_batch_write(const int16_t *d, size_t n)
+{
+    if (wav_file) {
+        fwrite(d, 4, n, wav_file);
+        wav_frames += n;
+    }
+}
+
+static void audio(int16_t l, int16_t r)
+{
+    int16_t d[2] = {l, r};
+    audio_batch_write(d, 1);
+}
+
+static size_t audio_batch(const int16_t *d, size_t n)
+{
+    audio_batch_write(d, n);
+    return n;
+}
+
+static void wav32(uint8_t *p, uint32_t v)
+{
+    p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24;
+}
+
+static void wav_header(FILE *f, uint32_t rate, uint32_t n)
+{
+    uint8_t h[45] = "RIFF....WAVEfmt ....\1\0\2\0........\4\0\20\0data....";
+    wav32(h + 4, 36 + n * 4);
+    wav32(h + 16, 16);
+    wav32(h + 24, rate);
+    wav32(h + 28, rate * 4);
+    wav32(h + 40, n * 4);
+    fseek(f, 0, SEEK_SET);
+    fwrite(h, 1, 44, f);
+}
 
 static void core_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -623,7 +663,7 @@ int main(int argc, char **argv)
 {
     const char *core = "tools/gpgx/genesis_plus_gx_libretro.so";
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
-    const char *shot = NULL, *ram = NULL, *log_path = NULL;
+    const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL;
     const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
@@ -640,6 +680,7 @@ int main(int argc, char **argv)
         else if (ARG("--input")) input = argv[++i];
         else if (ARG("--cover")) cover_path = argv[++i];
         else if (ARG("--shot")) shot = argv[++i];
+        else if (ARG("--wav")) wav_path = argv[++i];
         else if (ARG("--shot-every")) every = strtol(argv[++i], NULL, 0);
         else if (ARG("--ram")) ram = argv[++i];
         else if (ARG("--region")) {
@@ -700,6 +741,7 @@ int main(int argc, char **argv)
     p_set_state = sym(h, "retro_set_input_state");
     p_load_game = sym(h, "retro_load_game");
     p_run = sym(h, "retro_run");
+    p_get_av_info = sym(h, "retro_get_system_av_info");
     p_get_memory_data = sym(h, "retro_get_memory_data");
     p_get_memory_size = sym(h, "retro_get_memory_size");
     p_set_port = sym(h, "retro_set_controller_port_device");
@@ -765,6 +807,15 @@ int main(int argc, char **argv)
         }
     }
 
+    if (wav_path) {
+        wav_file = fopen(wav_path, "wb");
+        if (!wav_file) {
+            perror(wav_path);
+            return 1;
+        }
+        wav_header(wav_file, 0, 0);
+    }
+
     for (frame = 0; frame < frames; frame++) {
         cur_frame = frame;
         while (next_event < n_events && events[next_event].frame <= frame) {
@@ -785,6 +836,13 @@ int main(int argc, char **argv)
     }
     if ((shot || ram) && (every <= 0 || frames % every))
         snapshot(shot, ram, frames);
+
+    if (wav_file) {
+        struct retro_system_av_info av;
+        p_get_av_info(&av);
+        wav_header(wav_file, (uint32_t)(av.timing.sample_rate + 0.5), wav_frames);
+        fclose(wav_file);
+    }
 
     if (cover_path) {
         FILE *f = fopen(cover_path, "wb");
