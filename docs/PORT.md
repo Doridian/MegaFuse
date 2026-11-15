@@ -45,6 +45,13 @@ feeds the game (pads) depends on the frame, not on how it got there.
 restores and runs them again: the same clock and RAM after each, on every
 script tried.
 
+A soft reset (`jmp func_007AAE` at 0x174B2 and 0x1A76C, from a task: the
+reset routine reloads sp and jumps to the loop's head) ends the step:
+the reset routine runs, leaves its registers in `Game::restarted`, and
+every routine between it and the step returns at once (tools/recomp
+checks after each call that may lead there), as the original drops their
+frames; the next step starts from those registers.
+
 ## Rewriting
 
 Phase 4's second half: the translation rewritten as readable Rust,
@@ -76,12 +83,16 @@ and flags the callers read. Rewritten so far: `func_001CFA` and
 `func_0005F8` (a pointer from a table by an index; 200 calls each, the
 same).
 
-Next: the analysis keeps condition codes as results wherever a caller
-might test them (most of these helpers "return" all five), which a
-readable rewrite would have to compute for nothing; that gets tighter
-first, then the helpers go up their call trees with typed interfaces,
-and the waits for the vertical blank (and the polls of the Z80 and the
-VDP) become explicit, so the game is driven by frames.
+The signatures are as tight as the analysis gets them (Translation, 4):
+no routine returns N, Z, V and C for nothing any more. X stays in about
+a thousand: a few instructions read the X some routine far away left
+(`roxr.b #4` at 0x1E3F0 stores the X `func_0012A0` leaves, the loop's
+`addq` after), so it really goes through the task routines, and the
+families (routines called through one pointer) share a signature.
+
+Next: the helpers go up their call trees with typed interfaces, and the
+waits for the vertical blank (and the polls of the Z80 and the VDP)
+become explicit, so the game is driven by frames.
 
 ## Translation
 
@@ -106,7 +117,19 @@ VDP) become explicit, so the game is driven by frames.
 4. **Registers and flags**: which registers and condition flags each
    routine reads before writing and which of what it writes its callers
    use: its arguments and return values. A flag a routine returns (`ori
-   #1,ccr; rts`, then `bcs` in the caller) becomes a `bool`.
+   #1,ccr; rts`, then `bcs` in the caller) becomes a `bool`. Tighter
+   than by the instruction: an SR saved on the stack keeps its flags in
+   locals of their own (`s6_w_fx`...), so a restore only passes on the
+   flags read after it, and a routine that saves SR at its entry and
+   restores it at every way out leaves the flags alone, like the
+   registers it saves with `movem`; `roxl`/`roxr` by a constant take X
+   and C from the operand; a byte or word loaded over one just written
+   drops the first write; liveness goes over every local, so what a dead
+   statement reads doesn't count. The fixpoint grows from nothing, which
+   over-reaches (early on a call sets nothing, so what is live after it
+   is live before), and is then solved again from what the callers read
+   until it holds. `dataflow.DEAD_IN` names what a routine reads that bit
+   by bit never reaches its results (the random numbers' X).
 5. **Emission**: Rust for each instruction on those locals; memory
    through accessors (work RAM, the ROM, the hardware), which become typed
    state as each part of the game is understood.

@@ -124,6 +124,12 @@ the start (docs/NETPLAY.md, "Requirements").
 Enhancements stay switchable and off in compared runs: widescreen (more
 of the arena), no sprite limits, and the like.
 
+The sound comes last: the Z80 driver runs on its interpreter and the
+YM2612 and SN76489 models are close enough to the original's
+(tools/sound_check.py) that it sounds right; a pass over them (the
+driver translated, the chips checked by ear and by the numbers) waits
+until the rest of the port is done.
+
 ## Phase 6: online multiplayer
 
 docs/NETPLAY.md.

@@ -107,6 +107,11 @@ pub struct Game {
     /// The 68000's time, instruction by instruction, for
     /// tools/timeline_check.py.
     pub timeline: Option<Timeline>,
+    /// A soft reset in this step (a jump to the reset routine): the
+    /// registers it left for the main loop; the routines between return
+    /// at once (they never go on in the original, whose stack the reset
+    /// starts again).
+    pub(crate) restarted: Option<Regs>,
 }
 
 /// What the 68000's side keeps: work RAM, the time, the interrupt mask,
@@ -243,6 +248,7 @@ impl Game {
             rom,
             hw,
             timeline: None,
+            restarted: None,
         }
     }
 
@@ -281,7 +287,8 @@ impl Game {
     pub fn step(&mut self) {
         let mut regs = self.regs;
         self.call_step(&mut regs);
-        self.regs = regs;
+        // a soft reset: the next pass starts where it left the registers
+        self.regs = self.restarted.take().unwrap_or(regs);
     }
 
     /// An instruction starts (at `pc`; `base` its time but what depends

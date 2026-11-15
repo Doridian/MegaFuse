@@ -33,10 +33,47 @@ def sorted_res(xs):
 
 
 class Emitter:
-    def __init__(self, prog, flow, roots):
+    def __init__(self, prog, flow, roots, reset=None):
         self.p = prog
         self.f = flow
         self.roots = roots
+        self.reset = reset
+        self.restarts, self.fam_restarts = self.restarting()
+
+    def restarting(self):
+        """The routines that may jump to the reset routine (a soft reset,
+        from in a step) and those that may call them: after such a call
+        the step is over (the reset left the stack for the main loop's
+        next pass), docs/PORT.md "A step"."""
+        p, f = self.p, self.f
+        out, fams = set(), set()
+        changed = True
+        while changed:
+            changed = False
+            for e, r in p.routines.items():
+                if e in out or r.error or r.crash or e in self.roots:
+                    continue
+                hit = False
+                for ops in r.ops.values():
+                    for op in ops:
+                        if op[0] == 'call' and (op[1] == self.reset or
+                                                op[1] in out):
+                            hit = True
+                        elif op[0] in ('callx', 'calltable') and \
+                                f.fam_of_site.get(op[-1]) in fams:
+                            hit = True
+                for t in f.tails(r):
+                    if isinstance(t, tuple):
+                        hit = hit or f.fam_of_site.get(t[1]) in fams
+                    else:
+                        hit = hit or t == self.reset or t in out
+                if hit:
+                    out.add(e)
+                    changed = True
+                    k = f.fam_of.get(e)
+                    if k is not None:
+                        fams.add(k)
+        return out, fams
 
     # --- signatures ----------------------------------------------------
 
@@ -191,6 +228,8 @@ class Emitter:
                 for k in range(len(ops) - 1, -1, -1):
                     after[(start, k)] = set(live)
                     op = ops[k]
+                    if dataflow.dead_set(op, live):
+                        continue
                     if op[0] == 'set':
                         live.discard(op[1])
                         live |= set(op[2].uses)
@@ -255,8 +294,11 @@ class Emitter:
                     x, RTY[x], '0' if RTY[x] == 'u32' else 'false'))
         body.append('let mut unw: bool = false;')
         for name, ty in sorted(r.slot_types.items()):
-            if dataflow.is_slot(name):
-                body.append('let mut %s: %s = 0;' % (name, ty))
+            # stack locals, and the masks saved beside them (lower.py)
+            if dataflow.is_slot(name) or name.endswith(
+                    ('_ipl', '_fx', '_fn', '_fz', '_fv', '_fc')):
+                body.append('let mut %s: %s = %s;' % (
+                    name, ty, 'false' if ty == 'bool' else '0'))
         body += self.node(r.tree, 0)
         lines += ['        ' + l for l in body]
         lines.append('    }')
@@ -376,7 +418,7 @@ class Emitter:
             live = self.live.get((start, k), set())
             if op[0] == 'set':
                 name, x = op[1], op[2]
-                if name not in live and not x.eff:
+                if dataflow.dead_set(op, live):
                     continue
                 if name.startswith('t') and name[1:].isdigit():
                     out.append('let %s: %s = %s;' % (name, x.ty, x.t))
@@ -411,6 +453,12 @@ class Emitter:
             return ['self.%s();' % fname(e)], None
         if e in self.roots:
             return ['self.%s();' % fname(e)], None
+        if e == self.reset:
+            # a soft reset: the step ends where the reset routine leaves
+            # the registers (Game::step goes on from there)
+            return ['{', '    let mut regs = %s;' % self.regs_in(),
+                    '    self.%s(&mut regs);' % fname(e),
+                    '    self.restarted = Some(regs);', '}'], None
         if self.is_family(e):
             outs = sorted_res(self.f.fam_out[self.f.fam_of[e]])
             return (['{', '    let mut regs = %s;' % self.regs_in(),
@@ -465,6 +513,8 @@ class Emitter:
                 if unw or any('unwound' in s for s in stmts) else stmts
             if unw:
                 out += ['if unwound {'] + ind(self.ret_stmt()) + ['}']
+            if op[1] == self.reset or op[1] in self.restarts:
+                out += self.restart_check()
             return out
         if op[0] == 'callx':
             target = op[1].t
@@ -473,7 +523,14 @@ class Emitter:
                 % (op[2], op[1].t)
         out = ['let mut unwound = false;'] + self.call_family(op[-1], target)
         out += ['if unwound {'] + ind(self.ret_stmt()) + ['}']
+        if self.f.fam_of_site.get(op[-1]) in self.fam_restarts:
+            out += self.restart_check()
         return out
+
+    def restart_check(self):
+        """After a call that may have reset the game: the step is over."""
+        return ['if self.restarted.is_some() {'] + ind(self.ret_stmt()) + \
+            ['}']
 
     def tail_call(self, e):
         stmts, unw = self.call_direct(e, 0, 0)

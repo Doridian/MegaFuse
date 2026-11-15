@@ -134,6 +134,9 @@ class Lowerer:
         # the type each stack local is used at (arguments: the callee's
         # parameter types)
         self.slot_types = {}
+        # stack slots a `move.w sr` saved to (their mask in s.._ipl, the
+        # flags in s.._fx and so on)
+        self.sr_slots = set()
 
     # --- values -----------------------------------------------------------
 
@@ -386,20 +389,54 @@ class Lowerer:
         src, dst = ops
         if src.kind == 'sr':
             loc = self.ea(out, i.addr, dst, 'w')
+            if loc[0] == 'slot':
+                # saved on the stack (to be restored): the mask and the
+                # flags in locals of their own, so the flags only matter
+                # where something after the restore reads them; the slot
+                # gets the word without them
+                ipl = loc[1] + '_ipl'
+                self.slot_types[ipl] = 'u8'
+                self.sr_slots.add(loc[1])
+                out.stmts.append(('set', ipl, mk('self.ipl()', 'u8')))
+                for f in FLAGS:
+                    self.slot_types['%s_f%s' % (loc[1], f)] = 'bool'
+                    out.stmts.append(('set', '%s_f%s' % (loc[1], f),
+                                      var(f, 'bool')))
+                self.write(out, loc, mk('(0x2000 | u16::from(%s) << 8)' % ipl,
+                                        'u16', var(ipl, 'u8')), 'w')
+                return
             self.write(out, loc, mk('self.sr_word(%s)' % ', '.join(FLAGS),
                                     'u16', *[var(n, 'bool') for n in FLAGS]),
                        'w')
             return
         if dst.kind in ('sr', 'ccr'):
-            v = self.read(out, self.operand(out, i.addr, src, 'w'), 'w')
-            v = self.temp(out, v)
-            for k, name in enumerate(['c', 'v', 'z', 'n', 'x']):
-                out.stmts.append(('set', name, mk('(%s >> %d) & 1 != 0' % (
-                    v.t, k), 'bool', v)))
+            loc = ('none',)
+            if src.kind == 'postinc' and src.reg == 7:
+                loc = self.ea(out, i.addr, src, 'w')
+            if loc[0] == 'slot' and loc[1] in self.sr_slots:
+                # an SR saved here: each flag from its own local
+                for name in ['c', 'v', 'z', 'n', 'x']:
+                    out.stmts.append(('set', name, var('%s_f%s' % (
+                        loc[1], name), 'bool')))
+            else:
+                if loc[0] == 'slot':
+                    v = var(loc[1], 'u16')
+                else:
+                    v = self.read(out, self.operand(out, i.addr, src, 'w'),
+                                  'w')
+                    v = self.temp(out, v)
+                for k, name in enumerate(['c', 'v', 'z', 'n', 'x']):
+                    out.stmts.append(('set', name, mk('(%s >> %d) & 1 != 0' % (
+                        v.t, k), 'bool', v)))
             if dst.kind == 'sr':
                 # the interrupt mask: interrupts wait while it is up
-                out.stmts.append(('eff', mk('self.set_ipl((%s >> 8) as u8 '
-                                            '& 7)' % v.t, '()', v)))
+                if loc[0] == 'slot' and loc[1] in self.sr_slots:
+                    m = var(loc[1] + '_ipl', 'u8')
+                    out.stmts.append(('eff', mk('self.set_ipl(%s)' % m.t,
+                                                '()', m)))
+                else:
+                    out.stmts.append(('eff', mk('self.set_ipl((%s >> 8) as '
+                                                'u8 & 7)' % v.t, '()', v)))
             return
         if dst.kind == 'usp':
             return          # the game stays in supervisor mode
@@ -655,10 +692,24 @@ class Lowerer:
         out.stmts += [('set', 'c', mk('%s.1' % res.t, 'bool', res)),
                       ('set', 'v', mk('%s.2' % res.t, 'bool', res)),
                       ('set', 'n', msb(rv)), ('set', 'z', is_zero(rv))]
-        if kind not in ('rol', 'ror'):
-            out.stmts.append(('set', 'x', mk('if %s != 0 { %s.3 } else { x '
-                                             '}' % (cnt.t, res.t), 'bool',
-                                             cnt, res, var('x', 'bool'))))
+        if kind in ('roxl', 'roxr') and not cnt.uses:
+            # by a count in the instruction: the bit rotated out (C and
+            # X) comes from the operand alone, never the X rotated in
+            k = cnt.t.split('_')[0]
+            k = int(k, 0)
+            bit = BITS[size] - k if kind == 'roxl' else k - 1
+            out_bit = mk('(%s >> %d) & 1 != 0' % (a.t, bit), 'bool', a)
+            out.stmts[-4] = ('set', 'c', out_bit)
+            out.stmts.append(('set', 'x', out_bit))
+        elif kind not in ('rol', 'ror'):
+            if not cnt.uses:
+                # a count in the instruction: never 0, X is set
+                out.stmts.append(('set', 'x', mk('%s.3' % res.t, 'bool',
+                                                 res)))
+            else:
+                out.stmts.append(('set', 'x', mk(
+                    'if %s != 0 { %s.3 } else { x }' % (cnt.t, res.t),
+                    'bool', cnt, res, var('x', 'bool'))))
         return dst, size, rv
 
     def op_shift(self, out, i, base, size, ops):

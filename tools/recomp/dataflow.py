@@ -22,24 +22,34 @@ from recomp.lower import REGS, FLAGS
 
 RES = frozenset(REGS + FLAGS)
 
+# What a routine reads that, bit by bit, never reaches what it gives back
+# (the analysis here goes by whole registers and flags).
+DEAD_IN = {
+    # the random numbers: roxl.b #3 rotates X into bit 2 of d0, roxr.b
+    # #1 moves it to bit 1 (the bit it rotates out, the new X, is bit 0),
+    # and the move.b after overwrites the byte
+    0x001BE2: {'x'},
+}
+
 
 def op_uses_defs(op, sig):
-    """(uses, defs) of a statement, sig(callee or ('site', a)) -> (IN,
-    OUT)."""
+    """(uses, defs) of a statement over every local (the registers, the
+    flags, temporaries and stack locals), sig(callee or ('site', a)) ->
+    (IN, OUT)."""
     k = op[0]
     if k == 'set':
-        return set(op[2].uses) & RES, {op[1]} & RES
+        return set(op[2].uses), {op[1]}
     if k == 'store':
-        return set(op[2].uses | op[3].uses) & RES, set()
+        return set(op[2].uses | op[3].uses), set()
     if k == 'eff':
-        return set(op[1].uses) & RES, set()
+        return set(op[1].uses), set()
     if k == 'call':
         i, o = sig(op[1])
         return set(i), set(o)
     if k in ('callx', 'calltable'):
         i, o = sig(('site', op[-1]))
         x = op[1]
-        return set(i) | (set(x.uses) & RES), set(o)
+        return set(i) | set(x.uses), set(o)
     raise ValueError(k)
 
 
@@ -156,6 +166,8 @@ class Flow:
                             a |= self.OUT[r.entry]   # it may return for r
                         if a != prev:
                             after_call[(start, k)] = a
+                    if dead_set(op, live, slots=False):
+                        continue
                     u, df = op_uses_defs(op, self.sig)
                     if op[0] == 'call':
                         unw = self.p.routines.get(op[1])
@@ -165,7 +177,7 @@ class Flow:
                 if live != live_at[start]:
                     live_at[start] = live
                     changed = True
-        return live_at[r.entry], after_call
+        return live_at[r.entry] & RES, after_call
 
     def block_out(self, r, start, b, live_at):
         """What is live where block b leaves."""
@@ -194,64 +206,111 @@ class Flow:
             out |= set(t[1].uses) | set(i) | self.OUT[r.entry]
         elif k == 'ret':
             out |= self.OUT[r.entry]
-        return out & RES
+        return out
 
     # --- the fixpoint ----------------------------------------------------
 
     def solve(self, roots):
         self.roots = set(roots)
         self.compute_mod()
-        fam_mod = [set().union(*(self.MOD[m] for m in ms)) if ms else set()
-                   for _, ms in self.fams]
+        self.fam_mod = [set().union(*(self.MOD[m] for m in ms)) if ms
+                        else set() for _, ms in self.fams]
+        rounds = self.grow()
+        # Growing from nothing over-reaches: early on a callee gives back
+        # nothing, so what it would set looks live through the call, and
+        # what got into IN that way stays.  So again from what the callers
+        # now read (OUT as it is called for, IN from nothing), until it
+        # holds; each pass ends where every caller gets what it reads.
+        for _ in range(20):
+            before = (dict((e, frozenset(v)) for e, v in self.IN.items()),
+                      dict((e, frozenset(v)) for e, v in self.OUT.items()))
+            needed, needed_fam = self.needs()
+            for e in self.p.routines:
+                self.OUT[e] = set() if e in self.roots else \
+                    self.outs(e, needed, needed_fam)
+                self.IN[e] = set()
+            for f in range(len(self.fams)):
+                self.fam_out[f] = self.fam_outs(f, needed, needed_fam)
+                self.fam_in[f] = set()
+            rounds += self.grow()
+            if before == (self.IN, self.OUT):
+                break
+        return rounds
+
+    def needs(self):
+        """What callers read after calling each routine, and after each
+        family's calls through a pointer."""
+        needed = {e: set() for e in self.p.routines}
+        needed_fam = [set() for _ in self.fams]
+        for e, r in self.p.routines.items():
+            if r.error or r.crash:
+                continue
+            _, after = self.live_in(r, None)
+            for (start, k), live in after.items():
+                op = r.ops[start][k]
+                if op[0] == 'call':
+                    needed.setdefault(op[1], set())
+                    needed[op[1]] |= live
+                else:
+                    f = self.fam_of_site.get(op[-1])
+                    if f is not None:
+                        needed_fam[f] |= live
+            for t in self.tails(r):
+                if isinstance(t, tuple):
+                    f = self.fam_of_site.get(t[1])
+                    if f is not None:
+                        needed_fam[f] |= self.OUT[e]
+                else:
+                    needed.setdefault(t, set())
+                    needed[t] |= self.OUT[e]
+        # the step's next pass reads what this one leaves
+        from recomp.routines import STEP
+        for f, (_, ms) in enumerate(self.fams):
+            if STEP in ms:
+                needed_fam[f] |= self.IN[STEP]
+        return needed, needed_fam
+
+    def outs(self, e, needed, needed_fam):
+        o = needed.get(e, set()) & self.MOD[e]
+        f = self.fam_of.get(e)
+        if f is not None:
+            o |= needed_fam[f] & self.fam_mod[f]
+        return o
+
+    def fam_outs(self, f, needed, needed_fam):
+        # a member called directly gives back the family's (one
+        # signature): what its callers read too
+        ms = self.fams[f][1]
+        return needed_fam[f].union(
+            *(needed.get(m, set()) for m in ms)) & self.fam_mod[f]
+
+    def grow(self):
+        """To a fixpoint from the sets as they are (they only grow, but
+        for a family's results, what its callers read)."""
         changed = True
         rounds = 0
         while changed:
             changed = False
             rounds += 1
-            needed = {e: set() for e in self.p.routines}
-            needed_fam = [set() for _ in self.fams]
             for e, r in self.p.routines.items():
                 if r.error or r.crash:
                     continue
-                ins, after = self.live_in(r, None)
+                ins, _ = self.live_in(r, None)
+                ins = ins - DEAD_IN.get(e, set())
                 if e not in self.roots and not ins <= self.IN[e]:
                     self.IN[e] |= ins & RES
                     changed = True
-                for (start, k), live in after.items():
-                    op = r.ops[start][k]
-                    if op[0] == 'call':
-                        needed.setdefault(op[1], set())
-                        needed[op[1]] |= live
-                    else:
-                        f = self.fam_of_site.get(op[-1])
-                        if f is not None:
-                            needed_fam[f] |= live
-                for t in self.tails(r):
-                    if isinstance(t, tuple):
-                        f = self.fam_of_site.get(t[1])
-                        if f is not None:
-                            needed_fam[f] |= self.OUT[e]
-                    else:
-                        needed.setdefault(t, set())
-                        needed[t] |= self.OUT[e]
+            needed, needed_fam = self.needs()
             for e in self.p.routines:
                 if e in self.roots:
                     continue
-                o = needed.get(e, set()) & self.MOD[e]
-                f = self.fam_of.get(e)
-                if f is not None:
-                    o |= needed_fam[f] & fam_mod[f]
+                o = self.outs(e, needed, needed_fam)
                 if not o <= self.OUT[e]:
                     self.OUT[e] |= o
                     changed = True
-            # the step's next pass reads what this one leaves
-            from recomp.routines import STEP
-            for f, (_, ms) in enumerate(self.fams):
-                if STEP in ms:
-                    needed_fam[f] |= self.IN[STEP]
             for f, (_, ms) in enumerate(self.fams):
                 fi = set().union(*(self.IN[m] for m in ms)) if ms else set()
-                fo = needed_fam[f] & fam_mod[f]
+                fo = self.fam_outs(f, needed, needed_fam)
                 if fi != self.fam_in[f] or fo != self.fam_out[f]:
                     self.fam_in[f], self.fam_out[f] = fi, fo
                     changed = True
@@ -263,6 +322,16 @@ class Flow:
                         self.IN[m] |= self.fam_in[f]
                         changed = True
         return rounds
+
+
+def dead_set(op, live, slots=True):
+    """A statement setting a local nothing reads after, with nothing else
+    to it: the translation leaves it out (emit.py), so what it reads
+    doesn't count.  slots=False: never one setting a stack local (the
+    whole-program pass doesn't see the arguments callees read there)."""
+    if op[0] != 'set' or op[1] in live or op[2].eff:
+        return False
+    return slots or not (is_slot(op[1]) or op[1].startswith(('arg', 'ret')))
 
 
 def is_slot(name):
@@ -295,14 +364,17 @@ def drop_saves(r, prog=None):
     """Registers r saves and restores (`movem` to the stack and back): in
     Rust they are the caller's locals anyway, so the save and the restore
     go and the register isn't something r reads or changes for its
-    callers.  A forward pass tags what still holds a register's value
+    callers (and so are flags restored from an SR saved at the entry).
+    A forward pass tags what still holds a register's value
     from the entry (copies through stack slots keep the tag; any other
     write, and any call, loses it); a register whose own tag reaches every
     way out is preserved, and its save and restore statements, when the
     slot is read by nothing else, are dropped.  Returns the preserved
     registers."""
     from recomp.lower import REGS as R
-    regs = set(R)
+    # the flags too: an SR saved at the entry and restored at the way
+    # out (lower.py's s.._fx and so on) leaves the caller's
+    regs = set(R) | set(FLAGS)
     starts = sorted(r.blocks)
     tags_in = {r.entry: {x: x for x in regs}}
     # in reverse postorder-ish: blocks in address order, repeated

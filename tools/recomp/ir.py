@@ -109,7 +109,7 @@ def build(d):
                             ops.append(call_op(t, r.depth[a], a + i.size,
                                                a))
                             term = None
-                r.ops[start] = ops
+                r.ops[start] = drop_overwritten(ops)
                 r.term[start] = term
             r.slot_types = low.slot_types
             u = stack.UNWINDS.get(e, set())
@@ -130,6 +130,49 @@ def build(d):
                 structure.Irreducible) as x:
             r.error = str(x)
     return p
+
+
+KEEPS = {'0xFFFF_FF00': 0xFFFFFF00, '0xFFFF_0000': 0xFFFF0000}
+
+
+def partial(op):
+    """(register, the bits kept) of a statement writing part of a data
+    register (lower.set_reg), or None."""
+    if op[0] != 'set' or not op[1].startswith('d'):
+        return None
+    head = '(%s & ' % op[1]
+    t = op[2].t
+    if not t.startswith(head):
+        return None
+    keep = KEEPS.get(t[len(head):].split(')')[0])
+    return (op[1], keep) if keep is not None else None
+
+
+def drop_overwritten(ops):
+    """Leaves out a write to part of a data register that a later one
+    overwrites with nothing reading the register between (a byte the
+    next instruction loads over): the later one keeps the same bits of
+    the register, so it reads what was there before both."""
+    out = []
+    for op in ops:
+        p = partial(op)
+        if p is not None:
+            for j in range(len(out) - 1, -1, -1):
+                q = out[j]
+                if q[0] not in ('set', 'store', 'eff'):
+                    break           # a call: it may read the register
+                uses = q[2].uses if q[0] == 'set' else (
+                    q[2].uses | q[3].uses if q[0] == 'store' else q[1].uses)
+                pq = partial(q)
+                if pq is not None and pq[0] == p[0]:
+                    # its bits all among the later write's
+                    if pq[1] & p[1] == p[1] and not q[2].eff:
+                        del out[j]
+                    break
+                if p[0] in uses or (q[0] == 'set' and q[1] == p[0]):
+                    break
+        out.append(op)
+    return out
 
 
 def note_arg(r, name, write=False):

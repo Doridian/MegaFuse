@@ -63,7 +63,7 @@ def main():
     flow = dataflow.Flow(p, fams)
     flow.solve(roots)
     # the reset routine is called as one of the step's family (Regs)
-    em = emit.Emitter(p, flow, roots - {reset})
+    em = emit.Emitter(p, flow, roots - {reset}, reset)
     os.makedirs(out, exist_ok=True)
     for f in os.listdir(out):
         if f.endswith('.rs'):

@@ -22,16 +22,18 @@ impl Game {
     }
 
     /// `func_001CFA`: a4 = D_001D1E[d4 & 0xFF]; d4 is kept.
-    pub fn r_001cfa(&mut self, d4: u32) -> (u32, u32, bool, bool, bool, bool, bool) {
+    /// The callers read X after it.
+    pub fn r_001cfa(&mut self, d4: u32) -> (u32, u32, bool) {
         let a4 = self.long_by_index(TABLE_1D1E, d4);
-        let (x, n, z, v, c) = index_flags(d4);
-        (d4, a4, x, n, z, v, c)
+        let (x, ..) = index_flags(d4);
+        (d4, a4, x)
     }
 
     /// `func_0005F8`: a6 = D_00062E[d6 & 0xFF]; d6 is kept.
-    pub fn r_0005f8(&mut self, d6: u32) -> (u32, u32, bool, bool, bool, bool, bool) {
+    /// The callers read X and C after it.
+    pub fn r_0005f8(&mut self, d6: u32) -> (u32, u32, bool, bool) {
         let a6 = self.long_by_index(TABLE_062E, d6);
-        let (x, n, z, v, c) = index_flags(d6);
-        (d6, a6, x, n, z, v, c)
+        let (x, _, _, _, c) = index_flags(d6);
+        (d6, a6, x, c)
     }
 }
