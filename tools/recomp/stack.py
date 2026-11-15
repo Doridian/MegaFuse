@@ -63,32 +63,67 @@ def effect(i, depth):
             raise StackError('sp set by %s' % i.format())
     if mn == 'link':
         delta += 4 - i.ops[1].val
-    if mn == 'unlk':
-        raise StackError('unlk')        # handled by the caller (frames)
     return depth + delta
+
+
+def aliases_after(i, dep, al):
+    """Address registers that point into the stack after i: {an: the
+    position (bytes below the routine's entry) they point at}.  `link an`
+    and `movea.l sp,an` make one, `adda`/`addq`/`subq`/`lea (d,an)` move
+    it, anything else written to it ends it."""
+    al = dict(al)
+    mn = i.mn
+    ops = i.ops
+    if mn == 'link':
+        al[ops[0].reg] = dep + 4
+        return al
+    if mn == 'movea.l' and ops[0].kind == 'an' and ops[0].reg == 7:
+        al[ops[1].reg] = dep
+        return al
+    dst = ops[-1] if ops else None
+    if dst is not None and dst.kind == 'an' and dst.reg in al:
+        n = dst.reg
+        src = ops[0]
+        if mn in ('adda.w', 'adda.l', 'addq.w', 'addq.l') and \
+                src.kind in ('imm', 'quick'):
+            al[n] -= src.val
+        elif mn in ('suba.w', 'suba.l', 'subq.w', 'subq.l') and \
+                src.kind in ('imm', 'quick'):
+            al[n] += src.val
+        elif mn == 'lea' and src.kind == 'disp' and src.reg == n:
+            al[n] -= src.val
+        else:
+            del al[n]
+    if mn == 'unlk':
+        al.pop(ops[0].reg, None)
+    if mn.startswith('movem') and ops[1].kind == 'reglist':
+        for k in range(8, 15):
+            if ops[1].val >> k & 1:
+                al.pop(k - 8, None)
+    return al
 
 
 def depths(d, body):
     """{address: depth before it} for a routine's instructions (body, the
-    first its entry), following the frame of `link an`: `unlk an` brings
-    sp back to where `link` found it."""
+    first its entry), and {address: aliases before it} (aliases_after):
+    `unlk an` brings sp back to where `link` found it."""
     entry = body[0]
     inside = set(body)
     out = {entry: 0}
-    frames = {}                    # an -> depth before its link
+    alias = {entry: {}}
     todo = [entry]
     while todo:
         a = todo.pop()
         i = d.insns[a]
         dep = out[a]
-        if i.mn == 'link':
-            frames[i.ops[0].reg] = dep
+        al = alias[a]
         if i.mn == 'unlk':
-            if i.ops[0].reg not in frames:
+            if i.ops[0].reg not in al:
                 raise StackError('unlk without link at %06X' % a)
-            after = frames[i.ops[0].reg]
+            after = al[i.ops[0].reg] - 4
         else:
             after = effect(i, dep)
+        al_after = aliases_after(i, dep, al)
         if i.flow == 'ret' and after != 0 and i.mn == 'rts':
             raise StackError('rts at depth %d at %06X' % (after, a))
         for s, _ in successors(d, a):
@@ -101,7 +136,11 @@ def depths(d, body):
                 if out[s] != after:
                     raise StackError('depths %d and %d meet at %06X' %
                                      (out[s], after, s))
+                if alias[s] != al_after:
+                    alias[s] = {k: v for k, v in alias[s].items()
+                                if al_after.get(k) == v}
                 continue
             out[s] = after
+            alias[s] = al_after
             todo.append(s)
-    return out
+    return out, alias
