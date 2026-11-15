@@ -5,7 +5,7 @@
 //!
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
 //!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
-//!                [--timeline FILE [--timeline-at F]]
+//!                [--timeline FILE] [--ztimeline FILE] [--timeline-at F]
 
 mod png;
 
@@ -199,6 +199,7 @@ fn main() {
     let mut input = None;
     let mut timeline = None;
     let mut timeline_at = None;
+    let mut ztimeline = None;
     let mut h = Headless {
         script: Script { pads: BTreeMap::new(), pokes: BTreeMap::new() },
         frames: 3600,
@@ -225,6 +226,7 @@ fn main() {
             "--wav" => h.wav = Some((next(&mut i), Vec::new())),
             "--timeline" => timeline = Some(next(&mut i)),
             "--timeline-at" => timeline_at = next(&mut i).parse().ok(),
+            "--ztimeline" => ztimeline = Some(next(&mut i)),
             _ => rom_path = Some(a.to_string()),
         }
         i += 1;
@@ -244,7 +246,14 @@ fn main() {
     let mut ram = [0u8; 0x10000];
     let mut pads = [0u16; 4];
     h.apply(0, &mut ram, &mut pads);
-    let md = Md::new(rom.clone(), Box::new(h));
+    let mut md = Md::new(rom.clone(), Box::new(h));
+    if let Some(p) = ztimeline {
+        let f = std::fs::File::create(&p).unwrap_or_else(|e| {
+            eprintln!("{p}: {e}");
+            std::process::exit(1)
+        });
+        md.sound.timeline = Some(game::Timeline::new(Box::new(std::io::BufWriter::new(f)), timeline_at));
+    }
     let mut game = game::Game::new(rom, Box::new(md));
     if let Some(p) = timeline {
         let f = std::fs::File::create(&p).unwrap_or_else(|e| {

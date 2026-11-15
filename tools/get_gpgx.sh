@@ -15,7 +15,7 @@ set -euo pipefail
 REPO=https://github.com/libretro/Genesis-Plus-GX
 COMMIT=b9c2316441978d4015ba30e9a95d9b0e6f8ee981
 # bumped when the build below changes, so `make setup` rebuilds
-BUILD=4
+BUILD=6
 TOP=$(cd "$(dirname "$0")" && pwd)
 DEST=$TOP/gpgx
 SO=$DEST/genesis_plus_gx_libretro.so
@@ -33,7 +33,7 @@ git -C "$SRC" clean -qfdx
 cat > "$SRC/libretro/link.T" <<'EOF'
 {
    global: retro_*; set_cpu_hook; m68k_get_reg; mdtrace_m68k_cycles;
-           mdtrace_m68k_refresh;
+           mdtrace_m68k_refresh; mdtrace_z80_cycles; mdtrace_ym_timer_b;
    local: *;
 };
 EOF
@@ -69,11 +69,41 @@ assert s.count(old) == 1
 open(p, "w").write(s.replace(old, new))
 EOF
 # The 68000's clock (master clocks into the frame) and when its next bus
-# refresh is due, for mdtrace --cycles
+# refresh is due, for mdtrace --cycles; the Z80's clock
 cat >> "$SRC/core/m68k/m68kcpu.c" <<'EOF'
 
 unsigned int mdtrace_m68k_cycles(void) { return m68k.cycles; }
 int mdtrace_m68k_refresh(void) { return m68k.refresh_cycles; }
+EOF
+cat >> "$SRC/core/z80/z80.c" <<'EOF'
+
+unsigned int mdtrace_z80_cycles(void) { return Z80.cycles; }
+EOF
+# the YM2612's timer B counter (as of its last update), for mdtrace
+cat >> "$SRC/core/sound/ym2612.c" <<'EOF'
+
+int mdtrace_ym_timer_b(void) { return ym2612.OPN.ST.TBC; }
+EOF
+# The Z80 has no execution hook: one before each instruction, for
+# mdtrace --ztimeline
+python3 - "$SRC/core/z80/z80.c" <<'EOF'
+import sys
+p = sys.argv[1]
+s = open(p).read()
+old = """    Z80.after_ei = FALSE;
+    R++;
+    EXEC_INLINE(op,ROP());"""
+new = """    Z80.after_ei = FALSE;
+    R++;
+#ifdef HOOK_CPU
+    if (cpu_hook) cpu_hook(HOOK_Z80_E, 0, PCD, 0);
+#endif
+    EXEC_INLINE(op,ROP());"""
+assert s.count(old) == 1
+s = s.replace(old, new)
+if '#include "cpuhook.h"' not in s and 'cpuhook.h' not in s:
+    s = '#ifdef HOOK_CPU\n#include "cpuhook.h"\n#endif\n' + s
+open(p, "w").write(s)
 EOF
 # -fcommon: core/debug/cpuhook.h defines cpu_hook in a header (no extern),
 # which GCC 10+ and clang reject as multiple definitions by default

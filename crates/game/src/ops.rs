@@ -8,7 +8,8 @@ const RAM_FROM: u32 = 0xE0_0000;
 const ROM_TO: u32 = 0x40_0000;
 
 /// The Z80's side (0xA00000-0xA0FFFF): an access waits a cycle for its
-/// bus, before it is made.
+/// bus, before it is made (while the 68000 has the bus; else nothing
+/// answers).
 #[inline]
 fn z80_side(a: u32) -> bool {
     a & 0xFF_0000 == 0xA0_0000
@@ -24,7 +25,7 @@ impl Game {
         } else if a < ROM_TO {
             self.rom.get(a as usize).copied().unwrap_or(0xFF)
         } else {
-            if z80_side(a) {
+            if z80_side(a) && self.hw.z80_granted() {
                 self.clock += 7;
             }
             self.sync();
@@ -39,7 +40,7 @@ impl Game {
         if a >= RAM_FROM || a < ROM_TO {
             u16::from_be_bytes([self.read8(a), self.read8(a + 1)])
         } else {
-            if z80_side(a) {
+            if z80_side(a) && self.hw.z80_granted() {
                 self.clock += 7;
             }
             self.sync();
@@ -81,7 +82,7 @@ impl Game {
         if a >= RAM_FROM {
             self.ram[(a & 0xFFFF) as usize] = value;
         } else if a >= ROM_TO {
-            if z80_side(a) {
+            if z80_side(a) && self.hw.z80_granted() {
                 self.clock += 7;
             }
             self.sync();
@@ -98,7 +99,7 @@ impl Game {
             self.ram[(a & 0xFFFF) as usize] = hi;
             self.ram[((a + 1) & 0xFFFF) as usize] = lo;
         } else if a >= ROM_TO {
-            if z80_side(a) {
+            if z80_side(a) && self.hw.z80_granted() {
                 self.clock += 7;
             }
             self.sync();

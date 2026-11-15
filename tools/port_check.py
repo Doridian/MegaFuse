@@ -6,14 +6,13 @@
 Runs the port (target/release/megafuse, `cargo build --release`) and the
 original in Genesis Plus GX (tools/mdtrace) on each pad script
 (tools/inputs/, all by default) and compares work RAM every --every
-frames.  The port counts time from its instructions' cycles (docs/PORT.md,
-"Time"), close to the console's but not exact, so each of its frames is
-compared with the original's within --window frames of it and the
-closest taken.  Not compared: the stack (0xFE00 on: the port's stack is
-its locals) and what only counts frames (TIMING).  Reports, per script,
-the first frame with differences left at two checkpoints in a row (one
-alone is a frame caught in the middle of a change) and what they are, and the screens
-at that offset (pixels that differ).
+frames.  The port keeps the console's time (docs/PORT.md, "Time"), so
+its frames are the original's; --window N compares each with the
+original's closest within N frames instead (0 by default).  Not
+compared: the stack (0xFE00 on: the port's stack is its locals).
+Reports, per script, the first frame that differs and how, and the
+screens there (pixels that differ); tools/timeline_check.py finds the
+instruction.
 """
 import argparse
 import os
@@ -25,13 +24,6 @@ import zlib
 
 TOP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STACK = 0xFE00
-# frame counters and the like: they show the drift, not a difference.
-# 0x80D4/0x80D8 count frames, 0xA400 too and 0xA404 copies it
-# (func_001C3A), 0xAED0 counts a screen's frames (0x92C8), 0x805D and
-# 0xAD06 follow the frame count
-TIMING = {0x805D, 0x80D4, 0x80D8, 0xA400, 0xA401, 0xA404, 0xA405, 0xAD06,
-          0xAED0, 0xAED1}
-
 
 def read_png(path):
     d = open(path, 'rb').read()
@@ -74,7 +66,7 @@ def read_png(path):
 
 
 def ram_diff(a, b):
-    return [i for i in range(STACK) if a[i] != b[i] and i not in TIMING]
+    return [i for i in range(STACK) if a[i] != b[i]]
 
 
 def check(script, frames, every, window, tmp):
@@ -97,7 +89,6 @@ def check(script, frames, every, window, tmp):
             mt.insert(4, '--teamplayer')
     subprocess.run(mt, cwd=TOP, check=True, capture_output=True)
     last = 0
-    held = None             # a difference at the checkpoint before
     for f in range(every, frames + 1, every):
         p = '%sr%06d.bin' % (port, f)
         if not os.path.exists(p):
@@ -119,16 +110,8 @@ def check(script, frames, every, window, tmp):
             pix = screens(orig, port, f, s)
             why = 'RAM: %d bytes (best at %+d frames) %s%s; %s' % (
                 len(d), s, what, ' ...' if len(d) > 12 else '', pix)
-            # a difference gone by the next checkpoint is a frame caught in
-            # the middle of a change the original makes between two frames
-            if held is not None:
-                return name, held[0], held[1]
-            held = (f, why)
-            continue
-        held = None
+            return name, last, why
         last = f
-    if held is not None:
-        return name, held[0], held[1]
     return name, last, None
 
 
@@ -150,7 +133,7 @@ def main():
     ap.add_argument('scripts', nargs='*')
     ap.add_argument('--frames', type=int, default=3000)
     ap.add_argument('--every', type=int, default=20)
-    ap.add_argument('--window', type=int, default=8)
+    ap.add_argument('--window', type=int, default=0)
     a = ap.parse_args()
     scripts = a.scripts or sorted(
         os.path.join(TOP, 'tools/inputs', x)

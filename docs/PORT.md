@@ -125,11 +125,20 @@ it; the 68000 only resets the Z80, holds its bus and writes its RAM.
 Until the driver is translated too (docs/ROADMAP.md, phase 4), it runs on
 an interpreter, `crates/md/src/z80.rs`, with the YM2612 (`ym2612.rs`)
 and the PSG (`psg.rs`) on its bus and the 68000's ROM through its bank
-window (`sound.rs`). They run a line at a time, in master clocks (a
-line is 3420, a Z80 cycle 15, a YM2612 sample 1008): the Z80 runs up
-to each sample, so what a driver times itself (the DAC) comes out at its
-pace. The Z80's interrupt is raised for the first line of the vertical
-blank.
+window (`sound.rs`). They keep the console's time too ("Time"), as
+Genesis Plus GX runs them: the Z80 runs up to the 68000's time where
+the two meet (each segment's end, a bus request, a reset) and goes on
+from it when let go; its accesses happen after an instruction's base
+time (`Z80::base_cycles`, measured from the interpreter itself), one to
+the 68000's bus 3 cycles late (later still during a DMA). The 68000
+reaches the Z80's side only while it has the bus, 8 bits wide, a cycle
+late. The YM2612 makes its samples (every 1008 clocks) as far as each
+access to it, so its timers overflow and its busy flag (32 of its
+cycles after a write) drops on time; at a frame's end, samples made
+past it are dropped and their time taken again, as Genesis Plus GX does
+(its timers keep the lead). The Z80's interrupt is held from the
+vertical interrupt to the end of its line. `tools/timeline_check.py --z`
+holds the Z80 to the original, instruction by instruction.
 
 The YM2612 is the Model 1's (Genesis Plus GX's default, "mame
 (ym2612)"): a 9-bit DAC, the carriers truncated to it, and the DAC's
@@ -158,7 +167,8 @@ apart), the sound is 0.995 alike and its levels within a few percent.
 headless: tools/mdtrace's pad scripts, RAM dumps and screenshots) and the
 original in Genesis Plus GX on the same scripts and compares work RAM at
 checkpoints, the stack aside, and the screens, pixel for pixel. With the
-port's time the console's, the frames line up (`--window 0`): stage-1-1
-has the same RAM at every 300th frame through 9600 frames.
+port's time the console's, the frames line up: stage-1-1 has the same
+RAM at every 100th frame through its 20000, and the same 68000 and Z80
+timelines.
 `tools/timeline_check.py` finds where a run first parts, to the
 instruction; `tools/sound_check.py` compares the sound.

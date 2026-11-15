@@ -281,11 +281,14 @@ impl Md {
 impl game::Hardware for Md {
     fn read8(&mut self, addr: u32) -> u8 {
         match addr {
+            // the Z80's side answers while the 68000 has its bus
+            0xA0_0000..=0xA0_FFFF if !self.sound.granted() => 0xFF,
             0xA0_0000..=0xA0_3FFF => self.sound.bus.ram[(addr & 0x1FFF) as usize],
-            0xA0_4000..=0xA0_5FFF => self.sound.bus.ym.status,
+            0xA0_4000..=0xA0_5FFF => self.sound.bus.ym_read((addr & 3) as u16, self.clock),
             0xA1_0000..=0xA1_001F => self.io_read(addr),
             // the Z80's bus is granted at once (bit 0 clear)
-            0xA1_1100 => u8::from(!self.sound.busreq),
+            // bit 0 clear: the bus is the 68000's
+            0xA1_1100 => u8::from(!self.sound.granted()),
             0xA1_1101 => 0,
             0xC0_0000..=0xC0_001F => {
                 let w = self.read16(addr & !1);
@@ -300,16 +303,23 @@ impl game::Hardware for Md {
             0xC0_0000 | 0xC0_0002 => self.vdp.read_data(),
             0xC0_0004 | 0xC0_0006 => self.status(),
             0xC0_0008..=0xC0_000F => self.vdp.read_hv(),
+            // the Z80's side is 8 bits wide: the byte, twice
+            0xA0_0000..=0xA0_FFFF => u16::from(self.read8(addr)) * 0x0101,
             _ => u16::from(self.read8(addr)) << 8 | u16::from(self.read8(addr + 1)),
         }
     }
 
     fn write8(&mut self, addr: u32, value: u8) {
         match addr {
-            0xA0_0000..=0xA0_FFFF => z80::Bus::write(&mut self.sound.bus, (addr & 0x7FFF) as u16, value),
+            0xA0_0000..=0xA0_FFFF => {
+                if self.sound.granted() {
+                    self.sound.bus.ym_write_at(self.clock);
+                    z80::Bus::write(&mut self.sound.bus, (addr & 0x7FFF) as u16, value);
+                }
+            }
             0xA1_0000..=0xA1_001F => self.io_write(addr, value),
-            0xA1_1100 => self.sound.busreq = value & 1 != 0,
-            0xA1_1200 => self.sound.set_reset(value & 1 == 0),
+            0xA1_1100 => self.sound.set_busreq(value & 1 != 0, self.clock),
+            0xA1_1200 => self.sound.set_reset(value & 1 == 0, self.clock),
             0xC0_0000..=0xC0_000F => self.write16(addr & !1, u16::from(value) << 8 | u16::from(value)),
             0xC0_0011 | 0xC0_0013 | 0xC0_0015 | 0xC0_0017 => self.sound.bus.psg.write(value),
             _ => {}
@@ -326,8 +336,10 @@ impl game::Hardware for Md {
                 }
             }
             0xC0_0010..=0xC0_0017 => self.sound.bus.psg.write(value as u8),
-            0xA1_1100 => self.sound.busreq = value & 0x100 != 0,
-            0xA1_1200 => self.sound.set_reset(value & 0x100 == 0),
+            0xA1_1100 => self.sound.set_busreq(value & 0x100 != 0, self.clock),
+            0xA1_1200 => self.sound.set_reset(value & 0x100 == 0, self.clock),
+            // the Z80's side is 8 bits wide: the high byte, at the address
+            0xA0_0000..=0xA0_FFFF => self.write8(addr, (value >> 8) as u8),
             _ => {
                 self.write8(addr, (value >> 8) as u8);
                 self.write8(addr + 1, value as u8);
@@ -354,8 +366,11 @@ impl game::Hardware for Md {
 
     /// Accesses a line (Genesis Plus GX's table): VRAM takes two a word;
     /// to CRAM or VSRAM in the blank a refresh slot is lost every so often.
-    fn dma_end(&self, start: u64, words: u64, vram: bool) -> (u64, bool) {
-        self.dma_time(start, words, if vram { DmaKind::Vram } else { DmaKind::Other })
+    fn dma_end(&mut self, start: u64, words: u64, vram: bool) -> (u64, bool) {
+        let end = self.dma_time(start, words, if vram { DmaKind::Vram } else { DmaKind::Other });
+        // the Z80 waits for the 68000's bus meanwhile
+        self.sound.bus.dma_until = end.0;
+        end
     }
 
     fn take_stall(&mut self) -> u64 {
@@ -371,7 +386,7 @@ impl game::Hardware for Md {
         self.frame_clock = self.clock;
         self.fifo = [self.clock; 4];
         self.vint_raised = false;
-        self.sound.run_line();
+        self.sound.bus.frame_clock = self.clock;
         self.vdp.frame_start();
     }
 
@@ -387,7 +402,10 @@ impl game::Hardware for Md {
 
     fn line_start(&mut self, line: u16) {
         self.line_clock = self.clock;
-        self.sound.run_line();
+        if line == vdp::HEIGHT as u16 + 1 {
+            // the Z80's interrupt is held through line 224
+            self.sound.irq = false;
+        }
         self.vdp.line_start(line);
     }
 
@@ -399,14 +417,28 @@ impl game::Hardware for Md {
         self.vdp.int_ack();
     }
 
+    fn sync(&mut self, t: u64) {
+        self.clock = t;
+        self.rest = 0;
+        self.sound.run_until(t);
+    }
+
+    fn z80_granted(&self) -> bool {
+        self.sound.granted()
+    }
+
     fn end_frame(&mut self, ram: &mut [u8; 0x10000]) {
+        self.sound.bus.frame_end(self.clock);
+        if let Some(t) = &mut self.sound.timeline {
+            t.end_frame();
+        }
         if std::env::var("MEGAFUSE_VDP").ok().and_then(|v| v.parse::<u64>().ok()) == Some(self.frames) {
             eprintln!("regs {:02X?}", self.vdp.regs);
             eprintln!("cram {:03X?}", &self.vdp.cram[..32]);
         }
         self.frames += 1;
-        self.frontend.audio(&self.sound.samples);
-        self.sound.samples.clear();
+        self.frontend.audio(&self.sound.bus.samples);
+        self.sound.bus.samples.clear();
         let pads = &mut self.pads;
         let width = self.vdp.width();
         self.frontend.frame(&self.vdp.frame, width, ram, pads);

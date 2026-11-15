@@ -31,7 +31,7 @@ pub trait Hardware {
     /// When a DMA from 68000 memory started at `start` ends (the 68000
     /// waits for it), and whether it ran on past the line (or the
     /// blank) it started in.
-    fn dma_end(&self, start: u64, words: u64, vram: bool) -> (u64, bool);
+    fn dma_end(&mut self, start: u64, words: u64, vram: bool) -> (u64, bool);
     /// When the 68000 may go on after the access just made (0: at once).
     fn take_stall(&mut self) -> u64;
     /// The frame starts: line 224, the vertical blank's first.
@@ -48,6 +48,11 @@ pub trait Hardware {
     fn int_ack(&mut self, level: u8);
     /// Is the picture on (a DMA is slow while it is drawn)?
     fn display_on(&self) -> bool;
+    /// The Z80 and the sound chips run up to `t` (a segment's end).
+    fn sync(&mut self, t: u64);
+    /// Does the 68000 have the Z80's bus (its side answers, a cycle
+    /// late)?
+    fn z80_granted(&self) -> bool;
     /// The frame is over: the picture and RAM out, the pads in.
     fn end_frame(&mut self, ram: &mut [u8; 0x10000]);
 }
@@ -152,7 +157,7 @@ impl Timeline {
 
     /// The frame is over: its line, and the file up to date (the
     /// frontend may end the run now).
-    fn end_frame(&mut self) {
+    pub fn end_frame(&mut self) {
         let _ = writeln!(self.out, "FRAME {} {} {:016X}", self.frame, self.count, self.hash);
         let _ = self.out.flush();
         self.frame += 1;
@@ -160,7 +165,7 @@ impl Timeline {
         self.hash = FNV;
     }
 
-    fn record(&mut self, pc: u32, clock: u64) {
+    pub fn record(&mut self, pc: u32, clock: u64) {
         let frame = clock / FRAME;
         let v = u64::from(pc) << 40 ^ clock;
         for k in 0..8 {
@@ -280,6 +285,8 @@ impl Game {
     fn boundary(&mut self) -> bool {
         while self.clock >= self.seg_end {
             let start = self.seg_end;
+            // the Z80 runs the segment after the 68000, to its end
+            self.hw.sync(start);
             self.seg += 1;
             if self.seg >= SEGMENTS {
                 if self.frame_base > 0 || self.seg_end > 0 {

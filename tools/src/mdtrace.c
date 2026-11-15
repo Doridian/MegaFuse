@@ -22,6 +22,8 @@
  *                        (PC, clock) in order; the clock counts master
  *                        clocks from power-on (896040 a frame)
  *     --timeline-at F    and frame F in full: "PC CLOCK" an instruction
+ *     --ztimeline FILE   the same for the Z80 (its PC, the master clock;
+ *                        in full, the YM2612's timer B counter too)
  *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
  *                        same frames, and PREFIX<frame>.sp: the stack
  *                        pointer and the lowest it has been, in hex
@@ -94,6 +96,8 @@ static void (*p_run)(void);
 static void (*p_get_av_info)(struct retro_system_av_info *);
 static unsigned (*p_m68k_cycles)(void);
 static int (*p_m68k_refresh)(void);
+static unsigned (*p_z80_cycles)(void);
+static int (*p_ym_timer_b)(void);
 static void *(*p_get_memory_data)(unsigned);
 static size_t (*p_get_memory_size)(unsigned);
 static void (*p_set_port)(unsigned, unsigned);
@@ -123,6 +127,10 @@ enum {
     HOOK_M68K_E = 1 << 0,
     HOOK_M68K_R = 1 << 1,
     HOOK_M68K_W = 1 << 2,
+    /* the core's cpuhook.h */
+    HOOK_Z80_E = 1 << 9,
+    HOOK_Z80_R = 1 << 10,
+    HOOK_Z80_W = 1 << 11,
 };
 
 /* --snap: calls of one routine, entered and returned */
@@ -235,6 +243,34 @@ static void timeline_step(unsigned pc)
         fprintf(tl_file, "%06X %llu\n", pc, (unsigned long long)clock);
 }
 
+/* --ztimeline */
+static FILE *zl_file;
+static unsigned long zl_count;
+static uint64_t zl_hash = 0xCBF29CE484222325ULL;
+
+static void ztimeline_step(unsigned pc)
+{
+    uint64_t clock = (uint64_t)cur_frame * FRAME_CLOCKS + p_z80_cycles();
+    uint64_t v = (uint64_t)pc << 40 ^ clock;
+    int k;
+    for (k = 0; k < 8; k++) {
+        zl_hash ^= (v >> (8 * k)) & 0xFF;
+        zl_hash *= 1099511628211ULL;
+    }
+    zl_count++;
+    if (cur_frame == tl_at)
+        fprintf(zl_file, "%04X %llu %d\n", pc, (unsigned long long)clock,
+                p_ym_timer_b());
+}
+
+static void ztimeline_frame(long frame)
+{
+    fprintf(zl_file, "FRAME %ld %lu %016llX\n", frame, zl_count,
+            (unsigned long long)zl_hash);
+    zl_count = 0;
+    zl_hash = 0xCBF29CE484222325ULL;
+}
+
 static void timeline_frame(long frame)
 {
     fprintf(tl_file, "FRAME %ld %lu %016llX\n", frame, tl_count,
@@ -281,6 +317,11 @@ static void cycles_step(unsigned pc)
 
 static void hook(int type, int width, unsigned address, unsigned value)
 {
+    if (type & (HOOK_Z80_E | HOOK_Z80_R | HOOK_Z80_W)) {
+        if (type == HOOK_Z80_E && zl_file)
+            ztimeline_step(address & 0xFFFF);
+        return;
+    }
     address &= 0xFFFFFF;
     if (type == HOOK_M68K_E) {
         if (cyc)
@@ -754,7 +795,8 @@ int main(int argc, char **argv)
     const char *core = "tools/gpgx/genesis_plus_gx_libretro.so";
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
     const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL,
-               *cycles_path = NULL, *timeline_path = NULL;
+               *cycles_path = NULL, *timeline_path = NULL,
+               *ztimeline_path = NULL;
     const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
@@ -775,6 +817,7 @@ int main(int argc, char **argv)
         else if (ARG("--cycles")) cycles_path = argv[++i];
         else if (ARG("--timeline")) timeline_path = argv[++i];
         else if (ARG("--timeline-at")) tl_at = strtol(argv[++i], NULL, 0);
+        else if (ARG("--ztimeline")) ztimeline_path = argv[++i];
         else if (ARG("--shot-every")) every = strtol(argv[++i], NULL, 0);
         else if (ARG("--ram")) ram = argv[++i];
         else if (ARG("--region")) {
@@ -838,6 +881,8 @@ int main(int argc, char **argv)
     p_get_av_info = sym(h, "retro_get_system_av_info");
     p_m68k_cycles = sym(h, "mdtrace_m68k_cycles");
     p_m68k_refresh = sym(h, "mdtrace_m68k_refresh");
+    p_z80_cycles = sym(h, "mdtrace_z80_cycles");
+    p_ym_timer_b = sym(h, "mdtrace_ym_timer_b");
     p_get_memory_data = sym(h, "retro_get_memory_data");
     p_get_memory_size = sym(h, "retro_get_memory_size");
     p_set_port = sym(h, "retro_set_controller_port_device");
@@ -917,6 +962,13 @@ int main(int argc, char **argv)
             return 1;
         }
     }
+    if (ztimeline_path) {
+        zl_file = fopen(ztimeline_path, "w");
+        if (!zl_file) {
+            perror(ztimeline_path);
+            return 1;
+        }
+    }
     if (wav_path) {
         wav_file = fopen(wav_path, "wb");
         if (!wav_file) {
@@ -937,6 +989,8 @@ int main(int argc, char **argv)
         p_run();
         if (tl_file)
             timeline_frame(frame);
+        if (zl_file)
+            ztimeline_frame(frame);
         if (logf) {
             uint8_t *wram = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
             fprintf(logf, "%ld %04x %04x %04x %04x %08lx\n", frame, pads[0],
@@ -951,6 +1005,8 @@ int main(int argc, char **argv)
 
     if (tl_file)
         fclose(tl_file);
+    if (zl_file)
+        fclose(zl_file);
     if (cycles_path) {
         FILE *f = fopen(cycles_path, "w");
         size_t a;

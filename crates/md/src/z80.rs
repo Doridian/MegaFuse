@@ -10,6 +10,78 @@ pub trait Bus {
     fn write(&mut self, addr: u16, value: u8);
 }
 
+/// The cycles each instruction takes but for what depends on the data
+/// (a branch taken, a block instruction going round again), by prefix:
+/// what the Z80 spends before its accesses are made.
+struct Base {
+    main: [u8; 256],
+    cb: [u8; 256],
+    ed: [u8; 256],
+    dd: [u8; 256],
+    fd: [u8; 256],
+    ddcb: [u8; 256],
+    fdcb: [u8; 256],
+}
+
+/// 64 KB of scratch memory, for measuring.
+struct Scratch(Vec<u8>);
+
+impl Bus for Scratch {
+    fn read(&mut self, addr: u16) -> u8 {
+        self.0[usize::from(addr)]
+    }
+    fn write(&mut self, addr: u16, value: u8) {
+        self.0[usize::from(addr)] = value;
+    }
+}
+
+impl Base {
+    /// Each instruction run once on a scratch Z80, its conditions false
+    /// (the flags all clear, then all set; B and BC 1): the least it
+    /// took.
+    fn measure() -> Self {
+        let one = |code: &[u8]| -> u8 {
+            let mut least = u32::MAX;
+            for f in [0x00, 0xFF] {
+                for (b, c) in [(1, 0), (0, 1)] {
+                    let mut mem = Scratch(vec![0; 0x10000]);
+                    mem.0[..code.len()].copy_from_slice(code);
+                    let mut z = Z80::new();
+                    z.f = f;
+                    z.b = b;
+                    z.c = c;
+                    z.pc = 0;
+                    z.sp = 0x8000;
+                    least = least.min(z.step(&mut mem));
+                }
+            }
+            least as u8
+        };
+        let mut t = Base {
+            main: [0; 256],
+            cb: [0; 256],
+            ed: [0; 256],
+            dd: [0; 256],
+            fd: [0; 256],
+            ddcb: [0; 256],
+            fdcb: [0; 256],
+        };
+        for op in 0..=255u8 {
+            let k = usize::from(op);
+            t.main[k] = one(&[op]);
+            t.cb[k] = one(&[0xCB, op]);
+            t.ed[k] = one(&[0xED, op]);
+            t.dd[k] = one(&[0xDD, op]);
+            t.fd[k] = one(&[0xFD, op]);
+            t.ddcb[k] = one(&[0xDD, 0xCB, 0, op]);
+            t.fdcb[k] = one(&[0xFD, 0xCB, 0, op]);
+        }
+        t
+    }
+}
+
+static BASE: std::sync::OnceLock<Base> = std::sync::OnceLock::new();
+
 const C: u8 = 0x01;
 const N: u8 = 0x02;
 const PV: u8 = 0x04;
@@ -465,6 +537,40 @@ impl Z80 {
     // --- execution -------------------------------------------------------------
 
     /// One instruction; returns its cycles.
+    /// The base time (cycles) of the instruction at PC: what it takes
+    /// but for a branch taken or a block instruction going round again.
+    pub fn base_cycles(&self, bus: &mut dyn Bus) -> u32 {
+        if self.halted {
+            return 4;
+        }
+        let t = BASE.get_or_init(Base::measure);
+        let at = |k: u16| self.pc.wrapping_add(k);
+        let op = bus.read(at(0));
+        u32::from(match op {
+            0xCB => t.cb[usize::from(bus.read(at(1)))],
+            0xED => t.ed[usize::from(bus.read(at(1)))],
+            0xDD | 0xFD => {
+                let op2 = bus.read(at(1));
+                let ix = op == 0xDD;
+                if op2 == 0xCB {
+                    let op4 = usize::from(bus.read(at(3)));
+                    if ix { t.ddcb[op4] } else { t.fdcb[op4] }
+                } else if ix {
+                    t.dd[usize::from(op2)]
+                } else {
+                    t.fd[usize::from(op2)]
+                }
+            }
+            _ => t.main[usize::from(op)],
+        })
+    }
+
+    /// Will an interrupt be taken now (enabled, not just after EI)?
+    #[must_use]
+    pub fn takes_interrupt(&self) -> bool {
+        self.iff1 && !self.ei_delay
+    }
+
     pub fn step(&mut self, bus: &mut dyn Bus) -> u32 {
         self.ei_delay = false;
         if self.halted {
