@@ -46,10 +46,12 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   through the passwords (docs/LAYOUT.md, "Runtime traces"). The evidence
   is `code.<v>.txt`/`data.<v>.txt`, and the trace wins over speculation.
   The ending is covered with RAM writes in the script (`ending`); the
-  continue and game-over screens come up in random play, and every
-  normal stage's exit, bonus stage and next card with RAM writes too
-  (`exit-*`, the plans found by `tools/find_exits.py`). Still to cover:
-  the bosses' defeats, the options a password can't reach. A human
+  continue and game-over screens come up in random play, and with RAM
+  writes too every stage's exit, bonus stage and next card, every boss's
+  defeat and the next area's intro (`exit-*`, the plans found by
+  `tools/find_exits.py`), every item kind (`items`) and every battle
+  arena (`arena-*`). Still to cover: the options a password can't
+  reach, and what `tools/coverage.py` lists as never run. A human
   playthrough recorded as a pad script would do, at the end (BizHawk's
   Mega Drive core is Genesis Plus GX too, so its `.bk2` input logs should
   play back in mdtrace).

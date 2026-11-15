@@ -185,6 +185,11 @@ LIMITS = {
 }
 
 
+def teamplayer(path):
+    """Does the script play with the Team Player (`# teamplayer`)?"""
+    return '# teamplayer\n' in open(path).read()
+
+
 def script_compare(path):
     """The frame a script is compared up to, its `# compare N` line
     (tools/gen_inputs.py: an area's last stage's exit goes on into the
@@ -276,7 +281,7 @@ def main():
 
     def one(name):
         script = os.path.join(TOP, 'tools/inputs', name + '.txt')
-        tp = name == 'battle4'
+        tp = teamplayer(script)
         frames = max(a.frames, script_frames(script))
         for which, rom in (('orig', orig), ('shift', shift)):
             run(rom, script, frames, a.every,
@@ -308,7 +313,7 @@ def main():
             for which, rom in (('orig', orig), ('shift', shift)):
                 run(rom, script, f, 1,
                     os.path.join(tmp, '%s-1-%s-' % (name, which)),
-                    name == 'battle4')
+                    teamplayer(script))
             for g in range(max(1, lo), f + 1):
                 png, bad = compare(tmp, name + '-1', g, amap)
                 if bad or not png:
@@ -341,7 +346,7 @@ def pcs_diff(a, amap, tmp, name, frame):
                str(frame + 1), '--input', script, '--pcs', out,
                '--pcs-frames', '%d:%d' % (max(0, frame - 1), frame + 1),
                rom]
-        if name == 'battle4':
+        if teamplayer(script):
             cmd.insert(1, '--teamplayer')
         subprocess.run(cmd, check=True, cwd=TOP)
         logs.append(out)

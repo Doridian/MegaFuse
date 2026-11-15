@@ -54,10 +54,11 @@ def press_pair(ev, f, pad):
     press(ev, f + 12, pad, 'S', 4)
 
 
-def write(name, ev, comment, frames=None, compare=None):
+def write(name, ev, comment, frames=None, compare=None, teamplayer=False):
     """frames: how long the script runs (a `# frames N` line, which
     tools/trace_all.sh and tools/shift_check.py read); compare: the frame
-    tools/shift_check.py compares up to (`# compare N`)."""
+    tools/shift_check.py compares up to (`# compare N`); teamplayer: run
+    with Sega's Team Player (`# teamplayer`)."""
     ev.sort(key=lambda e: (e[0], e[1]))
     with open(os.path.join(HERE, name), 'w') as f:
         for line in comment.strip().split('\n'):
@@ -67,6 +68,8 @@ def write(name, ev, comment, frames=None, compare=None):
             f.write('# frames %d\n' % frames)
         if compare:
             f.write('# compare %d\n' % compare)
+        if teamplayer:
+            f.write('# teamplayer\n')
         last = {}
         for frame, pad, b in ev:
             if not pad:
@@ -98,6 +101,15 @@ then, and a pair of Starts every 1500 frames for the screens that wait.''')
 
 
 def battle(name, seed, pads, teamplayer):
+    write(name, battle_events(seed, pads), '''
+Battle game from power-on%s: the title menu's BATTLE GAME, then cycles of
+setup presses (C and Start in turn, a direction now and then) and random
+play on pads %s (C is the bomb).''' % (
+        ' with the Team Player' if teamplayer else '',
+        ', '.join(map(str, pads))), teamplayer=teamplayer)
+
+
+def battle_events(seed, pads):
     rng = random.Random(seed)
     ev = list(TITLE)
     press(ev, 3300, 1, 'D', 6)        # BATTLE GAME
@@ -117,12 +129,29 @@ def battle(name, seed, pads, teamplayer):
         f += 20 * 45
         play(ev, rng, f, min(f + 2400, end), pads=pads)
         f += 2400
-    write(name, ev, '''
-Battle game from power-on%s: the title menu's BATTLE GAME, then cycles of
-setup presses (C and Start in turn, a direction now and then) and random
-play on pads %s (C is the bomb).''' % (
-        ' with the Team Player' if teamplayer else '',
-        ', '.join(map(str, pads))))
+    return ev
+
+
+# battle arenas (0x953A, the record of D_00A04A it plays on) the battle
+# scripts' setup presses never pick: (arena, base script, the frame its
+# first stage select has set 0x953A).  6 isn't one (its record shows
+# garbage), 7 and 12 only come up with four players.
+ARENAS = [(0, 2, 6500), (1, 2, 6500), (2, 2, 6500), (3, 2, 6500),
+          (5, 2, 6500), (9, 2, 6500), (12, 4, 4370)]
+
+
+def arenas():
+    for arena, players, f in ARENAS:
+        if players == 2:
+            ev = battle_events(2, (1, 2))
+        else:
+            ev = battle_events(4, (1, 2, 3, 4))
+        poke(ev, f, 0xFF953A, arena)
+        write('arena-%02d.txt' % arena, ev, '''
+Battle arena %d, which the battle scripts' setup never picks: battle%s.txt
+with 0x953A written after its first stage select; 9000 frames.''' % (
+            arena, '4' if players == 4 else ''), 9000,
+            teamplayer=players == 4)
 
 
 def password():
@@ -275,6 +304,15 @@ def exit_events(code, plan):
         elif step['do'] == 'kill':
             for s in range(1, 20):
                 energy(ev, f, s, 0)
+            if step.get('hits'):
+                energy(ev, f, 0, 0x7F)    # the player: 0x7F hits
+        elif step['do'] == 'blast':
+            # an explosion (cell value 3, func_006E82) in each one's cell,
+            # energy 1, not flashing (+0x12): the next hit is the last
+            for s, cell in step['hits']:
+                energy(ev, f, s, 1)
+                poke(ev, f, SLOT + 0x40 * s + 0x12, 0)
+                poke(ev, f, 0xFF0000 | cell, 3)
         elif step['do'] == 'walk':
             poke(ev, f, 0xFF0000 | step['floor'], 6)
             poke(ev, f, SLOT + 0x18, step['x'], 4)
@@ -292,14 +330,52 @@ def exits():
         # an area's last stage goes on into the boss stage, whose palette
         # cycle reads its colours from code (func_00AA52, some 325 frames
         # after the stage ends): a SHIFT build is compared up to there
+        # a boss's palette cycle starts as it comes in: up to 4800, as
+        # tools/shift_check.py's LIMITS for the stage-*-boss scripts
         nxt = names[names.index(name) + 1]
         compare = e['end'] - 1500 + 300 if 'boss' in nxt else None
-        write('exit-%s.txt' % name, exit_events(e['code'], e['plan']), '''
+        ev = exit_events(e['code'], e['plan'])
+        end = e['end']
+        if 'boss' in name:
+            compare = 4800
+            # Start on the next area's map: its intro (D_0179CE)
+            press_pair(ev, end - 300, 1)
+            end += 1500
+        write('exit-%s.txt' % name, ev, '''
 Normal game from password %s (%s) to the stage's exit, with RAM writes
 as tools/find_exits.py found them: in each room the enemies and targets
-at energy 0, then the player next to the open gate, walking in; then the
-bonus stage and the next stage's card.  us's timings.''' % (
-            e['code'], name), e['end'], compare)
+at energy 0, then the player next to the open gate, walking in, and the
+bonus stage and the next stage's card; or the boss and what it brings at
+energy 0, explosions on what that doesn't take down, and the next area's
+map and intro.  us's timings.''' % (
+            e['code'], name), end, compare)
+
+
+def items():
+    """Every item kind picked up once (random play finds a few): stage
+    1-1 with its room cleared (tools/find_exits.py's plan), then items in
+    the top row, on both sides of the player.  An item is a grid cell of
+    5 and an entry in the list at 0xFFAC00 (30 of 4 bytes: kind, 0, the
+    cell's column and row; func_0066BE), its kind indexing D_0069B2."""
+    import json
+    if not os.path.exists(EXITS):
+        return
+    plan = json.load(open(EXITS))['1-1']['plan']
+    kill = [st for st in plan if st['do'] == 'kill'][0]['frame']
+    ev = exit_events('2200', [st for st in plan if st['do'] != 'walk'])
+    # the player starts at column 3 of row 1 (16 bytes a row here)
+    for f, kinds, cols, d in ((kill + 200, range(1, 10), range(4, 13), 'R'),
+                              (kill + 500, range(10, 15), range(12, 7, -1),
+                               'L')):
+        for k, (kind, c) in enumerate(zip(kinds, cols)):
+            poke(ev, f, 0xFF989C + 16 + c, 5)
+            poke(ev, f, 0xFFAC00 + 4 * k, kind << 24 | c << 8 | 1, 8)
+        press(ev, f + 10, 1, d, 250)
+    write('items.txt', ev, '''
+Every item kind once: stage 1-1 from its password, its room cleared,
+then items 1-9 in the top row to the right of the player and 10-14 on
+the way back, written as an item (grid cell 5) and an entry in the list
+at 0xFFAC00.  us's timings.''', kill + 1200)
 
 
 def idle():
@@ -317,6 +393,8 @@ def main():
     stages()
     ending()
     exits()
+    items()
+    arenas()
     idle()
 
 

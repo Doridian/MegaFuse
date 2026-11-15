@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Find, by running the game, how to take each normal stage to its exit
-with RAM writes, and write the plans to tools/exits.json (read by
+"""Find, by running the game, how to take each stage to its exit (a boss
+to its defeat) with RAM writes, and write the plans to tools/exits.json (read by
 tools/gen_inputs.py, which turns them into tools/inputs/exit-*.txt).
 
     tools/find_exits.py [STAGE...]     (us; every stage but the bosses and
@@ -26,6 +26,9 @@ work RAM between runs (every run starts from power-on: they repeat):
     row[y >> 4] + (x >> 4), the rows' offsets being the longs at 0xFFA31A
     (func_001652): 16 or 32 bytes a row, as wide as the stage;
   - the player is put next to it, on a cell made floor (6), walking in;
+  - a boss fight (0x9540 = 0x80; a boss stage has no card) gets energy 0
+    for slots 1-19 and 0x7F hits for the player, then what is still
+    there an explosion in its cell (grid value 3) every BOSS_EVERY frames;
   - until the stage (0x953C-0x953D, as in play) moves on, then 1500
     frames more: the bonus stage and the next stage's card.
 
@@ -46,6 +49,7 @@ import gen_inputs as g  # noqa: E402
 
 OUT = os.path.join(TOP, 'tools', 'exits.json')
 EVERY = 10                  # frames between RAM dumps
+BOSS_TRIES, BOSS_EVERY = 12, 300
 WAIT = 2000                 # frames after the energy writes the gate may
                             # take to open (polled every 50)
 
@@ -82,6 +86,8 @@ def state(r):
         return 'card'
     if not r[0x9540] & 0xD0 and r[0xA432] == 1:
         return 'play'             # (bit 4: the bonus stage after a gate)
+    if r[0x9540] == 0x80 and r[0xA432] == 1:
+        return 'boss'
     return 'other'
 
 
@@ -151,6 +157,21 @@ def walk_into(before, r):
     return None
 
 
+def live(r):
+    """[(slot, cell)] for the objects in slots 1-19 still there: the
+    grid cell (an address) at each one's position."""
+    rows, stride = geometry(r)
+    out = []
+    for k in range(1, 20):
+        b = 0xA432 + 0x40 * k
+        if not r[b]:
+            continue
+        x, y = struct.unpack('>HH', r[b + 0x18:b + 0x1C])
+        if (y >> 4) < len(rows):
+            out.append((k, GRID0 + rows[y >> 4] + (x >> 4)))
+    return out
+
+
 def solve(name, code, limit=40000):
     plan = []
     f = 4500
@@ -167,7 +188,9 @@ def solve(name, code, limit=40000):
                     print('%s: cleared at %d (%d rooms)' % (name, t, rooms))
                     return plan, t
                 st = state(r)
-                if st == 'card':
+                if st == 'card' and 'boss' not in name:
+                    # (a boss stage has no card: 0xC0 is the boss coming
+                    # in, and Start would pause it)
                     # it takes Start some 100 frames after it shows
                     nxt = dict(do='start', frame=t + 120)
                     break
@@ -177,6 +200,11 @@ def solve(name, code, limit=40000):
                     # a screen waiting for Start (the area map)
                     nxt = dict(do='start', frame=t + 10)
                     break
+                if st == 'boss' and state(run.ram(t - 30)) == 'boss':
+                    if key is None:
+                        key = r[0x953C:0x953E]
+                    nxt = 'boss'
+                    break
                 if st == 'play' and state(run.ram(t - 30)) == 'play':
                     if key is None:
                         key = r[0x953C:0x953E]
@@ -185,7 +213,9 @@ def solve(name, code, limit=40000):
             if nxt is None:
                 print('%s: stuck after %d' % (name, f))
                 return plan, None
-            if nxt != 'play':
+            if nxt == 'boss':
+                pass
+            elif nxt != 'play':
                 starts += 1
                 if starts > 5:
                     # Start leads nowhere (a boss stage pauses on it)
@@ -197,6 +227,30 @@ def solve(name, code, limit=40000):
         finally:
             run.done()
         starts = 0
+        if nxt == 'boss':
+            # the boss and whatever it brings: energy 0 and the player
+            # 0x7F hits; what that doesn't take down (it dies of a hit:
+            # 1-boss's monkey) gets an explosion in its cell, as
+            # tools/gen_inputs.py's ending does, again until it's down
+            plan.append(dict(do='kill', frame=t, hits=1))
+            u = t
+            for k in range(BOSS_TRIES):
+                run = Run(code, plan, u + BOSS_EVERY + 10)
+                try:
+                    for v in range(u, run.frames - 10, EVERY):
+                        r = run.ram(v)
+                        if r[0x953C:0x953E] != key:
+                            print('%s: boss down at %d' % (name, v))
+                            return plan, v
+                    u = run.frames - 10 - (run.frames - 10) % EVERY
+                    blast = live(run.ram(u))
+                finally:
+                    run.done()
+                if not blast:
+                    continue        # all down: the stage takes a while
+                plan.append(dict(do='blast', frame=u + 1, hits=blast))
+            print('%s: boss still up at %d' % (name, u))
+            return plan, None
         # in play at t: kill, then look for the gate as it opens
         plan.append(dict(do='kill', frame=t))
         run = Run(code, plan, t + WAIT + 10)
@@ -229,7 +283,7 @@ def main():
     names = sys.argv[1:]
     plans = json.load(open(OUT)) if os.path.exists(OUT) else {}
     for name, code in g.PASSWORDS:
-        if 'boss' in name or name == 'final' or (
+        if name == 'final' or (
                 names and name not in names):
             continue
         plan, end = solve(name, code)

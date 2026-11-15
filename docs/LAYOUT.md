@@ -155,7 +155,7 @@ off pointers like that. `tools/disasm.py` adds, in this order:
    traces (below), not edited.
 
 The result in us: 1,634 functions (counting entries only pointers name),
-110 KB of code, of which the traces ran 22,138 instructions (82%); every instruction that ran is in the
+110 KB of code, of which the traces ran 23,534 instructions (88%); every instruction that ran is in the
 disassembly, and nothing the disassembly calls code was read as data
 except the block below. What is left of the code area is mostly tables:
 pointer tables, palettes, sine and step tables, text.
@@ -308,9 +308,9 @@ script). Only numbers are written, never ROM addresses, so the SHIFT build
 runs it too. The
 continue and game-over screens come up in random play already.
 
-`exit-*`: every normal stage (not the bosses, not the final area) from
-its password to its exit, the bonus stage after it and the next stage's
-card. `tools/find_exits.py` worked the plans out by running the game a
+`exit-*`: every stage but the final area from its password to its exit,
+the bonus stage after it and the next stage's card; for a boss, the next
+area's map and intro. `tools/find_exits.py` worked the plans out by running the game a
 step at a time and reading work RAM between runs (`tools/exits.json`,
 which `tools/gen_inputs.py` turns into the scripts): Start on the screens
 that wait (the stage card takes it some 100 frames after it shows), then
@@ -322,10 +322,26 @@ exit) or a door that `func_00C822` writes into the grid as 4 (into the
 next room; most stages have two to four). The grid: a position `(x, y)`
 is in the cell at `0xFF989C + row[y >> 4] + (x >> 4)`, the rows' offsets
 being the longs at `0xFFA31A` (`func_001652`), 16 or 32 bytes a row. The
-bonus stage sets `0x9540` bit 4. A script's `# frames N` line sets how
-long it runs, `# compare N` how far tools/shift_check.py compares it: an
-area's last stage goes on into the boss stage, whose palette cycle reads
-its colours from code (below).
+bonus stage sets `0x9540` bit 4. A boss fight is `0x9540` = 0x80 (no
+card: 0xC0 is the boss coming in, and Start pauses it): energy 0 for
+slots 1-19 and 0x7F hits for the player, and what that doesn't take down
+(1-boss's monkey dies of a hit) an explosion in its cell (grid value 3),
+as the ending does, until the stage moves on.
+
+`items`: every item kind picked up once, in stage 1-1 cleared by its
+plan. An item is a grid cell of 5 and an entry in the list at `0xFFAC00`
+(30 of 4 bytes: kind, 0, the cell's column and row; `func_0066BE`), its
+kind indexing `D_0069B2`; random play only ever found 5 of the 15.
+
+`arena-*`: the battle arenas the battle scripts' setup never picks.
+`0x953A` is the arena (the record of `D_00A04A` it plays on); written
+after a script's first stage select it plays that arena: 0-5 and 8-11
+with two players, 7 and 12 with four (black with two); 6 shows garbage.
+
+A script's `# frames N` line sets how long it runs, `# compare N` how far
+tools/shift_check.py compares it (an area's last stage goes on into the
+boss stage, whose palette cycle reads its colours from code, below), and
+`# teamplayer` plugs in the Team Player.
 `tools/trace_all.sh <v>` runs them all (about half a
 minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
 `data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`

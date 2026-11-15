@@ -22,7 +22,7 @@ for f in tools/inputs/*.txt; do
     own=$(sed -n 's/^# frames //p' "$f" | head -1)
     [ -n "$own" ] && frames=${FRAMES:-$own}
     tp=
-    case $n in battle4) tp=--teamplayer ;; esac
+    grep -q '^# teamplayer' "$f" && tp=--teamplayer
     nice -n 10 tools/mdtrace $tp --frames "$frames" --input "$f" $IGNORE \
         --cover "$OUT/$n.cov" --shot "$OUT/$n-" --shot-every 3000 \
         "baserom.$V.bin" &
