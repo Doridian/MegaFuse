@@ -1,14 +1,18 @@
-//! MegaFuse, for now headless: runs the translated game on a ROM with a
-//! pad script (tools/mdtrace's format) and writes RAM dumps and
-//! screenshots, so it can be compared with the original running in
-//! Genesis Plus GX (tools/port_check.py).
+//! MegaFuse: the translated game on a ROM.  `megafuse ROM` plays it in a
+//! window (window.rs: arrows, Z X C, Enter; F11 full screen).  With
+//! --frames it runs headless instead: a pad script (tools/mdtrace's
+//! format), RAM dumps, screenshots, hashes, timelines, so it can be
+//! compared with the original running in Genesis Plus GX
+//! (tools/port_check.py, tools/timeline_check.py).
 //!
+//!   megafuse ROM
 //!   megafuse ROM [--input FILE] [--frames N] [--every N]
 //!                [--ram PREFIX] [--shot PREFIX] [--wav FILE]
 //!                [--timeline FILE] [--ztimeline FILE] [--timeline-at F]
 //!                [--hashes FILE] [--vram PREFIX]
 
 mod png;
+mod window;
 
 use md::{Frontend, Md, button};
 use std::collections::BTreeMap;
@@ -236,6 +240,7 @@ fn main() {
     let mut timeline = None;
     let mut timeline_at = None;
     let mut ztimeline = None;
+    let mut headless = false;
     let mut h = Headless {
         script: Script { pads: BTreeMap::new(), pokes: BTreeMap::new() },
         frames: 3600,
@@ -259,7 +264,10 @@ fn main() {
         };
         match a {
             "--input" => input = Some(next(&mut i)),
-            "--frames" => h.frames = next(&mut i).parse().unwrap_or(3600),
+            "--frames" => {
+                h.frames = next(&mut i).parse().unwrap_or(3600);
+                headless = true;
+            }
             "--every" => h.every = next(&mut i).parse().unwrap_or(600),
             "--ram" => h.ram_prefix = Some(next(&mut i)),
             "--shot" => h.shot_prefix = Some(next(&mut i)),
@@ -288,6 +296,9 @@ fn main() {
         eprintln!("{rom_path}: {e}");
         std::process::exit(1)
     });
+    if !headless {
+        window::play(rom);
+    }
     if let Some(p) = input {
         let text = std::fs::read_to_string(&p).unwrap_or_default();
         h.script = parse_script(&text);

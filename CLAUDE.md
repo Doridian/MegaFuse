@@ -32,6 +32,7 @@ tools/sound_check.py [SCRIPT] # the same for the sound (uv, numpy)
 tools/timeline_check.py [SCRIPT] # the port's time against the original's, to the instruction
 tools/timing_check.py        # tools/recomp/timing.py against mdtrace --cycles
 make port                    # tools/recomp/translate.py: crates/game/src/translated
+cargo run --release -p megafuse -- baserom.us.bin   # play (docs/PORT.md)
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`

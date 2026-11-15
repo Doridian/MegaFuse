@@ -13,6 +13,16 @@ The translated Rust is generated from the ROM, like `asm/`, so it is not
 in the repository: `make port` makes it. The hand-written parts (the Mega
 Drive hardware the game drives, the platform) are.
 
+## Playing it
+
+`cargo run --release -p megafuse -- baserom.us.bin` plays the game in a
+window (`crates/platform`: winit, wgpu, cpal, as VacationDestination's):
+the arrows, Z X C (A B C) and Enter (Start) are pad 1, W A S D, F G H and
+Tab pad 2; F11 for full screen. The translated game runs on a thread of
+its own (it never returns; frames pass as it runs) at the console's pace,
+a frame every 16.69 ms, and hands the window each picture and its sound.
+Headless (`--frames N`) it runs some 1100 frames a second.
+
 ## Translation
 
 `tools/recomp/` works on tools/disasm.py's analysis, in passes:
