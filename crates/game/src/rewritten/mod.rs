@@ -5,4 +5,7 @@
 //! `translated/rewritten.txt`), and is checked against the original call
 //! by call (tools/routine_check.py).
 
+mod frame;
+mod vdp;
+mod z80;
 mod lookup;

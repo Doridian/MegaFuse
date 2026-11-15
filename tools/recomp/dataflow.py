@@ -18,7 +18,9 @@ signature, so a call through a pointer can go to any of them: IN and OUT
 the unions over them.  Interrupt handlers and the reset routine take
 nothing and give nothing back.
 """
-from recomp.lower import REGS, FLAGS
+import re
+
+from recomp.lower import REGS, FLAGS, X
 
 RES = frozenset(REGS + FLAGS)
 
@@ -53,6 +55,167 @@ def op_uses_defs(op, sig):
     raise ValueError(k)
 
 
+# Data registers by lanes, inside the liveness: bits 0-7 (.b), 8-15 (.w)
+# and 16-31 (.h), so a byte or word written and read again doesn't make
+# the rest of the register live (a routine that sets d1's low word and
+# passes it on doesn't take d1).  Signatures stay whole registers.
+DATA = frozenset('d%d' % k for k in range(8))
+ALL_LANES = ('.b', '.w', '.h')
+
+
+def laned(n):
+    """Kept by lanes: a data register or a temporary (t<k>)."""
+    return n in DATA or (n[:1] == 't' and n[1:].isdigit())
+
+
+def lanes(names):
+    out = set()
+    for n in names:
+        if laned(n):
+            out.update(n + x for x in ALL_LANES)
+        else:
+            out.add(n)
+    return out
+
+
+def whole(names):
+    return set(n[:-2] if n[-2:] in ALL_LANES and laned(n[:-2]) else n
+               for n in names)
+
+
+RES_L = frozenset(lanes(RES))
+
+# how lower.py spells a part of a data register, by what follows `(dN`
+PARTS = [(' as u8)', ('.b',)), (' as u16', ('.b', '.w')),
+         (' as i8', ('.b',)), (' as i16', ('.b', '.w')),
+         (' & 0xFFFF_FF00)', ('.w', '.h')), (' & 0xFFFF_0000)', ('.h',)),
+         (' & 63)', ('.b',)), (' & 7)', ('.b',)), (' & 0xFF_u32)', ('.b',)),
+         (' & 0xFF00_u32)', ('.w',))]
+
+
+MASKED = re.compile(r' as u(?:8|16)\) & (0x[0-9A-F_]+|\d+)_u(?:8|16)\)')
+
+
+MASK = re.compile(r' & (0x[0-9A-F_]+|\d+)_u(?:8|16|32)\)')
+
+
+def mask_lanes(k):
+    v = int(k.replace('_', ''), 0)
+    return tuple(x for x, bits in (('.b', 0xFF), ('.w', 0xFF00),
+                                   ('.h', 0xFFFF0000)) if v & bits) or ('.b',)
+
+
+# a set that copies one name, maybe narrowed, widened or masked: lane k of
+# the result from lane k of the source alone
+COPY = re.compile(r'^(?:\((?P<a>\w+) as u(?:8|16|32)\)|(?P<b>[a-z]\w*)|'
+                  r'u(?:16|32)::from\((?P<c>\w+)\)|'
+                  r'\((?P<d>\w+) (?P<op>[&|^]) (?P<k>0x[0-9A-F_]+|\d+)_u(?:8|16|32)\))$')
+
+
+def expr_uses(x):
+    """What expression x reads, data registers by lanes."""
+    out = set()
+    for n in x.uses:
+        if not laned(n):
+            out.add(n)
+            continue
+        t = x.t
+        k = t.find(n)
+        while k >= 0:
+            end = k + len(n)
+            if (k == 0 or not (t[k - 1].isalnum() or t[k - 1] == '_')) and \
+                    (end == len(t) or not (t[end].isalnum() or t[end] == '_')):
+                part = None
+                if k > 0 and t[k - 1] == '(':
+                    for tail, ls in PARTS:
+                        if t.startswith(tail, end):
+                            part = ls
+                            break
+                    m = MASK.match(t, end)
+                    if m:
+                        part = mask_lanes(m.group(1))
+                    # and a constant mask on it: only the lanes it keeps
+                    m = MASKED.match(t, end)
+                    if m and k > 1 and t[k - 2] == '(':
+                        v = int(m.group(1).replace('_', ''), 0)
+                        part = tuple(x for x, bits in (('.b', 0xFF),
+                                                       ('.w', 0xFF00))
+                                     if v & bits) or ('.b',)
+                out.update(n + x for x in (part or ALL_LANES))
+            k = t.find(n, end)
+    return out
+
+
+def set_defs(op):
+    """The lanes a statement setting a local writes."""
+    n, t = op[1], op[2].t
+    if not laned(n):
+        return {n}
+    if n not in DATA:
+        return lanes({n})
+    if t.startswith('(%s & 0xFFFF_FF00) | ' % n):
+        return {n + '.b'}
+    if t.startswith('(%s & 0xFFFF_0000) | ' % n):
+        return {n + '.b', n + '.w'}
+    return lanes({n})
+
+
+def lane_uses_defs(op, sig, live=None):
+    """op_uses_defs by lanes (live: what is live after it)."""
+    k = op[0]
+    if k == 'set':
+        d = set_defs(op)
+        n = op[1]
+        if live is not None and n in DATA and \
+                re.match(r'\(%s [|&^] (\(1 << \w+\)|!\(1 << \w+\)|0x[0-9A-F_]+'
+                         r'_u32|\d+_u32)\)$' % n, op[2].t):
+            # a bit operation with a constant: each lane from its own
+            return {x for x in d if x in live}, d
+        m = COPY.match(op[2].t) if live is not None and laned(n) else None
+        if m and len(d) == 3:
+            src = m.group('a') or m.group('b') or m.group('c') or m.group('d')
+            if laned(src):
+                want = {x[-2:] for x in d if x in live}
+                if m.group('op') == '&':
+                    want &= set(mask_lanes(m.group('k')))
+                if m.group('a'):
+                    # narrowed: the lanes the type has
+                    t = op[2].t
+                    if t.endswith('as u8)'):
+                        want &= {'.b'}
+                    elif t.endswith('as u16)'):
+                        want &= {'.b', '.w'}
+                return {src + x for x in want}, d
+        if live is not None and n in DATA and len(d) < 3:
+            # a byte or word written: the rest kept, read only if live
+            head = '(%s & 0xFFFF_%s) | ' % (n, 'FF00' if len(d) == 1
+                                             else '0000')
+            rest = X(op[2].t[len(head):], op[2].ty, op[2].uses)
+            kept = lanes({n}) - d
+            return expr_uses(rest) | (kept & live), d
+        return expr_uses(op[2]), d
+    if k == 'store':
+        return expr_uses(op[2]) | expr_uses(op[3]), set()
+    if k == 'eff':
+        return expr_uses(op[1]), set()
+    if k == 'call':
+        i, o = sig(op[1])
+        return lanes(i), lanes(o)
+    if k in ('callx', 'calltable'):
+        i, o = sig(('site', op[-1]))
+        return lanes(i) | expr_uses(op[1]), lanes(o)
+    raise ValueError(k)
+
+
+def lane_dead_set(op, live):
+    """dead_set (slots=False) by lanes."""
+    if op[0] != 'set' or op[2].eff:
+        return False
+    if is_slot(op[1]) or op[1].startswith(('arg', 'ret')):
+        return False
+    return not (set_defs(op) & live)
+
+
 class Flow:
     def __init__(self, prog, fams):
         """fams: [(sites, members)] (families.py)."""
@@ -77,10 +240,10 @@ class Flow:
         if isinstance(e, tuple):           # a call through a pointer
             k = self.fam_of_site.get(e[1])
             if k is None:
-                return set(RES), set(RES)
+                return set(RES_L), set(RES_L)
             return self.fam_in[k], self.fam_out[k]
         if e is None or e not in self.p.routines:
-            return set(RES), set(RES)
+            return set(RES_L), set(RES_L)
         return self.IN[e], self.OUT[e]
 
     def fam_members(self, site):
@@ -98,7 +261,7 @@ class Flow:
                 for ops in r.ops.values():
                     for op in ops:
                         if op[0] == 'set':
-                            m |= {op[1]} & RES
+                            m |= set_defs(op) & RES_L
                         elif op[0] == 'call':
                             m |= self.MOD.get(op[1], set())
                         elif op[0] in ('callx', 'calltable'):
@@ -110,7 +273,7 @@ class Flow:
                             m |= self.MOD[x]
                     else:
                         m |= self.MOD.get(t, set())
-                m -= r.preserved
+                m -= lanes(r.preserved)
                 if not m <= self.MOD[e]:
                     self.MOD[e] |= m
                     changed = True
@@ -140,47 +303,53 @@ class Flow:
     # --- liveness -------------------------------------------------------
 
     def live_in(self, r, need):
-        """Liveness over r's blocks with OUT(r) live at its returns:
-        (live at the entry, {call site index: live after the call},
-        what r's tail calls hand back that must be live)."""
-        d = self.p.d
+        """Liveness over r's blocks with OUT(r) live at its returns (data
+        registers by lanes inside, whole outside): (live at the entry,
+        {call site index: live after the call})."""
         live_at = {s: set() for s in r.blocks}
         after_call = {}
+        out_r = lanes(self.OUT[r.entry])
         changed = True
         while changed:
             changed = False
             for start in sorted(r.blocks, reverse=True):
                 b = r.blocks[start]
-                live = self.block_out(r, start, b, live_at)
+                live = self.block_out(r, start, b, live_at, out_r)
                 ops = r.ops[start]
                 for k in range(len(ops) - 1, -1, -1):
                     op = ops[k]
                     if op[0] in ('call', 'callx', 'calltable'):
                         callee = op[1] if op[0] == 'call' else \
                             ('site', op[-1])
-                        prev = after_call.get((start, k), set())
                         a = set(live)
                         unw = self.p.routines.get(callee) \
                             if not isinstance(callee, tuple) else None
                         if unw is not None and unw.unwind is not False:
-                            a |= self.OUT[r.entry]   # it may return for r
-                        if a != prev:
-                            after_call[(start, k)] = a
-                    if dead_set(op, live, slots=False):
+                            a |= out_r   # it may return for r
+                        after_call[(start, k)] = a
+                    if lane_dead_set(op, live):
                         continue
-                    u, df = op_uses_defs(op, self.sig)
+                    u, df = lane_uses_defs(op, self.sig, live)
                     if op[0] == 'call':
                         unw = self.p.routines.get(op[1])
                         if unw is not None and unw.unwind is not False:
-                            live |= self.OUT[r.entry]
+                            live |= out_r
                     live = (live - df) | u
                 if live != live_at[start]:
                     live_at[start] = live
                     changed = True
-        return live_at[r.entry] & RES, after_call
+        return live_at[r.entry] & RES_L, after_call
 
-    def block_out(self, r, start, b, live_at):
-        """What is live where block b leaves."""
+    def block_out(self, r, start, b, live_at, out_r=None):
+        """What is live where block b leaves (by lanes)."""
+        if out_r is None:
+            out_r = lanes(self.OUT[r.entry])
+
+        def tail(callee):
+            # what it takes, and what r gives back that it doesn't set
+            # (passed through it)
+            i, o = self.sig(callee)
+            return lanes(i) | (out_r - lanes(o))
         t = r.term.get(start)
         out = set()
         for s, _ in b.succs:
@@ -188,24 +357,19 @@ class Flow:
         if t is None:
             if b.kind == 'exit':          # falls into another routine
                 last = b.insns[-1]
-                nxt = last + self.p.d.insns[last].size
-                i, _ = self.sig(nxt)
-                out |= set(i) | self.OUT[r.entry]
+                out |= tail(last + self.p.d.insns[last].size)
             return out
         k = t[0]
         if k == 'cond':
-            out |= set(t[1].uses)
+            out |= expr_uses(t[1])
             if t[2] not in r.blocks:          # a tail call
-                i, _ = self.sig(t[2])
-                out |= set(i) | self.OUT[r.entry]
+                out |= tail(t[2])
         elif k == 'jump' and t[1] not in r.blocks:
-            i, _ = self.sig(t[1])
-            out |= set(i) | self.OUT[r.entry]
+            out |= tail(t[1])
         elif k in ('jumpx', 'table'):
-            i, _ = self.sig(('site', b.insns[-1]))
-            out |= set(t[1].uses) | set(i) | self.OUT[r.entry]
+            out |= expr_uses(t[1]) | tail(('site', b.insns[-1]))
         elif k == 'ret':
-            out |= self.OUT[r.entry]
+            out |= out_r
         return out
 
     # --- the fixpoint ----------------------------------------------------
@@ -219,11 +383,20 @@ class Flow:
         # Growing from nothing over-reaches: early on a callee gives back
         # nothing, so what it would set looks live through the call, and
         # what got into IN that way stays.  So again from what the callers
-        # now read (OUT as it is called for, IN from nothing), until it
-        # holds; each pass ends where every caller gets what it reads.
-        for _ in range(20):
-            before = (dict((e, frozenset(v)) for e, v in self.IN.items()),
-                      dict((e, frozenset(v)) for e, v in self.OUT.items()))
+        # now read (OUT as it is called for, IN from nothing): each pass
+        # ends where every caller gets what it reads (sound); the
+        # smallest is kept.
+        def state():
+            return ({e: set(v) for e, v in self.IN.items()},
+                    {e: set(v) for e, v in self.OUT.items()},
+                    [set(v) for v in self.fam_in],
+                    [set(v) for v in self.fam_out])
+
+        def size(st):
+            return sum(map(len, st[0].values())) + \
+                sum(map(len, st[1].values()))
+        best = state()
+        for _ in range(12):
             needed, needed_fam = self.needs()
             for e in self.p.routines:
                 self.OUT[e] = set() if e in self.roots else \
@@ -233,8 +406,20 @@ class Flow:
                 self.fam_out[f] = self.fam_outs(f, needed, needed_fam)
                 self.fam_in[f] = set()
             rounds += self.grow()
-            if before == (self.IN, self.OUT):
+            now = state()
+            if now[:2] == best[:2]:
                 break
+            if size(now) < size(best):
+                best = now
+        self.IN, self.OUT, self.fam_in, self.fam_out = best
+        # the signatures: whole registers
+        for sets in (self.IN, self.OUT, self.MOD):
+            for e in sets:
+                sets[e] = whole(sets[e])
+        for sets in (self.fam_in, self.fam_out):
+            for k in range(len(sets)):
+                sets[k] = whole(sets[k])
+        self.fam_mod = [whole(m) for m in self.fam_mod]
         return rounds
 
     def needs(self):
@@ -275,14 +460,16 @@ class Flow:
         f = self.fam_of.get(e)
         if f is not None:
             o |= needed_fam[f] & self.fam_mod[f]
-        return o
+        # a register given back is given back whole (the lanes it doesn't
+        # set go through it)
+        return lanes(whole(o))
 
     def fam_outs(self, f, needed, needed_fam):
         # a member called directly gives back the family's (one
         # signature): what its callers read too
         ms = self.fams[f][1]
-        return needed_fam[f].union(
-            *(needed.get(m, set()) for m in ms)) & self.fam_mod[f]
+        return lanes(whole(needed_fam[f].union(
+            *(needed.get(m, set()) for m in ms)) & self.fam_mod[f]))
 
     def grow(self):
         """To a fixpoint from the sets as they are (they only grow, but
@@ -296,9 +483,9 @@ class Flow:
                 if r.error or r.crash:
                     continue
                 ins, _ = self.live_in(r, None)
-                ins = ins - DEAD_IN.get(e, set())
+                ins = ins - lanes(DEAD_IN.get(e, set()))
                 if e not in self.roots and not ins <= self.IN[e]:
-                    self.IN[e] |= ins & RES
+                    self.IN[e] |= ins & RES_L
                     changed = True
             needed, needed_fam = self.needs()
             for e in self.p.routines:

@@ -52,6 +52,9 @@
  *                        (--snap-out PREFIX, up to --snap-limit N calls,
  *                        default 50): D0-D7 A0-A7 PC SR as big-endian longs,
  *                        then the 64 KB of work RAM (tools/routine_check.py)
+ *     --snaps FILE       the same for each routine FILE lists (hex, one a
+ *                        line), PREFIX<ADDR>-<n>-in.bin and -out.bin, up to
+ *                        --snap-limit calls each (tools/rewrite_check.py)
  *     --edges FILE       every jump between instructions that ran (from the
  *                        start of one to the next that ran, where that isn't
  *                        2-10 bytes on), `FROM TO` once per pair: the
@@ -139,22 +142,31 @@ enum {
     HOOK_Z80_W = 1 << 11,
 };
 
-/* --snap: calls of one routine, entered and returned */
+/* --snap: calls of one routine, entered and returned; --snaps: of many */
 static unsigned snap_addr = 0xFFFFFFFF;
 static const char *snap_out = "snap-";
 static int snap_limit = 50, snap_n;
+static const char *snaps_path;
+#define SNAPS_MAX 8192
+static unsigned snaps[SNAPS_MAX];
+static int snaps_n, snaps_count[SNAPS_MAX];
+static uint8_t *snaps_mark;     /* a bit for each address, 16 MB of them */
 #define SNAP_DEPTH 64
-static struct { unsigned sp, ret; int n; } snap_open[SNAP_DEPTH];
+static struct { unsigned sp, ret; int n, which; } snap_open[SNAP_DEPTH];
 static int snap_open_n;
 
-static void snap_write(int n, const char *what)
+static void snap_write(int which, int n, const char *what)
 {
     char path[1024];
     FILE *f;
     int r;
     const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
     size_t k, size = p_get_memory_size(RETRO_MEMORY_SYSTEM_RAM);
-    snprintf(path, sizeof path, "%s%d-%s.bin", snap_out, n, what);
+    if (which < 0)
+        snprintf(path, sizeof path, "%s%d-%s.bin", snap_out, n, what);
+    else
+        snprintf(path, sizeof path, "%s%06X-%d-%s.bin", snap_out,
+                 snaps[which], n, what);
     f = fopen(path, "wb");
     if (!f)
         return;
@@ -174,15 +186,51 @@ static void snap_write(int n, const char *what)
     fclose(f);
 }
 
+static void snaps_load(void)
+{
+    FILE *f = fopen(snaps_path, "r");
+    char line[64];
+    if (!f) {
+        perror(snaps_path);
+        exit(1);
+    }
+    snaps_mark = calloc(1 << 21, 1);
+    while (snaps_n < SNAPS_MAX && fgets(line, sizeof line, f)) {
+        char *end;
+        unsigned a = strtoul(line, &end, 16) & 0xFFFFFF;
+        if (end == line)
+            continue;
+        snaps[snaps_n++] = a;
+        snaps_mark[a >> 3] |= 1 << (a & 7);
+    }
+    fclose(f);
+}
+
 static void snap_step(unsigned pc)
 {
     unsigned sp = p_get_reg(REG_A7) & 0xFFFFFF;
-    if (snap_open_n && pc == snap_open[snap_open_n - 1].ret &&
-        sp == snap_open[snap_open_n - 1].sp + 4) {
+    int which = -1, n;
+    while (snap_open_n && pc == snap_open[snap_open_n - 1].ret &&
+           sp == snap_open[snap_open_n - 1].sp + 4) {
         snap_open_n--;
-        snap_write(snap_open[snap_open_n].n, "out");
+        snap_write(snap_open[snap_open_n].which, snap_open[snap_open_n].n,
+                   "out");
     }
-    if (pc == snap_addr && snap_n < snap_limit && snap_open_n < SNAP_DEPTH) {
+    if (pc == snap_addr) {
+        if (snap_n >= snap_limit)
+            return;
+        n = snap_n++;
+    } else if (snaps_mark && (snaps_mark[pc >> 3] >> (pc & 7) & 1)) {
+        int k;
+        for (k = 0; k < snaps_n && snaps[k] != pc; k++)
+            ;
+        if (k == snaps_n || snaps_count[k] >= snap_limit)
+            return;
+        which = k;
+        n = snaps_count[k]++;
+    } else
+        return;
+    if (snap_open_n < SNAP_DEPTH) {
         const uint8_t *w = p_get_memory_data(RETRO_MEMORY_SYSTEM_RAM);
         unsigned a = sp & 0xFFFF, ret = 0;
         int k;
@@ -192,9 +240,10 @@ static void snap_step(unsigned pc)
         }
         snap_open[snap_open_n].sp = sp;
         snap_open[snap_open_n].ret = ret & 0xFFFFFF;
-        snap_open[snap_open_n].n = snap_n;
+        snap_open[snap_open_n].n = n;
+        snap_open[snap_open_n].which = which;
         snap_open_n++;
-        snap_write(snap_n++, "in");
+        snap_write(which, n, "in");
     }
 }
 
@@ -334,7 +383,7 @@ static void hook(int type, int width, unsigned address, unsigned value)
             cycles_step(address);
         if (tl_file)
             timeline_step(address);
-        if (snap_addr != 0xFFFFFFFF)
+        if (snap_addr != 0xFFFFFFFF || snaps_mark)
             snap_step(address);
         if (edges && prev_pc != 0xFFFFFFFF &&
             (address <= prev_pc || address > prev_pc + 10))
@@ -890,6 +939,7 @@ int main(int argc, char **argv)
         else if (ARG("--log")) log_path = argv[++i];
         else if (ARG("--edges")) edges_path = argv[++i];
         else if (ARG("--snap")) snap_addr = strtoul(argv[++i], NULL, 16);
+        else if (ARG("--snaps")) snaps_path = argv[++i];
         else if (ARG("--snap-out")) snap_out = argv[++i];
         else if (ARG("--snap-limit")) snap_limit = strtol(argv[++i], NULL, 0);
         else if (ARG("--ignore-reads") && n_ignore < 16)
@@ -1005,6 +1055,8 @@ int main(int argc, char **argv)
         p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 3));
     else if (!teamplayer)
         p_set_port(1, RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0));
+    if (snaps_path)
+        snaps_load();
     p_set_cpu_hook(hook);
     if (edges_path) {
         edges = calloc(1UL << EDGE_BITS, sizeof *edges);

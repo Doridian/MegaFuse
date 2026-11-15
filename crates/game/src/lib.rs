@@ -112,6 +112,9 @@ pub struct Game {
     /// at once (they never go on in the original, whose stack the reset
     /// starts again).
     pub(crate) restarted: Option<Regs>,
+    /// Tests: the clock past which a routine run on its own is taken to
+    /// wait for ever (a wait whose end the snapshot can't bring).
+    pub deadline: Option<u64>,
 }
 
 /// What the 68000's side keeps: work RAM, the time, the interrupt mask,
@@ -249,6 +252,7 @@ impl Game {
             hw,
             timeline: None,
             restarted: None,
+            deadline: None,
         }
     }
 
@@ -419,6 +423,32 @@ impl Game {
         self.hw.int_ack(level);
         self.call_interrupt(level);
         self.set_ipl(saved);
+    }
+
+    /// The 68000 waits (a rewritten wait, docs/PORT.md "Rewriting"):
+    /// time passes to the next of the frame's events (a line, the
+    /// vertical interrupt), which come as they would.
+    pub fn idle(&mut self) {
+        self.clock += self.pending;
+        self.pending = 0;
+        self.clock = self.clock.max(self.seg_end);
+        self.boundary();
+        self.check_deadline();
+    }
+
+    /// The 68000 polls the hardware (a rewritten wait for the Z80's bus,
+    /// a DMA, ...): `cycles` pass, and the frame's events in them.
+    pub fn pass(&mut self, cycles: u32) {
+        self.clock += self.pending + u64::from(cycles) * 7;
+        self.pending = 0;
+        while self.clock >= self.seg_end && self.boundary() {}
+        self.check_deadline();
+    }
+
+    fn check_deadline(&self) {
+        if let Some(d) = self.deadline {
+            assert!(self.clock < d, "still waiting at the deadline");
+        }
     }
 
     /// Tests: the interrupt mask as it is, for a routine run on its own.

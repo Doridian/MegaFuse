@@ -216,7 +216,51 @@ impl Frontend for Silent {
 fn routine(args: &[String]) {
     let rom = std::fs::read(&args[2]).expect("the ROM");
     let entry = u32::from_str_radix(&args[3], 16).expect("ENTRY in hex");
-    let snap = std::fs::read(&args[4]).expect("IN");
+    match run_routine(&rom, entry, &args[4], &args[5]) {
+        Ok(outs) => println!("{outs}"),
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(3);
+        }
+    }
+}
+
+/// `megafuse --routines ROM LIST`: as `--routine` for each line of LIST
+/// (`ENTRY IN OUT`), a line out for each: `ENTRY OUT ok OUTPUTS...` or
+/// `ENTRY OUT error WHY` (tools/rewrite_check.py).
+fn routines(args: &[String]) {
+    let rom = std::fs::read(&args[2]).expect("the ROM");
+    let list = std::fs::read_to_string(&args[3]).expect("LIST");
+    std::panic::set_hook(Box::new(|_| {}));
+    for line in list.lines() {
+        let f: Vec<&str> = line.split_whitespace().collect();
+        if f.len() != 3 {
+            continue;
+        }
+        let Ok(entry) = u32::from_str_radix(f[0], 16) else { continue };
+        let r = std::panic::catch_unwind(|| run_routine(&rom, entry, f[1], f[2]));
+        match r {
+            Ok(Ok(outs)) => println!("{} {} ok {outs}", f[0], f[2]),
+            Ok(Err(e)) => println!("{} {} error {e}", f[0], f[2]),
+            Err(p) => {
+                let why = p
+                    .downcast_ref::<String>()
+                    .cloned()
+                    .or_else(|| p.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+                    .unwrap_or_default();
+                println!("{} {} error panic: {}", f[0], f[2], why.replace('\n', " "));
+            }
+        }
+    }
+}
+
+/// The routine at `entry` from the state in `inp`, its result to `out`;
+/// the registers and flags it gives back.
+fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<String, String> {
+    let snap = std::fs::read(inp).map_err(|e| format!("{inp}: {e}"))?;
+    if snap.len() < 72 + 0x10000 {
+        return Err(format!("{inp}: short"));
+    }
     let reg = |k: usize| u32::from_be_bytes([snap[4 * k], snap[4 * k + 1], snap[4 * k + 2], snap[4 * k + 3]]);
     let mut regs = game::Regs {
         d0: reg(0), d1: reg(1), d2: reg(2), d3: reg(3), d4: reg(4), d5: reg(5), d6: reg(6), d7: reg(7),
@@ -229,12 +273,16 @@ fn routine(args: &[String]) {
     regs.z = sr & 4 != 0;
     regs.n = sr & 8 != 0;
     regs.x = sr & 16 != 0;
-    let mut game = game::Game::new(rom.clone(), Box::new(Md::new(rom, Box::new(Silent))));
+    let mut game = game::Game::new(rom.to_vec(), Box::new(Md::new(rom.to_vec(), Box::new(Silent))));
     game.ram.copy_from_slice(&snap[72..72 + 0x10000]);
     game.mask_interrupts();
+    // the Z80 out of reset, as the game has it from boot on (a wait for
+    // its bus would never end otherwise); a wait that still doesn't end
+    // in ten frames is an error, not a hang
+    game.write16(0xA1_1200, 0x100);
+    game.deadline = Some(game.clock + 10 * 896_040);
     if !game.call_by_address(entry, &mut regs) {
-        eprintln!("{entry:06X}: not callable on its own");
-        std::process::exit(3);
+        return Err(format!("{entry:06X}: not callable on its own"));
     }
     let mut out = Vec::new();
     for v in [regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
@@ -244,8 +292,8 @@ fn routine(args: &[String]) {
         out.extend_from_slice(&v.to_be_bytes());
     }
     out.extend_from_slice(&game.ram[..]);
-    std::fs::write(&args[5], out).expect("OUT");
-    println!("{}", game::Game::routine_outputs(entry).join(" "));
+    std::fs::write(out_path, out).map_err(|e| format!("{out_path}: {e}"))?;
+    Ok(game::Game::routine_outputs(entry).join(" "))
 }
 
 /// In the browser: the page calls `start` with the ROM (web.rs).
@@ -259,6 +307,10 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--routine") {
         routine(&args);
+        return;
+    }
+    if args.get(1).map(String::as_str) == Some("--routines") {
+        routines(&args);
         return;
     }
     let mut rom_path = None;

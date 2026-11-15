@@ -30,10 +30,10 @@ impl Game {
     }
 
     /// `func_0005F8`: a6 = D_00062E[d6 & 0xFF]; d6 is kept.
-    /// The callers read X and C after it.
-    pub fn r_0005f8(&mut self, d6: u32) -> (u32, u32, bool, bool) {
+    /// The callers read X after it.
+    pub fn r_0005f8(&mut self, d6: u32) -> (u32, u32, bool) {
         let a6 = self.long_by_index(TABLE_062E, d6);
-        let (x, _, _, _, c) = index_flags(d6);
-        (d6, a6, x, c)
+        let (x, ..) = index_flags(d6);
+        (d6, a6, x)
     }
 }

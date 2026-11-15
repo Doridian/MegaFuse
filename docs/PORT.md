@@ -76,23 +76,52 @@ Two builds, then:
   the sound and the translator stay held to the original.
 
 A rewrite is checked against the original call by call:
-`tools/routine_check.py ADDR --script ... --calls N` snapshots the
-original at the routine's entry and return (tools/mdtrace --snap) and runs
-the port's routine from each entry: the same RAM and the same registers
-and flags the callers read. Rewritten so far: `func_001CFA` and
-`func_0005F8` (a pointer from a table by an index; 200 calls each, the
-same).
+`tools/rewrite_check.py [ADDR...]` (every rewritten routine by default)
+runs the original over the pad scripts (tools/mdtrace --snaps: the
+registers and work RAM where each routine is entered and where it
+returns, up to `--calls` a script) and the port's routine from each
+entry state (`megafuse --routines`): the same work RAM (but the stack,
+and what an interrupt during the call changes) and the same registers
+and flags the callers read. `tools/routine_check.py ADDR --script ...`
+does one routine, one script. A routine that waits for the frame can't
+run on its own (the check says so); one no script calls is reviewed by
+reading only, and its doc comment says so.
 
-The signatures are as tight as the analysis gets them (Translation, 4):
-no routine returns N, Z, V and C for nothing any more. X stays in about
-a thousand: a few instructions read the X some routine far away left
-(`roxr.b #4` at 0x1E3F0 stores the X `func_0012A0` leaves, the loop's
-`addq` after), so it really goes through the task routines, and the
-families (routines called through one pointer) share a signature.
+How a rewrite is written:
 
-Next: the helpers go up their call trees with typed interfaces, and the
-waits for the vertical blank (and the polls of the Z80 and the VDP)
-become explicit, so the game is driven by frames.
+- One module per part of the game (`frame.rs`, `vdp.rs`, `z80.rs`,
+  ...), each routine a method `r_XXXXXX` with the signature in
+  `translated/rewritten.txt` (until every caller is rewritten too; then
+  its interface can become what it means), its doc comment naming the
+  original (`func_XXXXXX`) and saying what it does.
+- Addresses become constants named for what the code does with them
+  (evidence, not guesses about the game: `QUEUE_COUNT`, `REG1`, not
+  `MUSIC_VOLUME` before something shows it), the address in the
+  constant, a doc comment saying how it is used. Arguments get names by
+  their use too.
+- No `insn`, `extra` or `skip_refresh`: no console time. A wait for the
+  hardware (the Z80's bus, a DMA) polls with `self.pass(cycles)` between
+  tries; the wait for the vertical blank is `self.idle()`.
+- Only the flags the signature returns are computed, exactly as the
+  original leaves them (X travels far: see below), and only where the
+  analysis says a caller reads them.
+- The interrupt mask moves as in the original (`self.set_ipl`).
+- Calls go to `self.r_XXXXXX` whether the callee is rewritten or not.
+
+The analysis keeps the signatures tight (Translation, 4): no routine
+returns N, Z, V and C for nothing, and data registers go by byte, word
+and high word, so a routine that sets d1's low word for a callee doesn't
+take d1. X stays in about a thousand: a few instructions read the X some
+routine far away left (`roxr.b #4` at 0x1E3F0 stores the X
+`func_0012A0` leaves, the loop's `addq` after), so it really goes
+through the task routines, and the families (routines called through
+one pointer) share a signature.
+
+Rewritten so far: the look-ups `func_001CFA` and `func_0005F8`, the
+frame wait `func_007DFA`, the VDP helpers (`func_000296`, `func_0002E0`,
+`func_0002E6`, `func_00855A`, `func_008560`, `func_00BAA8`) and the
+Z80's command queue (`func_00349E`, `func_0034B6`, `func_0034CE`,
+`func_00B84C`, `func_00B84E`, `func_00B89E`).
 
 ## Translation
 
@@ -125,7 +154,10 @@ become explicit, so the game is driven by frames.
    registers it saves with `movem`; `roxl`/`roxr` by a constant take X
    and C from the operand; a byte or word loaded over one just written
    drops the first write; liveness goes over every local, so what a dead
-   statement reads doesn't count. The fixpoint grows from nothing, which
+   statement reads doesn't count, and data registers and temporaries go
+   by lanes (bits 0-7, 8-15, 16-31: a byte or word written, a narrowing
+   cast, a constant mask) while a register given back is given back
+   whole; a tail call passes on only what its callee doesn't give back. The fixpoint grows from nothing, which
    over-reaches (early on a call sets nothing, so what is live after it
    is live before), and is then solved again from what the callers read
    until it holds. `dataflow.DEAD_IN` names what a routine reads that bit
