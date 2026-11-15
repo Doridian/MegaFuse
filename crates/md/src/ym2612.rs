@@ -377,7 +377,8 @@ impl Ym2612 {
         let gain = 10f32.powf(-(att as f32) * 0.09375 / 20.0);
         let p = (o.phase >> 10) as f32 / 1024.0 + modulation;
         let i = ((p * 1024.0) as i32).rem_euclid(1024) as usize;
-        self.sin[i] * gain
+        // 14 bits, sign and magnitude: what is under a step is 0
+        (self.sin[i] * gain * 8192.0).trunc() / 8192.0
     }
 
     /// One sample: (left, right), the channels summed, each -1..1.

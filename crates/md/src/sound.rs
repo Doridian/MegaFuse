@@ -23,6 +23,10 @@ pub const SAMPLE_RATE: u32 = 53_267;
 /// at its default 150%).
 const FM_GAIN: f32 = 0.25;
 const PSG_GAIN: f32 = 2100.0 / 32768.0;
+/// The output is AC-coupled, as the console's is: a one-pole high-pass
+/// at some 8 Hz takes off the DC (the YM2612's DAC offsets it,
+/// docs/PORT.md "Sound").
+const DC_POLE: f32 = 0.999;
 
 /// Everything on the Z80's bus but the Z80.
 pub struct ZBus {
@@ -82,6 +86,8 @@ pub struct Sound {
     psg_clock: u32,
     /// Stereo samples, interleaved, since the frontend last took them.
     pub samples: Vec<f32>,
+    /// The high-pass's last input and output, left and right.
+    dc: [(f32, f32); 2],
 }
 
 impl Sound {
@@ -97,6 +103,7 @@ impl Sound {
             sample_clock: 0,
             psg_clock: 0,
             samples: Vec::new(),
+            dc: [(0.0, 0.0); 2],
         }
     }
 
@@ -152,7 +159,11 @@ impl Sound {
         let steps = self.psg_clock / MASTER_PER_PSG;
         self.psg_clock %= MASTER_PER_PSG;
         let p = self.bus.psg.run(steps) * PSG_GAIN;
-        self.samples.push(l * FM_GAIN + p);
-        self.samples.push(r * FM_GAIN + p);
+        for (k, x) in [l * FM_GAIN + p, r * FM_GAIN + p].into_iter().enumerate() {
+            let (x0, y0) = self.dc[k];
+            let y = x - x0 + DC_POLE * y0;
+            self.dc[k] = (x, y);
+            self.samples.push(y);
+        }
     }
 }

@@ -116,15 +116,23 @@ blank.
 The YM2612 is the Model 1's (Genesis Plus GX's default, "mame
 (ym2612)"): a 9-bit DAC, the carriers truncated to it, and the DAC's
 ladder effect, which makes quiet notes louder and harsher than the
-total levels say (`Ym2612::model1_dac`). The mix is Genesis Plus GX's:
-an FM channel a quarter of full scale, a PSG channel 1/16.
+total levels say (`Ym2612::model1_dac`). An operator's output is 14
+bits, sign and magnitude, so a note faded far enough is 0, not a
+flicker the ladder would make a buzz of. The mix is Genesis Plus GX's:
+an FM channel a quarter of full scale, a PSG channel 1/16; the output
+is AC-coupled (a high-pass at some 8 Hz), as the console's is, which
+takes off the ladder's DC.
 
 Sound comes out at the YM2612's rate (53267 Hz), a frame's worth
 through `Frontend::audio`; `megafuse --wav FILE` and `tools/mdtrace --wav
-FILE` write it out for both. Against Genesis Plus GX the attract mode's
-music has the same notes at the same times, levels within a few percent
-and spectra 0.99 alike (half-second windows), as long as the game hasn't
-drifted.
+FILE` write it out for both. `tools/sound_check.py [SCRIPT...]` runs both
+on the pad scripts and compares them half a second at a time (spectra
+in 63 log-spaced bands, cosine similarity; levels in dB), each block of
+the port's against the original's closest within the drift, as
+port_check does for RAM. It needs uv (it brings numpy). Over the attract mode
+(the first 2400 frames of every script) and into the games until they
+drift from the original's (some 5000-7000 frames in: the enemies move
+apart), the sound is 0.995 alike and its levels within a few percent.
 
 ## Checking it
 

@@ -27,6 +27,8 @@ tools/find_abs.py us         # what may still be a ROM address written as a numb
 tools/vermap.py eu           # where each us address is in eu (eu takes us's names)
 tools/find_exits.py [STAGE]  # plans that take stages to their exit (tools/exits.json)
 tools/unrun.py               # docs/UNRUN.md: what no script runs, by where it starts
+tools/port_check.py [SCRIPT] # the port against the original: RAM and screens
+tools/sound_check.py [SCRIPT] # the same for the sound (uv, numpy)
 ```
 
 Screenshots of a run (`tools/mdtrace --shot`) tiled with `tools/sheet.py`
