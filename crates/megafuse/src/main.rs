@@ -102,6 +102,8 @@ struct Headless {
     wayplay: bool,
     /// The sound so far (16-bit stereo), for --wav.
     wav: Option<(String, Vec<i16>)>,
+    /// --no-sprite-limit.
+    unlimited: bool,
 }
 
 impl Headless {
@@ -134,6 +136,10 @@ impl Headless {
 }
 
 impl Frontend for Headless {
+    fn unlimited_sprites(&self) -> bool {
+        self.unlimited
+    }
+
     fn frame(
         &mut self,
         frame: u64,
@@ -393,9 +399,9 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
     Ok(game::Game::routine_outputs(entry).join(" "))
 }
 
-const USAGE: &str = "usage: megafuse [ROM] [--host ROOM | --join ROOM] [--players N] [--delay N] [--signal URL]
+const USAGE: &str = "usage: megafuse [ROM] [--no-sprite-limit] [--host ROOM | --join ROOM] [--players N] [--delay N] [--signal URL]
                 [--stun URL]... [--turn URL]... [--turn-user NAME] [--turn-password PASSWORD]
-       megafuse ROM --frames N [--input FILE] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE]
+       megafuse ROM --frames N [--input FILE] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE] [--no-sprite-limit]
        megafuse ROM --loopback N --input FILE --frames N [--latency MS] [--late MS] [--speed X]
 Without a ROM, a file dialog asks for Mega Bomberman's (the US version).";
 
@@ -447,6 +453,7 @@ fn main() {
         wayplay: false,
         hashes: None,
         vram_prefix: None,
+        unlimited: false,
     };
     let mut i = 1;
     while i < args.len() {
@@ -470,6 +477,7 @@ fn main() {
             "--ztimeline" => ztimeline = Some(next(&mut i)),
             "--vram" => h.vram_prefix = Some(next(&mut i)),
             "--restore-check" => restore_check = true,
+            "--no-sprite-limit" => h.unlimited = true,
             "--host" | "--join" => {
                 let host = a == "--host";
                 join = Some(netplay::Join {
@@ -549,7 +557,7 @@ fn main() {
         );
     }
     if !headless {
-        window::play(rom, join);
+        window::play(rom, join, h.unlimited);
     }
     if let Some(j) = &join {
         let text = input

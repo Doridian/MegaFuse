@@ -21,7 +21,7 @@ and commit the result after changing tools/recomp or the rewrites.
 `cargo run --release -p megafuse -- baserom.us.bin` plays the game in a
 window (`crates/platform`: winit, wgpu, cpal, as VacationDestination's):
 the arrows, Z X C (A B C) and Enter (Start) are pad 1, W A S D, F G H and
-Tab pad 2; F11 for full screen. The window's event loop runs the game
+Tab pad 2; F11 for full screen, F2 no sprite limit (below). The window's event loop runs the game
 ahead into a queue of finished frames (pictures and their sound) and
 shows them at the console's pace, a frame every 16.69 ms; when the queue
 is empty it runs the next step (first the boot, 155 frames at once).
@@ -321,6 +321,17 @@ a DMA's data a window at a time (each line's before it is drawn); the
 display switched off or on mid-line (the rest of the line blanked, or
 the line drawn again); a change of width taken in the vertical blank or
 the first three lines at once, else from the next frame.
+
+**No sprite limit** (F2, `--no-sprite-limit`): every sprite on a line is
+drawn, the last one whole, where the console stops at 20 a line or 320
+pixels. Mostly it shows in the menus (text dropped while the panels
+slide in) and the title's explosion; in play where many bombs and
+enemies share a line. The switch only changes the picture: the status
+flags (overflow, collision) and the masking are counted as the
+console's, so RAM stays the same (every script's run with it on has the
+same RAM, frame by frame, as without), and peers in a network game can
+each have it either way. The frontend gives it to the machine at each
+frame's start, so a rollback's snapshot doesn't carry it.
 
 ## Checking it
 

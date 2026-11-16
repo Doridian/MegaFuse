@@ -37,6 +37,12 @@ pub trait Frontend {
     /// `megafuse --vram`).
     fn vdp(&mut self, _frame: u64, _vdp: &Vdp) {}
 
+    /// No sprite limit (a port extra, docs/PORT.md), asked at each
+    /// frame's start. Only the picture changes: the game runs the same.
+    fn unlimited_sprites(&self) -> bool {
+        false
+    }
+
     /// The frame's sound, before [`Frontend::frame`]: stereo samples,
     /// interleaved, at [`sound::SAMPLE_RATE`].
     fn audio(&mut self, _samples: &[f32]) {}
@@ -724,6 +730,7 @@ impl game::Hardware for Md {
     }
 
     fn frame_start(&mut self) {
+        self.state.vdp.unlimited = self.frontend.unlimited_sprites();
         self.state.frame_start()
     }
 

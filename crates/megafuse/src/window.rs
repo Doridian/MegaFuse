@@ -66,6 +66,8 @@ struct Frame {
 struct Shared {
     queue: VecDeque<Frame>,
     keys: HashSet<KeyCode>,
+    /// No sprite limit (F2).
+    unlimited: bool,
 }
 
 /// The game's frontend: each frame into the queue, the pads from the
@@ -87,6 +89,10 @@ impl Recorder {
 }
 
 impl Frontend for Recorder {
+    fn unlimited_sprites(&self) -> bool {
+        self.shared.lock().unwrap_or_else(PoisonError::into_inner).unlimited
+    }
+
     fn frame(
         &mut self,
         _frame: u64,
@@ -167,6 +173,9 @@ pub struct GameApp {
     /// The network game ended (in the browser, where the page stays):
     /// the last picture stays.
     ended: bool,
+    /// A note on the page's status line (a switch flipped), till this
+    /// frame.
+    note_until: Option<u64>,
 }
 
 impl GameApp {
@@ -206,6 +215,7 @@ impl GameApp {
             due: None,
             status: String::new(),
             ended: false,
+            note_until: None,
         }
     }
 
@@ -299,6 +309,12 @@ impl App for GameApp {
         }
         while now >= due {
             let f = self.next_frame();
+            if self.note_until.is_some_and(|n| self.serial >= n) {
+                self.note_until = None;
+                #[cfg(target_arch = "wasm32")]
+                platform::web::show_status("", false);
+                self.status.clear();
+            }
             self.show_status();
             if let Some(rgba) = f.rgba {
                 self.shown = rgba;
@@ -328,6 +344,16 @@ impl App for GameApp {
 
     fn key(&mut self, code: KeyCode, down: bool) {
         let mut s = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
+        if down && code == KeyCode::F2 {
+            s.unlimited = !s.unlimited;
+            let note = if s.unlimited { "No sprite limit (F2)" } else { "The console's sprite limit (F2)" };
+            #[cfg(target_arch = "wasm32")]
+            platform::web::show_status(note, false);
+            #[cfg(not(target_arch = "wasm32"))]
+            eprintln!("{note}");
+            self.note_until = Some(self.serial + 120);
+            return;
+        }
         if down {
             s.keys.insert(code);
         } else {
@@ -367,7 +393,8 @@ fn game_for(
 
 /// Plays `rom` in a window; natively, in a network game.
 #[cfg(not(target_arch = "wasm32"))]
-pub fn play(rom: Vec<u8>, join: Option<crate::netplay::Join>) -> ! {
+/// `unlimited`: no sprite limit to start with (F2 switches it).
+pub fn play(rom: Vec<u8>, join: Option<crate::netplay::Join>, unlimited: bool) -> ! {
     let app = match &join {
         Some(j) => match crate::netplay::connect(j, &rom) {
             Ok(session) => GameApp::net(rom, session),
@@ -378,6 +405,7 @@ pub fn play(rom: Vec<u8>, join: Option<crate::netplay::Join>) -> ! {
         },
         None => GameApp::new(rom),
     };
+    app.shared.lock().unwrap_or_else(PoisonError::into_inner).unlimited = unlimited;
     if let Err(e) = platform::run("MegaFuse", (320 * 3, 224 * 3), app) {
         eprintln!("{e}");
         std::process::exit(1);

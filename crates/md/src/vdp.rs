@@ -45,7 +45,14 @@ pub struct Vdp {
     /// The sprites of a line, found on the line before (even, odd
     /// lines), and whether sprite masking carries over to the next line.
     objs: [Vec<Obj>; 2],
+    /// How many of a line's sprites the console has (the rest are there
+    /// only without the limit).
+    kept: [usize; 2],
     spr_ovr: bool,
+    /// No sprite limit (a port extra, docs/PORT.md): every sprite on a
+    /// line is drawn, whole. The status flags and the masking stay the
+    /// console's, so the game runs the same with it on or off.
+    pub unlimited: bool,
     /// Sprite overflow (0x40) and collision (0x20), till the status is
     /// read.
     pub flags: u16,
@@ -89,7 +96,9 @@ impl Vdp {
             copied: None,
             sat: Box::new([0; 0x400]),
             objs: [Vec::new(), Vec::new()],
+            kept: [0; 2],
             spr_ovr: false,
+            unlimited: false,
             flags: 0,
             sprite_pixels: 0,
             view_w: 256,
@@ -626,6 +635,7 @@ impl Vdp {
         let mut list = std::mem::take(&mut self.objs[((line + 1) & 1) as usize]);
         list.clear();
         let mut link = 0usize;
+        let mut kept = None;
         for _ in 0..entries {
             let e = link * 8;
             let y = i32::from(word(&self.sat[..], e & 0x3FF) & 0x1FF);
@@ -635,9 +645,12 @@ impl Vdp {
                 let height = 8 + (i32::from(size & 3) << 3);
                 let row = at - y;
                 if row < height {
-                    if list.len() == max {
+                    if list.len() == max && kept.is_none() {
                         self.flags |= 0x40;
-                        break;
+                        kept = Some(max);
+                        if !self.unlimited {
+                            break;
+                        }
                     }
                     let v = |o: usize| word(&self.vram[..], (base + e + o) & 0xFFFE);
                     list.push(Obj { attr: v(4), x: v(6) & 0x1FF, row: row as u16, size: size & 0x0F });
@@ -648,6 +661,7 @@ impl Vdp {
                 break;
             }
         }
+        self.kept[((line + 1) & 1) as usize] = kept.unwrap_or(list.len());
         self.objs[((line + 1) & 1) as usize] = list;
     }
 
@@ -655,30 +669,46 @@ impl Vdp {
     /// down: a collision).  A sprite at X 0 hides those after it once one
     /// further right has been seen (or the line before ran out of sprite
     /// pixels); a line has 256 (H32) or 320 (H40) sprite pixels, off
-    /// screen ones too.
+    /// screen ones too. Without the limit the sprites past it are drawn
+    /// too (and the last one whole), but only the console's count for
+    /// the flags and the masking.
     fn sprites(&mut self, line: usize, width: usize, out: &mut [(u8, bool)]) {
         let max_pixels = match self.sprite_pixels {
             0 => if self.h40() { 320 } else { 256 },
             n => n,
         };
         let list = std::mem::take(&mut self.objs[line & 1]);
+        let kept = self.kept[line & 1];
         let mut pixels = 0;
         let mut masked = false;
         let mut done = false;
-        for o in &list {
+        // past the console's sprites: masking goes on as it would have
+        let mut seen = self.spr_ovr;
+        for (i, o) in list.iter().enumerate() {
+            let console = !done && i < kept;
             if o.x != 0 {
-                self.spr_ovr = true;
-            } else if self.spr_ovr {
+                seen = true;
+                if console {
+                    self.spr_ovr = true;
+                }
+            } else if seen {
                 masked = true;
             }
             let x0 = i32::from(o.x) - 0x80;
             let cw = usize::from((o.size >> 2) & 3) + 1;
             let ch = usize::from(o.size & 3) + 1;
             let mut w = cw * 8;
-            pixels += w;
+            if console {
+                pixels += w;
+            }
             if x0 + w as i32 > 0 && x0 < width as i32 && !masked {
-                if pixels > max_pixels {
-                    w -= pixels - max_pixels;
+                // the columns the console draws
+                let mut shown = if console { w } else { 0 };
+                if console && pixels > max_pixels {
+                    shown -= pixels - max_pixels;
+                    if !self.unlimited {
+                        w = shown;
+                    }
                 }
                 let row = usize::from(o.row);
                 let row = if o.attr & 0x1000 != 0 { ch * 8 - 1 - row } else { row };
@@ -696,17 +726,21 @@ impl Vdp {
                     }
                     let slot = &mut out[px as usize];
                     if slot.0 & 0x0F != 0 {
-                        self.flags |= 0x20;
+                        if col < shown {
+                            self.flags |= 0x20;
+                        }
                     } else {
                         *slot = ((((o.attr >> 13) & 3) as u8) << 4 | p, o.attr & 0x8000 != 0);
                     }
                 }
             }
-            if pixels >= max_pixels {
+            if console && pixels >= max_pixels {
                 // masking goes on to the next line if the whole width was
                 self.spr_ovr = pixels >= width;
                 done = true;
-                break;
+                if !self.unlimited {
+                    break;
+                }
             }
         }
         if !done {
