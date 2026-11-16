@@ -236,6 +236,18 @@ entries, a long at an odd offset into the data; nothing reads them by
 name, so their format is a guess), word pointers, and the data's own pointers. `tools/find_abs.py` lists what may still be an address written
 as a number.
 
+**RAM.** Work RAM the code names by address gets a symbol, `R_` and
+the address (`R_FFA93F`), set in `asm/ram.inc` (written by
+`tools/disasm.py`, included by every file): `(x).w` operands, `(x).l`
+ones written as the 24-bit address, and long immediates used as
+addresses (`movea.l #x`, `move.l #x` into memory, `adda.l`, `addi.l`).
+The RAM stays at its address; a symbol is set to the value its operands
+spell, since gas takes `(x).w` only sign-extended: `0xFFFFA93F` from
+`0xFF8000` up (all `.w`), the 24-bit address below it (all `.l`, the
+buffers at `0xFF5800`). The few `(0xFFFF0000).l` (sign-extended) and the
+hardware's registers stay numbers. Naming them comes with the rewrite
+(what each holds is what the Rust's typed state says).
+
 The tracer didn't see PC-relative reads at first (Musashi reads them like
 instruction words, past the hook); `tools/get_gpgx.sh` routes them through
 it, so `move.l (tbl,pc,d0.w),a0` tables are evidence like any other.

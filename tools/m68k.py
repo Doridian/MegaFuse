@@ -55,9 +55,9 @@ class Op:
         self.pre = pre
 
     def format(self, sym=None):
-        """sym(addr, kind) -> name or None; kind is 'abs', 'pc', 'imm',
-        'branch' or 'disp' (a positive displacement off an address
-        register).  sym is asked for any address this operand holds."""
+        """sym(addr, kind) -> name or None; kind is 'abs' (`(x).l`),
+        'abs.w' (`(x).w`), 'pc', 'imm', 'branch' or 'disp' (a positive
+        displacement off an address register).  sym is asked for any address this operand holds."""
         k = self.kind
         if k == 'dn':
             return 'd%d' % self.reg
@@ -81,8 +81,8 @@ class Op:
                                       xname(self.xreg), self.xsize)
         if k in ('absw', 'absl'):
             # a name only where the operand is the plain address
-            name = sym(self.addr, 'abs') if sym and (
-                k == 'absw' or self.val == self.addr) else None
+            name = sym(self.addr, 'abs' if k == 'absl' else 'abs.w') \
+                if sym and (k == 'absw' or self.val == self.addr) else None
             return '(%s).%s' % (name or hx(self.val),
                                 'w' if k == 'absw' else 'l')
         if k == 'pcdisp':

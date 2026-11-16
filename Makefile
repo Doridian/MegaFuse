@@ -27,7 +27,7 @@ CROSS    ?= tools/binutils/bin/m68k-elf-
 AS        = $(CROSS)as
 LD        = $(CROSS)ld
 OBJCOPY   = $(CROSS)objcopy
-ASFLAGS   = -m68000 --register-prefix-optional -no-pad-sections -I include \
+ASFLAGS   = -m68000 --register-prefix-optional -no-pad-sections -I include -I asm \
 	    --defsym VERSION_EU=$(if $(filter eu,$(VERSION)),1,0) \
 	    $(if $(filter-out 0,$(SHIFT)),--defsym SHIFT=1)
 

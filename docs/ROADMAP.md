@@ -68,8 +68,8 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   `D_013838`, `D_01974E`: nothing marks where it starts). Still to do:
   the lists those records point at (0xA0AA's entries hold a long at odd
   offsets) and the data's own pointers (0x40000 on).
-  RAM gets a symbol file (`0xFF8000`-`0xFFFFFF`), still at fixed
-  addresses.
+  RAM has a symbol file (done: `asm/ram.inc`, docs/LAYOUT.md
+  "Pointers"), still at fixed addresses.
 - **Objects.** Files cut at module boundaries rather than at long data,
   with `.s` per function where that helps.
 - **SHIFT=1 (in place for the code).** Pads after each object and before
