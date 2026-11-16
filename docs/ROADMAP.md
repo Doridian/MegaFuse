@@ -114,7 +114,13 @@ packaged by CI as in the other ports. The port is deterministic from
 the start (docs/NETPLAY.md, "Requirements").
 
 Enhancements stay switchable and off in compared runs: widescreen (more
-of the arena), no sprite limits, and the like.
+of the arena), no sprite limits, and the like. No sprite limit is done
+(docs/PORT.md, "The picture"): it only changes the VDP's drawing.
+Widescreen can't be done that way: play is in H32 (256 pixels) on 64x64
+planes, of which the game draws the columns it shows and leaves the rest
+as earlier screens left them (menus, other arenas), so a wider picture
+needs the game to draw more and keep the sprites it now leaves out: it
+waits for the rewrite of the stage drawing and the objects' sprites.
 
 The sound comes last: the Z80 driver runs on its interpreter and the
 YM2612 and SN76489 models are close enough to the original's
