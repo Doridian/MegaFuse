@@ -4,7 +4,7 @@
 # target and the wasm-bindgen CLI of the version the crates pin
 # (crates/megafuse/Cargo.toml):
 #
-#   cargo install wasm-bindgen-cli --version 0.2.128
+#   cargo install wasm-bindgen-cli --version 0.2.130
 #
 #   tools/build-web.sh            # release build into web/
 #   tools/build-web.sh --debug    # debug build (slow game, quick build)

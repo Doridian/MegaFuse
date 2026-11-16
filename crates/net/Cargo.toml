@@ -13,7 +13,7 @@ default = ["matchbox"]
 matchbox = ["dep:matchbox_socket", "dep:tokio", "dep:wasm-bindgen-futures"]
 
 [dependencies]
-matchbox_socket = { version = "0.14", optional = true }
+matchbox_socket = { version = "0.15", optional = true }
 
 # Natively the socket's message loop runs on a thread of its own, on a
 # small tokio runtime; the browser build spawns it with

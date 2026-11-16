@@ -11,12 +11,12 @@ frames and shows them at the console's pace, so nothing waits.
 ## Building
 
 Needs the `wasm32-unknown-unknown` target and the `wasm-bindgen` CLI in
-the version the crates pin (`wasm-bindgen = "=0.2.128"` in
+the version the crates pin (`wasm-bindgen = "=0.2.130"` in
 `crates/megafuse/Cargo.toml` and `crates/platform/Cargo.toml`; the CLI
 refuses a module from another version),:
 
 ```sh
-cargo install wasm-bindgen-cli --version 0.2.128
+cargo install wasm-bindgen-cli --version 0.2.130
 tools/build-web.sh            # release build into web/
 tools/build-web.sh --debug    # quicker to build, slow to play
 ```
