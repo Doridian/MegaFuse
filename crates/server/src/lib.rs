@@ -22,8 +22,8 @@ use futures::StreamExt;
 use matchbox_protocol::{JsonPeerEvent, PeerId, PeerRequest};
 use matchbox_signaling::common_logic::{SignalingChannel, parse_request, try_send};
 use matchbox_signaling::{
-    ClientRequestError, NoCallbacks, SignalingServer, SignalingServerBuilder, SignalingState,
-    SignalingTopology, WsStateMeta,
+    ClientRequestError, NoCallbacks, SignalingServer, SignalingServerBuilder, SignalingState, SignalingTopology,
+    WsStateMeta,
 };
 
 /// The host's suffix on its room's path.
@@ -53,9 +53,7 @@ impl StarState {
     fn rooms(&self) -> std::sync::MutexGuard<'_, BTreeMap<String, Room>> {
         // A thread that panicked with the lock leaves the rooms as they
         // were: still usable.
-        self.0
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner)
+        self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
     /// `peer` comes into `room`; false if it's a host and the room has
@@ -143,15 +141,10 @@ impl SignalingTopology<NoCallbacks, StarState> for Star {
             eprintln!("{peer_id}: room {room} has a host already");
             return;
         }
-        eprintln!(
-            "{peer_id}: in room {room}{}",
-            if host { " as its host" } else { "" }
-        );
+        eprintln!("{peer_id}: in room {room}{}", if host { " as its host" } else { "" });
         while let Some(request) = receiver.next().await {
             match parse_request(request) {
-                Ok(PeerRequest::Signal { receiver, data }) => {
-                    state.signal(&room, peer_id, host, receiver, data)
-                }
+                Ok(PeerRequest::Signal { receiver, data }) => state.signal(&room, peer_id, host, receiver, data),
                 Ok(PeerRequest::KeepAlive)
                 | Err(ClientRequestError::Json(_) | ClientRequestError::UnsupportedType(_)) => {}
                 Err(_) => break,

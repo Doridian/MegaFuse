@@ -524,11 +524,7 @@ impl Z80 {
             corr |= 0x60;
             carry = true;
         }
-        let r = if self.f & N != 0 {
-            a.wrapping_sub(corr)
-        } else {
-            a.wrapping_add(corr)
-        };
+        let r = if self.f & N != 0 { a.wrapping_sub(corr) } else { a.wrapping_add(corr) };
         let h = if self.f & N != 0 {
             self.f & H != 0 && a & 0x0F < 6
         } else {
@@ -627,11 +623,7 @@ impl Z80 {
                 }
                 // with (IX+d), H and L stay H and L
                 let (rx, wx) = if uses_mem(y) || uses_mem(z) {
-                    if uses_mem(z) {
-                        (x, Idx::Hl)
-                    } else {
-                        (Idx::Hl, x)
-                    }
+                    if uses_mem(z) { (x, Idx::Hl) } else { (Idx::Hl, x) }
                 } else {
                     (x, x)
                 };
@@ -720,48 +712,24 @@ impl Z80 {
                 11
             }
             _ if hi == 0 && z == 4 => {
-                let d = if y == 6 && x != Idx::Hl {
-                    self.fetch(bus) as i8
-                } else {
-                    0
-                };
+                let d = if y == 6 && x != Idx::Hl { self.fetch(bus) as i8 } else { 0 };
                 let v = self.reg(bus, y, x, d);
                 let r = self.inc8(v);
                 self.set_reg(bus, y, x, d, r);
-                if y == 6 {
-                    if x == Idx::Hl { 11 } else { 19 }
-                } else {
-                    4
-                }
+                if y == 6 { if x == Idx::Hl { 11 } else { 19 } } else { 4 }
             }
             _ if hi == 0 && z == 5 => {
-                let d = if y == 6 && x != Idx::Hl {
-                    self.fetch(bus) as i8
-                } else {
-                    0
-                };
+                let d = if y == 6 && x != Idx::Hl { self.fetch(bus) as i8 } else { 0 };
                 let v = self.reg(bus, y, x, d);
                 let r = self.dec8(v);
                 self.set_reg(bus, y, x, d, r);
-                if y == 6 {
-                    if x == Idx::Hl { 11 } else { 19 }
-                } else {
-                    4
-                }
+                if y == 6 { if x == Idx::Hl { 11 } else { 19 } } else { 4 }
             }
             _ if hi == 0 && z == 6 => {
-                let d = if y == 6 && x != Idx::Hl {
-                    self.fetch(bus) as i8
-                } else {
-                    0
-                };
+                let d = if y == 6 && x != Idx::Hl { self.fetch(bus) as i8 } else { 0 };
                 let v = self.fetch(bus);
                 self.set_reg(bus, y, x, d, v);
-                if y == 6 {
-                    if x == Idx::Hl { 10 } else { 15 }
-                } else {
-                    7
-                }
+                if y == 6 { if x == Idx::Hl { 10 } else { 15 } } else { 7 }
             }
             0x07 | 0x0F | 0x17 | 0x1F => {
                 let keep = self.f & (S | Z | PV);
@@ -785,8 +753,7 @@ impl Z80 {
             }
             0x3F => {
                 let c = self.f & C;
-                self.f =
-                    (self.f & (S | Z | PV)) | (self.a & (X5 | X3)) | if c != 0 { H } else { C };
+                self.f = (self.f & (S | Z | PV)) | (self.a & (X5 | X3)) | if c != 0 { H } else { C };
                 4
             }
             0x08 => {
@@ -1058,10 +1025,7 @@ impl Z80 {
             }
             0x57 | 0x5F => {
                 self.a = if op == 0x57 { self.i } else { self.r };
-                self.f = (self.f & C)
-                    | (self.a & (S | X5 | X3))
-                    | if self.a == 0 { Z } else { 0 }
-                    | if self.iff2 { PV } else { 0 };
+                self.f = (self.f & C) | (self.a & (S | X5 | X3)) | if self.a == 0 { Z } else { 0 } | if self.iff2 { PV } else { 0 };
                 9
             }
             0x67 => {
@@ -1089,10 +1053,7 @@ impl Z80 {
                 self.set_de(self.de().wrapping_add(step));
                 self.set_bc(self.bc().wrapping_sub(1));
                 let n = v.wrapping_add(self.a);
-                self.f = (self.f & (S | Z | C))
-                    | (n & X3)
-                    | ((n << 4) & X5)
-                    | if self.bc() != 0 { PV } else { 0 };
+                self.f = (self.f & (S | Z | C)) | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
                 if op & 0x10 != 0 && self.bc() != 0 {
                     self.pc = self.pc.wrapping_sub(2);
                     21
@@ -1110,14 +1071,7 @@ impl Z80 {
                 self.set_bc(self.bc().wrapping_sub(1));
                 let h = (self.a ^ v ^ r) & H;
                 let n = r.wrapping_sub(u8::from(h != 0));
-                self.f = N
-                    | c
-                    | h
-                    | (r & S)
-                    | if r == 0 { Z } else { 0 }
-                    | (n & X3)
-                    | ((n << 4) & X5)
-                    | if self.bc() != 0 { PV } else { 0 };
+                self.f = N | c | h | (r & S) | if r == 0 { Z } else { 0 } | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
                 if op & 0x10 != 0 && self.bc() != 0 && r != 0 {
                     self.pc = self.pc.wrapping_sub(2);
                     21

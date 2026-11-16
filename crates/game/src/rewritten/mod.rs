@@ -6,6 +6,6 @@
 //! by call (tools/routine_check.py).
 
 mod frame;
-mod lookup;
 mod vdp;
 mod z80;
+mod lookup;

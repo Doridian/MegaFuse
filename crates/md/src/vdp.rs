@@ -143,18 +143,8 @@ impl Vdp {
         self.addr = (self.addr & 0x3FFF) | (u32::from(w & 3) << 14);
         self.code = (self.code & 0x03) | ((w >> 2) & 0x3C) as u8;
         if std::env::var_os("MEGAFUSE_DMA").is_some() && self.code & 0x20 != 0 {
-            eprintln!(
-                "dma code {:02X} addr {:04X} mode {:02X} len {:02X}{:02X} src {:02X}{:02X}{:02X} reg1 {:02X}",
-                self.code,
-                self.addr,
-                self.regs[23] >> 6,
-                self.regs[20],
-                self.regs[19],
-                self.regs[23],
-                self.regs[22],
-                self.regs[21],
-                self.regs[1]
-            );
+            eprintln!("dma code {:02X} addr {:04X} mode {:02X} len {:02X}{:02X} src {:02X}{:02X}{:02X} reg1 {:02X}",
+                self.code, self.addr, self.regs[23] >> 6, self.regs[20], self.regs[19], self.regs[23], self.regs[22], self.regs[21], self.regs[1]);
         }
         if self.code & 0x20 != 0 && self.regs[1] & 0x10 != 0 {
             match self.regs[23] >> 6 {
@@ -162,17 +152,14 @@ impl Vdp {
                     let source = (u32::from(self.regs[23] & 0x7F) << 17)
                         | (u32::from(self.regs[22]) << 9)
                         | (u32::from(self.regs[21]) << 1);
-                    let mut words = u32::from(self.regs[20]) << 8 | u32::from(self.regs[19]);
+                    let mut words =
+                        u32::from(self.regs[20]) << 8 | u32::from(self.regs[19]);
                     if words == 0 {
                         words = 0x10000;
                     }
                     // code 1: VRAM (a word is two accesses); 3, 5: CRAM, VSRAM
                     let vram = self.code & 0x06 == 0;
-                    self.dma = Some(Dma::Memory {
-                        source,
-                        words,
-                        vram,
-                    });
+                    self.dma = Some(Dma::Memory { source, words, vram });
                 }
                 2 => self.fill_pending = true,
                 _ => self.copy(),
@@ -257,11 +244,7 @@ impl Vdp {
     }
 
     fn sat_masks(&self) -> (usize, usize) {
-        if self.h40() {
-            (0xFC00, 0x3FF)
-        } else {
-            (0xFE00, 0x1FF)
-        }
+        if self.h40() { (0xFC00, 0x3FF) } else { (0xFE00, 0x1FF) }
     }
 
     fn sat_base(&self) -> usize {
@@ -350,11 +333,7 @@ impl Vdp {
     /// position that moves on with each read.  A read in a loop waiting
     /// for a line advances the beam: [`Vdp::advance_on_hv_read`].
     pub fn read_hv(&self) -> u16 {
-        let v = if self.line <= 0xEA {
-            self.line
-        } else {
-            self.line - 6
-        };
+        let v = if self.line <= 0xEA { self.line } else { self.line - 6 };
         (v & 0xFF) << 8 | 0x80
     }
 
@@ -470,15 +449,7 @@ impl Vdp {
         (word(a) & 0x3FF, word(a + 2) & 0x3FF)
     }
 
-    fn plane_line(
-        &self,
-        base: usize,
-        hs: u16,
-        column_vs: &dyn Fn(usize) -> u16,
-        line: usize,
-        width: usize,
-        out: &mut [(u8, bool)],
-    ) {
+    fn plane_line(&self, base: usize, hs: u16, column_vs: &dyn Fn(usize) -> u16, line: usize, width: usize, out: &mut [(u8, bool)]) {
         let (pw, ph) = self.plane_size();
         for (x, o) in out.iter_mut().enumerate().take(width) {
             let sx = (x as i32 - i32::from(hs)).rem_euclid((pw * 8) as i32) as usize;
@@ -578,18 +549,10 @@ impl Vdp {
         let per_column = self.regs[11] & 4 != 0;
         let vsram = self.vsram;
         let vs_a = move |x: usize| {
-            if per_column {
-                vsram[(x / 16 * 2).min(38)]
-            } else {
-                vsram[0]
-            }
+            if per_column { vsram[(x / 16 * 2).min(38)] } else { vsram[0] }
         };
         let vs_b = move |x: usize| {
-            if per_column {
-                vsram[(x / 16 * 2 + 1).min(39)]
-            } else {
-                vsram[1]
-            }
+            if per_column { vsram[(x / 16 * 2 + 1).min(39)] } else { vsram[1] }
         };
         let mut a = [(0u8, false); WIDTH];
         let mut b = [(0u8, false); WIDTH];
@@ -602,14 +565,7 @@ impl Vdp {
         self.sprites(line, width, &mut s);
         for x in 0..width {
             let mut px = None;
-            for (layer, hi) in [
-                (&s, true),
-                (&a, true),
-                (&b, true),
-                (&s, false),
-                (&a, false),
-                (&b, false),
-            ] {
+            for (layer, hi) in [(&s, true), (&a, true), (&b, true), (&s, false), (&a, false), (&b, false)] {
                 let (c, h) = layer[x];
                 if c & 0x0F != 0 && h == hi {
                     px = Some(c);
@@ -684,12 +640,7 @@ impl Vdp {
                         break;
                     }
                     let v = |o: usize| word(&self.vram[..], (base + e + o) & 0xFFFE);
-                    list.push(Obj {
-                        attr: v(4),
-                        x: v(6) & 0x1FF,
-                        row: row as u16,
-                        size: size & 0x0F,
-                    });
+                    list.push(Obj { attr: v(4), x: v(6) & 0x1FF, row: row as u16, size: size & 0x0F });
                 }
             }
             link = usize::from(sl & 0x7F);
@@ -707,13 +658,7 @@ impl Vdp {
     /// screen ones too.
     fn sprites(&mut self, line: usize, width: usize, out: &mut [(u8, bool)]) {
         let max_pixels = match self.sprite_pixels {
-            0 => {
-                if self.h40() {
-                    320
-                } else {
-                    256
-                }
-            }
+            0 => if self.h40() { 320 } else { 256 },
             n => n,
         };
         let list = std::mem::take(&mut self.objs[line & 1]);
@@ -736,21 +681,13 @@ impl Vdp {
                     w -= pixels - max_pixels;
                 }
                 let row = usize::from(o.row);
-                let row = if o.attr & 0x1000 != 0 {
-                    ch * 8 - 1 - row
-                } else {
-                    row
-                };
+                let row = if o.attr & 0x1000 != 0 { ch * 8 - 1 - row } else { row };
                 for col in 0..w {
                     let px = x0 + col as i32;
                     if px < 0 || px as usize >= width {
                         continue;
                     }
-                    let c = if o.attr & 0x0800 != 0 {
-                        cw * 8 - 1 - col
-                    } else {
-                        col
-                    };
+                    let c = if o.attr & 0x0800 != 0 { cw * 8 - 1 - col } else { col };
                     let tile = usize::from(o.attr & 0x07FF) + (c / 8) * ch + row / 8;
                     let entry = (o.attr & 0xF800 & !0x1800) | (tile as u16 & 0x07FF);
                     let p = self.tile_pixel(entry, c & 7, row & 7);

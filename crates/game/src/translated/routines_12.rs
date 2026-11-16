@@ -2,13 +2,7 @@
 use crate::{Game, Regs};
 
 impl Game {
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b6b4(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -35,13 +29,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b6b6(&mut self, d4: u32, d5: u32, d6: u32) -> (u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -82,50 +70,8 @@ impl Game {
         return (d6, a6, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01b816(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-        x: bool,
-    ) -> (
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        bool,
-        bool,
-    ) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01b816(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -156,29 +102,7 @@ impl Game {
         self.insn(0x01B81E, 20);
         let mut unwound = false;
         {
-            let mut regs = Regs {
-                d0,
-                d1,
-                d2,
-                d3,
-                d4,
-                d5,
-                d6,
-                d7,
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                x,
-                n,
-                z,
-                v,
-                c,
-                unwound: false,
-            };
+            let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
             self.r_00b4c6(&mut regs);
             d0 = regs.d0;
             d1 = regs.d1;
@@ -212,29 +136,7 @@ impl Game {
         self.insn(0x01B836, 20);
         let mut unwound = false;
         {
-            let mut regs = Regs {
-                d0,
-                d1,
-                d2,
-                d3,
-                d4,
-                d5,
-                d6,
-                d7,
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                x,
-                n,
-                z,
-                v,
-                c,
-                unwound: false,
-            };
+            let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
             self.r_00b4c6(&mut regs);
             d0 = regs.d0;
             d1 = regs.d1;
@@ -268,19 +170,12 @@ impl Game {
         self.insn(0x01B850, 24);
         self.write32(0xFFFF92FA_u32, 0x1B87E_u32);
         self.insn(0x01B858, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_0094d8(
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-        );
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_0094d8(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
-            return (
-                d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-            );
+            return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
         }
         self.insn(0x01B85E, 20);
-        (d0, d6, a0, a1, a6, x) =
-            self.r_01c082(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
+        (d0, d6, a0, a1, a6, x) = self.r_01c082(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
         self.insn(0x01B864, 20);
         s4_l = 0x1B89A_u32;
         self.insn(0x01B86A, 12);
@@ -294,18 +189,10 @@ impl Game {
         self.insn(0x01B878, 18);
         self.r_0034b6(d0);
         self.insn(0x01B87C, 16);
-        return (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        );
+        return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b89a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -340,9 +227,7 @@ impl Game {
         self.insn(0x01B8A8, 12);
         s8_b = 0x14_u8;
         self.insn(0x01B8AC, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01B8B0, 8);
         self.insn(0x01B8B2, 16);
         self.write16(0xFFFF80C4_u32, 0x58_u16);
@@ -361,9 +246,7 @@ impl Game {
         self.insn(0x01B8DC, 12);
         s8_b = 0xA_u8;
         self.insn(0x01B8E0, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01B8E4, 8);
         self.insn(0x01B8E6, 16);
         self.write16(0xFFFF80C4_u32, 0x48_u16);
@@ -376,8 +259,7 @@ impl Game {
         self.insn(0x01B900, 20);
         (d0, x, c) = self.r_01b684(a5, a6);
         self.insn(0x01B906, 20);
-        (d0, d3, d5, a0, a5, x, c) =
-            self.r_01ba3c(d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5);
+        (d0, d3, d5, a0, a5, x, c) = self.r_01ba3c(d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5);
         self.insn(0x01B90C, 16);
         regs.d0 = d0;
         regs.d1 = d1;
@@ -400,13 +282,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b90e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -547,13 +423,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b962(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -580,13 +450,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b964(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -801,13 +665,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b9c4(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -895,13 +753,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b9e0(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -928,13 +780,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01b9e2(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -995,9 +841,7 @@ impl Game {
             if !z {
                 {
                     let mut unwound = false;
-                    (d0, d1, d6, a0, a6, x, c) = self.r_01ba12(
-                        d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-                    );
+                    (d0, d1, d6, a0, a6, x, c) = self.r_01ba12(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
                     regs.d0 = d0;
                     regs.d1 = d1;
                     regs.d2 = d2;
@@ -1022,29 +866,7 @@ impl Game {
                 self.insn(0x01B9F2, 20);
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_00b4c6(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -1077,8 +899,7 @@ impl Game {
                 self.insn(0x01BA0A, 12);
                 {
                     let mut unwound = false;
-                    (d0, d1, d6, a0, a6, x, c) =
-                        self.r_01797a(d2, d3, d4, d5, d7, a1, a2, a3, a4, a5);
+                    (d0, d1, d6, a0, a6, x, c) = self.r_01797a(d2, d3, d4, d5, d7, a1, a2, a3, a4, a5);
                     regs.d0 = d0;
                     regs.d1 = d1;
                     regs.d2 = d2;
@@ -1103,13 +924,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ba10(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -1136,32 +951,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01ba12(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-        x: bool,
-    ) -> (u32, u32, u32, u32, u32, bool, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01ba12(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -1188,29 +979,7 @@ impl Game {
         self.insn(0x01BA12, 20);
         let mut unwound = false;
         {
-            let mut regs = Regs {
-                d0,
-                d1,
-                d2,
-                d3,
-                d4,
-                d5,
-                d6,
-                d7,
-                a0,
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                x,
-                n,
-                z,
-                v,
-                c,
-                unwound: false,
-            };
+            let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
             self.r_00b4c6(&mut regs);
             d0 = regs.d0;
             d1 = regs.d1;
@@ -1248,13 +1017,7 @@ impl Game {
         return (d0, d1, d6, a0, a6, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ba36(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -1283,29 +1046,7 @@ impl Game {
         {
             let mut unwound = false;
             {
-                let mut regs = Regs {
-                    d0,
-                    d1,
-                    d2,
-                    d3,
-                    d4,
-                    d5,
-                    d6,
-                    d7,
-                    a0,
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    x,
-                    n,
-                    z,
-                    v,
-                    c,
-                    unwound: false,
-                };
+                let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                 self.r_01b9e2(&mut regs);
                 d0 = regs.d0;
                 d1 = regs.d1;
@@ -1348,29 +1089,8 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01ba3c(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-    ) -> (u32, u32, u32, u32, u32, bool, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01ba3c(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32) -> (u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -1526,19 +1246,12 @@ impl Game {
         let t39: u8 = self.read8(0xFFFF956F_u32);
         self.write8(0xFFFFAED9_u32, t39);
         self.insn(0x01BAEE, 20);
-        (d0, d3, d5, a0, a5, x, c) =
-            self.r_01bb9a(d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+        (d0, d3, d5, a0, a5, x, c) = self.r_01bb9a(d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
         self.insn(0x01BAF4, 16);
         return (d0, d3, d5, a0, a5, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01baf6(&mut self, d0: u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -1617,13 +1330,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01bb2c(&mut self) -> bool {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -1729,13 +1436,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01bb86(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -1771,30 +1472,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01bb9a(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        x: bool,
-    ) -> (u32, u32, u32, u32, u32, bool, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01bb9a(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, x: bool) -> (u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -1822,8 +1501,7 @@ impl Game {
             self.insn(0x01BB9C, 4);
             d0 = 0x1E_u32;
             self.insn(0x01BB9E, 18);
-            (d5, a5, x, c) =
-                self.r_000796(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+            (d5, a5, x, c) = self.r_000796(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
             self.insn(0x01BBA2, 22);
             let t1: u8 = self.read8(0x1BBDC_u32.wrapping_add(((d3 as u16) as i16 as i32 as u32)));
             let t2: u8 = t1;
@@ -1837,10 +1515,7 @@ impl Game {
             self.insn(0x01BBB6, 8);
             a0 = 0xFFFFAED6_u32;
             self.insn(0x01BBBA, 14);
-            let t3: u8 = self.read8(
-                a0.wrapping_add(0_u32)
-                    .wrapping_add(((d3 as u16) as i16 as i32 as u32)),
-            );
+            let t3: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d3 as u16) as i16 as i32 as u32)));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t3);
             self.insn(0x01BBBE, 8);
             let t4: u8 = (d0 as u8);
@@ -1872,13 +1547,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01bd36(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -1975,23 +1644,15 @@ impl Game {
                 self.insn(0x01BDB4, 8);
                 a0 = 0xFFFF9564_u32;
                 self.insn(0x01BDB8, 14);
-                let t20: u8 = self.read8(
-                    a0.wrapping_add(0_u32)
-                        .wrapping_add(((d2 as u16) as i16 as i32 as u32)),
-                );
+                let t20: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d2 as u16) as i16 as i32 as u32)));
                 d1 = (d1 & 0xFFFF_FF00) | u32::from(t20);
                 self.insn(0x01BDBC, 4);
                 let t21: u16 = ((d1 as u8) as i8 as i16 as u16);
                 d1 = (d1 & 0xFFFF_0000) | u32::from(t21);
                 self.insn(0x01BDBE, 24);
-                let t22: u8 =
-                    self.read8(0x1BE00_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
+                let t22: u8 = self.read8(0x1BE00_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
                 let t23: u8 = t22;
-                self.write8(
-                    a0.wrapping_add(0_u32)
-                        .wrapping_add(((d2 as u16) as i16 as i32 as u32)),
-                    t23,
-                );
+                self.write8(a0.wrapping_add(0_u32).wrapping_add(((d2 as u16) as i16 as i32 as u32)), t23);
                 c = false;
                 self.insn(0x01BDC4, 16);
                 regs.d0 = d0;
@@ -2027,23 +1688,15 @@ impl Game {
                     self.insn(0x01BDCE, 8);
                     a0 = 0xFFFF9564_u32;
                     self.insn(0x01BDD2, 14);
-                    let t24: u8 = self.read8(
-                        a0.wrapping_add(0_u32)
-                            .wrapping_add(((d2 as u16) as i16 as i32 as u32)),
-                    );
+                    let t24: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d2 as u16) as i16 as i32 as u32)));
                     d1 = (d1 & 0xFFFF_FF00) | u32::from(t24);
                     self.insn(0x01BDD6, 4);
                     let t25: u16 = ((d1 as u8) as i8 as i16 as u16);
                     d1 = (d1 & 0xFFFF_0000) | u32::from(t25);
                     self.insn(0x01BDD8, 24);
-                    let t26: u8 =
-                        self.read8(0x1BE0A_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
+                    let t26: u8 = self.read8(0x1BE0A_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
                     let t27: u8 = t26;
-                    self.write8(
-                        a0.wrapping_add(0_u32)
-                            .wrapping_add(((d2 as u16) as i16 as i32 as u32)),
-                        t27,
-                    );
+                    self.write8(a0.wrapping_add(0_u32).wrapping_add(((d2 as u16) as i16 as i32 as u32)), t27);
                     c = false;
                     self.insn(0x01BDDE, 16);
                     regs.d0 = d0;
@@ -2077,8 +1730,7 @@ impl Game {
                         self.insn(0x01BDE4, 18);
                         self.r_0034b6(d0);
                         self.insn(0x01BDE8, 22);
-                        let t28: u8 = self
-                            .read8(0x1BE14_u32.wrapping_add(((d2 as u16) as i16 as i32 as u32)));
+                        let t28: u8 = self.read8(0x1BE14_u32.wrapping_add(((d2 as u16) as i16 as i32 as u32)));
                         let t29: u8 = t28;
                         self.write8(0xFFFF9568_u32, t29);
                         c = false;
@@ -2114,9 +1766,7 @@ impl Game {
                             self.insn(0x01BDF4, 18);
                             self.r_0034b6(d0);
                             self.insn(0x01BDF8, 22);
-                            let t30: u8 = self.read8(
-                                0x1BE18_u32.wrapping_add(((d2 as u16) as i16 as i32 as u32)),
-                            );
+                            let t30: u8 = self.read8(0x1BE18_u32.wrapping_add(((d2 as u16) as i16 as i32 as u32)));
                             let t31: u8 = t30;
                             self.write8(0xFFFF9568_u32, t31);
                             c = false;
@@ -2150,8 +1800,7 @@ impl Game {
                                 self.insn(0x01BE1C, 4);
                                 d0 = 4_u32;
                                 self.insn(0x01BE1E, 20);
-                                (d0, a1, x, c) =
-                                    self.r_00a51a(d0, d1, d2, d3, d4, d5, d6, d7, a2, a3, a4, a5);
+                                (d0, a1, x, c) = self.r_00a51a(d0, d1, d2, d3, d4, d5, d6, d7, a2, a3, a4, a5);
                                 self.insn(0x01BE24, 20);
                                 s4_l = 0x1C016_u32;
                                 self.insn(0x01BE2A, 18);
@@ -2290,8 +1939,7 @@ impl Game {
                                         let t48: u8 = self.read8(0xFFFF80C4_u32);
                                         self.write8(0xFFFF9569_u32, t48);
                                         self.insn(0x01BE82, 12);
-                                        d0 = (d0 & 0xFFFF_FF00)
-                                            | u32::from(self.read8(0xFFFF9569_u32));
+                                        d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                         self.insn(0x01BE86, 8);
                                         let t49: u8 = (d0 as u8);
                                         let t50: u8 = (t49 & 0x70_u8);
@@ -2333,8 +1981,7 @@ impl Game {
                                                     }
                                                 } else {
                                                     self.insn(0x01BE9C, 12);
-                                                    d0 = (d0 & 0xFFFF_FF00)
-                                                        | u32::from(self.read8(0xFFFF9569_u32));
+                                                    d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                     self.insn(0x01BEA0, 8);
                                                     let t54: u8 = (d0 as u8);
                                                     let t55: u8 = (t54 & 0xF_u8);
@@ -2369,15 +2016,11 @@ impl Game {
                                                         self.extra(if !z { 0 } else { 2 });
                                                         if !z {
                                                             self.insn(0x01BF42, 12);
-                                                            d0 = (d0 & 0xFFFF_FF00)
-                                                                | u32::from(
-                                                                    self.read8(0xFFFF9569_u32),
-                                                                );
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                             self.insn(0x01BF46, 8);
                                                             let t77: u8 = (d0 as u8);
                                                             let t78: u8 = (t77 & 0xF_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t78);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t78);
                                                             self.insn(0x01BF4A, 8);
                                                             z = (d0 as u8) == 0xF_u8;
                                                             self.insn(0x01BF4E, 10);
@@ -2389,15 +2032,11 @@ impl Game {
                                                             }
                                                         } else {
                                                             self.insn(0x01BF2E, 12);
-                                                            d0 = (d0 & 0xFFFF_FF00)
-                                                                | u32::from(
-                                                                    self.read8(0xFFFF9569_u32),
-                                                                );
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                             self.insn(0x01BF32, 8);
                                                             let t75: u8 = (d0 as u8);
                                                             let t76: u8 = (t75 & 7_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t76);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t76);
                                                             self.insn(0x01BF36, 8);
                                                             z = (d0 as u8) == 7_u8;
                                                             self.insn(0x01BF3A, 10);
@@ -2411,8 +2050,7 @@ impl Game {
                                                         }
                                                     }
                                                     self.insn(0x01BF52, 12);
-                                                    d0 = (d0 & 0xFFFF_FF00)
-                                                        | u32::from(self.read8(0xFFFF9569_u32));
+                                                    d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                     self.insn(0x01BF56, 8);
                                                     let t79: u8 = (d0 as u8);
                                                     let t80: u8 = (t79 & 0xF_u8);
@@ -2421,8 +2059,7 @@ impl Game {
                                                     self.write8(0xFFFF953D_u32, (d0 as u8));
                                                     self.insn(0x01BF5E, 14);
                                                     let t81: u8 = (d0 as u8);
-                                                    let t83: (u8, bool, bool, bool) =
-                                                        self.asl8(t81, 4_u32);
+                                                    let t83: (u8, bool, bool, bool) = self.asl8(t81, 4_u32);
                                                     d0 = (d0 & 0xFFFF_FF00) | u32::from(t83.0);
                                                     self.insn(0x01BF60, 16);
                                                     let t84: u8 = self.read8(0xFFFF953D_u32);
@@ -2437,20 +2074,15 @@ impl Game {
                                                         self.extra(if !z { 0 } else { 2 });
                                                         if !z {
                                                             self.insn(0x01BEF0, 12);
-                                                            d0 = (d0 & 0xFFFF_FF00)
-                                                                | u32::from(
-                                                                    self.read8(0xFFFF9569_u32),
-                                                                );
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                             self.insn(0x01BEF4, 8);
                                                             let t61: u8 = (d0 as u8);
                                                             let t62: u8 = (t61 ^ 0xFF_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t62);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t62);
                                                             self.insn(0x01BEF8, 8);
                                                             let t63: u8 = (d0 as u8);
                                                             let t64: u8 = (t63 & 0xF_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t64);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t64);
                                                             z = t64 == 0;
                                                             self.insn(0x01BEFC, 10);
                                                             self.extra(if z { 0 } else { 2 });
@@ -2462,20 +2094,15 @@ impl Game {
                                                             }
                                                         } else {
                                                             self.insn(0x01BED8, 12);
-                                                            d0 = (d0 & 0xFFFF_FF00)
-                                                                | u32::from(
-                                                                    self.read8(0xFFFF9569_u32),
-                                                                );
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                             self.insn(0x01BEDC, 8);
                                                             let t57: u8 = (d0 as u8);
                                                             let t58: u8 = (t57 ^ 0xFF_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t58);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t58);
                                                             self.insn(0x01BEE0, 8);
                                                             let t59: u8 = (d0 as u8);
                                                             let t60: u8 = (t59 & 7_u8);
-                                                            d0 =
-                                                                (d0 & 0xFFFF_FF00) | u32::from(t60);
+                                                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t60);
                                                             z = t60 == 0;
                                                             self.insn(0x01BEE4, 10);
                                                             self.extra(if z { 0 } else { 2 });
@@ -2491,8 +2118,7 @@ impl Game {
                                                     'l01bf04: loop {
                                                         self.insn(0x01BF04, 8);
                                                         let t65: u8 = (d0 as u8);
-                                                        let t67: (u8, bool, bool, bool) =
-                                                            self.lsr8(t65, 1_u32);
+                                                        let t67: (u8, bool, bool, bool) = self.lsr8(t65, 1_u32);
                                                         c = t67.1;
                                                         d0 = (d0 & 0xFFFF_FF00) | u32::from(t67.0);
                                                         self.insn(0x01BF06, 8);
@@ -2508,31 +2134,21 @@ impl Game {
                                                                 break 'l01bf9a;
                                                             } else {
                                                                 self.insn(0x01BF10, 12);
-                                                                d0 = (d0 & 0xFFFF_FF00)
-                                                                    | u32::from(
-                                                                        self.read8(0xFFFF9569_u32),
-                                                                    );
+                                                                d0 = (d0 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF9569_u32));
                                                                 self.insn(0x01BF14, 8);
                                                                 let t68: u8 = (d0 as u8);
                                                                 let t69: u8 = (t68 & 0xF_u8);
-                                                                d0 = (d0 & 0xFFFF_FF00)
-                                                                    | u32::from(t69);
+                                                                d0 = (d0 & 0xFFFF_FF00) | u32::from(t69);
                                                                 self.insn(0x01BF18, 14);
                                                                 let t70: u8 = (d0 as u8);
-                                                                let t72: (u8, bool, bool, bool) =
-                                                                    self.asl8(t70, 4_u32);
-                                                                d0 = (d0 & 0xFFFF_FF00)
-                                                                    | u32::from(t72.0);
+                                                                let t72: (u8, bool, bool, bool) = self.asl8(t70, 4_u32);
+                                                                d0 = (d0 & 0xFFFF_FF00) | u32::from(t72.0);
                                                                 self.insn(0x01BF1A, 8);
                                                                 let t73: u8 = (d0 as u8);
                                                                 let t74: u8 = (t73 | 0xF_u8);
-                                                                d0 = (d0 & 0xFFFF_FF00)
-                                                                    | u32::from(t74);
+                                                                d0 = (d0 & 0xFFFF_FF00) | u32::from(t74);
                                                                 self.insn(0x01BF1E, 12);
-                                                                self.write8(
-                                                                    0xFFFF953D_u32,
-                                                                    (d0 as u8),
-                                                                );
+                                                                self.write8(0xFFFF953D_u32, (d0 as u8));
                                                                 self.insn(0x01BF22, 10);
                                                                 break 'l01bf64;
                                                             }
@@ -2630,13 +2246,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01bfc2(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -2698,8 +2308,7 @@ impl Game {
             self.insn(0x01BFD6, 4);
             d0 = 0xA_u32;
             self.insn(0x01BFD8, 18);
-            (d5, a5, x, c) =
-                self.r_000796(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+            (d5, a5, x, c) = self.r_000796(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
             self.insn(0x01BFDC, 12);
             self.write8(a6.wrapping_add(3_u32), (d5 as u8));
             self.insn(0x01BFE0, 16);
@@ -2765,13 +2374,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c014(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -2798,13 +2401,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c016(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -2856,9 +2453,7 @@ impl Game {
         self.insn(0x01C01E, 12);
         {
             let mut unwound = false;
-            (d0, d1, d6, a0, a6, x, c) = self.r_01ba12(
-                d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-            );
+            (d0, d1, d6, a0, a6, x, c) = self.r_01ba12(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
             regs.d0 = d0;
             regs.d1 = d1;
             regs.d2 = d2;
@@ -2881,13 +2476,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c024(&mut self, d0: u32, d3: u32) -> (u32, u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -3011,13 +2600,7 @@ impl Game {
         return (d0, d3);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c06a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3049,10 +2632,7 @@ impl Game {
         self.insn(0x01C070, 8);
         a0 = 0xFFFF9564_u32;
         self.insn(0x01C074, 14);
-        let t3: u8 = self.read8(
-            a0.wrapping_add(0_u32)
-                .wrapping_add(((d0 as u16) as i16 as i32 as u32)),
-        );
+        let t3: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d0 as u16) as i16 as i32 as u32)));
         d0 = (d0 & 0xFFFF_FF00) | u32::from(t3);
         self.insn(0x01C078, 8);
         let t4: u8 = (d0 as u8);
@@ -3085,30 +2665,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01c082(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-        x: bool,
-    ) -> (u32, u32, u32, u32, u32, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01c082(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -3165,29 +2723,7 @@ impl Game {
                 self.insn(0x01C0AA, 20);
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_008664(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -3233,13 +2769,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c0d8(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3322,13 +2852,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c0f6(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3403,13 +2927,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c106(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3538,13 +3056,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c15c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3635,13 +3147,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c180(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -3668,13 +3174,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c182(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3762,13 +3262,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c1a6(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3852,13 +3346,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c1c0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -3985,13 +3473,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c212(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4084,13 +3566,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c23a(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -4117,13 +3593,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c23c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4208,13 +3678,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c258(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -4261,13 +3725,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c28c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = 0;
         let mut d1: u32 = regs.d1;
@@ -4291,9 +3749,7 @@ impl Game {
         let mut c: bool = false;
         let mut unw: bool = false;
         self.insn(0x01C28C, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_01c294(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_01c294(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
             regs.d0 = d0;
             regs.d1 = d1;
@@ -4337,48 +3793,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01c294(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-        x: bool,
-    ) -> (
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        bool,
-        bool,
-    ) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01c294(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -4415,15 +3831,9 @@ impl Game {
         self.insn(0x01C2A6, 24);
         self.write32(0xFFFF92FA_u32, 0x1C356_u32);
         self.insn(0x01C2AE, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_0094d8(
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-        );
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_0094d8(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
-            return (
-                d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-            );
+            return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
         }
         self.insn(0x01C2B4, 28);
         let t2: u32 = s4_l;
@@ -4439,9 +3849,7 @@ impl Game {
         self.insn(0x01C2CE, 12);
         s8_b = 0xE6_u8;
         self.insn(0x01C2D2, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01C2D6, 8);
         self.insn(0x01C2D8, 16);
         self.write16(0xFFFF80C4_u32, 0x88_u16);
@@ -4491,18 +3899,10 @@ impl Game {
         self.write8(0xFFFF80DF_u32, 1_u8);
         c = false;
         self.insn(0x01C354, 16);
-        return (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        );
+        return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c366(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4585,13 +3985,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c380(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4679,8 +4073,7 @@ impl Game {
             self.insn(0x01C3CC, 18);
             (d4, a4, x) = self.r_001cfa(d4);
             self.insn(0x01C3D0, 18);
-            (d0, d5, a5, x) =
-                self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+            (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
             self.insn(0x01C3D4, 16);
             self.write8(a4.wrapping_add(0xF_u32), 0x11_u8);
             self.insn(0x01C3DA, 16);
@@ -4739,13 +4132,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c41e(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -4772,13 +4159,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c420(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4882,13 +4263,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c45a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -4994,13 +4369,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c494(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5076,13 +4445,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c4c4(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5170,13 +4533,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c514(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5254,28 +4611,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01c558(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-    ) -> (u32, u32, u32, u32, u32, u32, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01c558(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32) -> (u32, u32, u32, u32, u32, u32, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -5359,13 +4696,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c592(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5415,8 +4746,7 @@ impl Game {
             self.insn(0x01C5B2, 18);
             (d0, d1, d4, a4) = self.r_00398c(d0, d1, d4, a4, a5);
             self.insn(0x01C5B6, 20);
-            (d0, d1, d2, d5, a0, a5, c) =
-                self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
+            (d0, d1, d2, d5, a0, a5, c) = self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
             self.insn(0x01C5BC, 10);
             self.extra(if !c { 0 } else { 2 });
             if !c {
@@ -5525,13 +4855,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c620(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5619,13 +4943,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c638(&mut self, d1: u32, a4: u32, a5: u32) -> (u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
@@ -5654,13 +4972,7 @@ impl Game {
         return (d0, d1, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c63e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5740,13 +5052,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c64e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5833,8 +5139,7 @@ impl Game {
         }
         'l01c6b2: {
             self.insn(0x01C69E, 20);
-            (d0, d1, d2, d5, a0, a5, c) =
-                self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
+            (d0, d1, d2, d5, a0, a5, c) = self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
             self.insn(0x01C6A4, 18);
             (d0, d1, d2, a0, x, c) = self.r_006e7c(d1, d2, a0, a4, a5);
             self.insn(0x01C6A8, 10);
@@ -5869,13 +5174,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c6b4(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -5900,8 +5199,7 @@ impl Game {
         let mut unw: bool = false;
         'l01c6d4: {
             self.insn(0x01C6B4, 20);
-            (d0, d1, d2, d5, a0, a5, c) =
-                self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
+            (d0, d1, d2, d5, a0, a5, c) = self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
             self.insn(0x01C6BA, 12);
             let t1: u8 = self.read8(a4.wrapping_add(0x27_u32));
             z = t1 == 0;
@@ -6017,13 +5315,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c716(&mut self, d0: u32) -> (u32, u32, u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -6085,13 +5377,7 @@ impl Game {
         return (d4, a0, a4, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c75a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6184,13 +5470,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c780(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6367,13 +5647,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c7f8(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -6400,13 +5674,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c800(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6508,9 +5776,7 @@ impl Game {
             self.insn(0x01C86C, 12);
             s8_b = 0x14_u8;
             self.insn(0x01C870, 18);
-            (d5, d6, a5, a6, x, c) = self.r_001222(
-                d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-            );
+            (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
             self.insn(0x01C874, 8);
             self.insn(0x01C876, 16);
             self.write16(0xFFFF80C4_u32, 0x18_u16);
@@ -6550,13 +5816,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c89e(&mut self, d0: u32, a4: u32) -> (u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -6590,13 +5850,7 @@ impl Game {
         return (a0, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c8ac(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6663,13 +5917,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c8ea(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6727,13 +5975,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c908(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6793,13 +6035,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c91a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -6859,8 +6095,7 @@ impl Game {
                     self.insn(0x01C958, 18);
                     (d4, a4, x) = self.r_001cfa(d4);
                     self.insn(0x01C95C, 18);
-                    (d0, d5, a5, x) =
-                        self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                    (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                     self.insn(0x01C960, 16);
                     self.write8(a4.wrapping_add(0xF_u32), 0x31_u8);
                     self.insn(0x01C966, 16);
@@ -6928,13 +6163,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c982(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -7019,13 +6248,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01c9a6(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -7120,8 +6343,7 @@ impl Game {
                         self.insn(0x01CA0A, 18);
                         (d4, a4, x) = self.r_001cfa(d4);
                         self.insn(0x01CA0E, 18);
-                        (d0, d5, a5, x) = self
-                            .r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                        (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                         self.insn(0x01CA12, 16);
                         self.write8(a5.wrapping_add(4_u32), 0_u8);
                         self.insn(0x01CA18, 16);
@@ -7197,13 +6419,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ca4e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -7378,13 +6594,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cad2(&mut self, d0: u32, d1: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
@@ -7447,13 +6657,7 @@ impl Game {
         return a4;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cb74(&mut self, regs: &mut Regs) {
         let mut d0: u32 = 0;
         let mut d1: u32 = regs.d1;
@@ -7477,9 +6681,7 @@ impl Game {
         let mut c: bool = false;
         let mut unw: bool = false;
         self.insn(0x01CB74, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_01cb7c(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_01cb7c(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
             regs.d0 = d0;
             regs.d1 = d1;
@@ -7523,48 +6725,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01cb7c(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-        x: bool,
-    ) -> (
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        bool,
-        bool,
-    ) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01cb7c(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -7605,15 +6767,9 @@ impl Game {
         self.insn(0x01CB9A, 24);
         self.write32(0xFFFF92FA_u32, 0x1CCA2_u32);
         self.insn(0x01CBA2, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_0094d8(
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-        );
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_0094d8(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
-            return (
-                d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-            );
+            return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
         }
         self.insn(0x01CBA8, 28);
         let t2: u32 = s4_l;
@@ -7676,20 +6832,12 @@ impl Game {
                 self.write8(0xFFFF80DF_u32, 1_u8);
                 c = false;
                 self.insn(0x01CC20, 16);
-                return (
-                    d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-                );
+                return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
             }
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cc22(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -7822,13 +6970,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ccb2(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -7919,8 +7061,7 @@ impl Game {
                 self.insn(0x01CD20, 18);
                 (d4, a4, x) = self.r_001cfa(d4);
                 self.insn(0x01CD24, 18);
-                (d0, d5, a5, x) =
-                    self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                 self.insn(0x01CD28, 16);
                 self.write8(a5.wrapping_add(4_u32), 0_u8);
                 self.insn(0x01CD2E, 16);
@@ -7967,13 +7108,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cd5a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8110,13 +7245,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cdaa(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8189,13 +7318,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cdda(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8378,13 +7501,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ce6a(&mut self, d4: u32, a4: u32) -> (u32, u32) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -8491,13 +7608,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ceca(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8570,13 +7681,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ceee(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8649,13 +7754,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cf14(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8707,10 +7806,7 @@ impl Game {
         self.insn(0x01CF3C, 16);
         a0 = self.read32(0xFFFF80C4_u32);
         self.insn(0x01CF40, 14);
-        let t5: u8 = self.read8(
-            a0.wrapping_add(0_u32)
-                .wrapping_add(((d0 as u16) as i16 as i32 as u32)),
-        );
+        let t5: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d0 as u16) as i16 as i32 as u32)));
         d0 = (d0 & 0xFFFF_FF00) | u32::from(t5);
         z = t5 == 0;
         self.insn(0x01CF44, 10);
@@ -8800,13 +7896,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cf86(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8890,13 +7980,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cfca(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -8973,13 +8057,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01cff6(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -9080,13 +8158,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d028(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -9142,8 +8214,7 @@ impl Game {
                         self.insn(0x01D066, 4);
                         d0 = (d0 & 0xFFFF_0000) | u32::from(0_u16);
                         self.insn(0x01D068, 20);
-                        (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                            self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
+                        (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
                         self.insn(0x01D06E, 10);
                         break 'l01d07a;
                     } else {
@@ -9155,20 +8226,17 @@ impl Game {
                             self.insn(0x01D072, 4);
                             d0 = 1_u32;
                             self.insn(0x01D074, 20);
-                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                                self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
+                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
                             break 'l01d07a;
                         } else {
                             self.insn(0x01D052, 4);
                             d0 = (d0 & 0xFFFF_0000) | u32::from(0_u16);
                             self.insn(0x01D054, 20);
-                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                                self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
+                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
                             self.insn(0x01D05A, 4);
                             d0 = 1_u32;
                             self.insn(0x01D05C, 20);
-                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                                self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
+                            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d090(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5, a6);
                             self.insn(0x01D062, 10);
                             break 'l01d07a;
                         }
@@ -9223,29 +8291,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d090(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a5: u32,
-        a6: u32,
-    ) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d090(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a5: u32, a6: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -9297,8 +8344,7 @@ impl Game {
             self.insn(0x01D12A, 16);
             self.write8(0xFFFFAEE0_u32, 0x80_u8);
             self.insn(0x01D130, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D136, 12);
             let t25: u8 = self.read8(a4.wrapping_add(0x19_u32));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t25);
@@ -9320,8 +8366,7 @@ impl Game {
             self.insn(0x01D14E, 16);
             self.write8(0xFFFFAEE0_u32, 0x70_u8);
             self.insn(0x01D154, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D15A, 12);
             let t31: u8 = self.read8(a4.wrapping_add(0x19_u32));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t31);
@@ -9343,8 +8388,7 @@ impl Game {
             self.insn(0x01D172, 16);
             self.write8(0xFFFFAEE0_u32, 0x60_u8);
             self.insn(0x01D178, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D17E, 16);
             return (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6);
         } else {
@@ -9373,8 +8417,7 @@ impl Game {
             self.insn(0x01D0B6, 16);
             self.write8(0xFFFFAEE0_u32, 0x80_u8);
             self.insn(0x01D0BC, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D0C2, 12);
             let t7: u8 = self.read8(a4.wrapping_add(0x19_u32));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t7);
@@ -9396,8 +8439,7 @@ impl Game {
             self.insn(0x01D0DA, 16);
             self.write8(0xFFFFAEE0_u32, 0x90_u8);
             self.insn(0x01D0E0, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D0E6, 12);
             let t13: u8 = self.read8(a4.wrapping_add(0x19_u32));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t13);
@@ -9419,38 +8461,14 @@ impl Game {
             self.insn(0x01D0FE, 16);
             self.write8(0xFFFFAEE0_u32, 0xA0_u8);
             self.insn(0x01D104, 20);
-            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) =
-                self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
+            (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6) = self.r_01d180(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6);
             self.insn(0x01D10A, 16);
             return (d0, d1, d2, d4, d5, d6, a0, a4, a5, a6);
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d180(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-    ) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d180(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -9515,8 +8533,7 @@ impl Game {
                     self.insn(0x01D1B2, 18);
                     (d4, a4, x) = self.r_001cfa(d4);
                     self.insn(0x01D1B6, 18);
-                    (d0, d5, a5, x) =
-                        self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                    (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                     self.insn(0x01D1BA, 16);
                     self.write8(a5.wrapping_add(4_u32), 0_u8);
                     self.insn(0x01D1C0, 16);
@@ -9581,13 +8598,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d208(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -9614,13 +8625,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d20a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -9769,8 +8774,7 @@ impl Game {
                     self.insn(0x01D2AE, 18);
                     (d4, a4, x) = self.r_001cfa(d4);
                     self.insn(0x01D2B2, 18);
-                    (d0, d5, a5, x) =
-                        self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                    (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                     self.insn(0x01D2B6, 16);
                     self.write8(a5.wrapping_add(4_u32), 0_u8);
                     self.insn(0x01D2BC, 16);
@@ -9889,13 +8893,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d30a(&mut self, a4: u32) -> bool {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -9927,13 +8925,7 @@ impl Game {
         return c;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d314(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10008,13 +9000,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d31c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10216,13 +9202,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d3bc(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10282,13 +9262,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d3e0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10376,18 +9350,15 @@ impl Game {
             self.insn(0x01D42E, 4);
             d0 = 1_u32;
             self.insn(0x01D430, 18);
-            (d0, d1, d2, d4, d5, a0, a4, a5, x) =
-                self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
+            (d0, d1, d2, d4, d5, a0, a4, a5, x) = self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
             self.insn(0x01D434, 4);
             d0 = 2_u32;
             self.insn(0x01D436, 18);
-            (d0, d1, d2, d4, d5, a0, a4, a5, x) =
-                self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
+            (d0, d1, d2, d4, d5, a0, a4, a5, x) = self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
             self.insn(0x01D43A, 4);
             d0 = 3_u32;
             self.insn(0x01D43C, 18);
-            (d0, d1, d2, d4, d5, a0, a4, a5, x) =
-                self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
+            (d0, d1, d2, d4, d5, a0, a4, a5, x) = self.r_01d458(d0, d1, d2, d3, d5, d6, d7, a0, a1, a2, a3, a5);
             self.insn(0x01D440, 16);
             self.write8(0xFFFFAEEC_u32, 1_u8);
             self.insn(0x01D446, 16);
@@ -10421,13 +9392,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d44e(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -10454,28 +9419,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d458(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a0: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a5: u32,
-    ) -> (u32, u32, u32, u32, u32, u32, u32, u32, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d458(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a5: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -10554,8 +9499,7 @@ impl Game {
             self.insn(0x01D4A0, 18);
             (d4, a4, x) = self.r_001cfa(d4);
             self.insn(0x01D4A4, 18);
-            (d0, d5, a5, x) =
-                self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+            (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
             self.insn(0x01D4A8, 16);
             self.write8(a5.wrapping_add(4_u32), 0_u8);
             self.insn(0x01D4AE, 16);
@@ -10591,13 +9535,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d4f4(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10651,8 +9589,7 @@ impl Game {
                 self.insn(0x01D524, 18);
                 (d0, d1, d4, a4) = self.r_00398c(d0, d1, d4, a4, a5);
                 self.insn(0x01D528, 20);
-                (d0, d1, d2, d5, a0, a5, c) =
-                    self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
+                (d0, d1, d2, d5, a0, a5, c) = self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
                 self.insn(0x01D52E, 18);
                 (d0, x) = self.r_0015e6(a4);
                 self.insn(0x01D532, 20);
@@ -10746,13 +9683,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d57e(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -10779,13 +9710,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d580(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -10825,29 +9750,7 @@ impl Game {
             {
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_01d59e(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -10899,29 +9802,7 @@ impl Game {
             {
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_01d59e(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -10965,13 +9846,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d59e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11072,13 +9947,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d5e0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11117,8 +9986,7 @@ impl Game {
                     self.insn(0x01D5F2, 18);
                     (d0, d1, d4, a4) = self.r_00398c(d0, d1, d4, a4, a5);
                     self.insn(0x01D5F6, 20);
-                    (d0, d1, d2, d5, a0, a5, c) =
-                        self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
+                    (d0, d1, d2, d5, a0, a5, c) = self.r_01c558(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4);
                     self.insn(0x01D5FC, 18);
                     (d0, x) = self.r_0015e6(a4);
                     self.insn(0x01D600, 18);
@@ -11173,22 +10041,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d632(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d5: u32,
-        a4: u32,
-        x: bool,
-    ) -> (u32, u32, u32, u32, u32, u32, bool, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d632(&mut self, d0: u32, d1: u32, d2: u32, d5: u32, a4: u32, x: bool) -> (u32, u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -11243,13 +10097,7 @@ impl Game {
         return (d0, d1, d2, d5, a0, a5, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d670(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11349,13 +10197,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d6a0(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -11382,13 +10224,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d6a2(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11430,10 +10266,7 @@ impl Game {
         self.insn(0x01D6B2, 12);
         a0 = 0x1D762_u32;
         self.insn(0x01D6B8, 14);
-        let t8: u8 = self.read8(
-            a0.wrapping_add(0_u32)
-                .wrapping_add(((d0 as u16) as i16 as i32 as u32)),
-        );
+        let t8: u8 = self.read8(a0.wrapping_add(0_u32).wrapping_add(((d0 as u16) as i16 as i32 as u32)));
         d0 = (d0 & 0xFFFF_FF00) | u32::from(t8);
         self.insn(0x01D6BC, 16);
         let t9: u32 = a4.wrapping_add(0x19_u32);
@@ -11581,13 +10414,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d722(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11627,29 +10454,7 @@ impl Game {
             {
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_01d740(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -11701,29 +10506,7 @@ impl Game {
             {
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.r_01d740(&mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -11767,13 +10550,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d740(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -11861,13 +10638,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d806(&mut self, regs: &mut Regs) {
         let mut d0: u32 = 0;
         let mut d1: u32 = regs.d1;
@@ -11891,9 +10662,7 @@ impl Game {
         let mut c: bool = false;
         let mut unw: bool = false;
         self.insn(0x01D806, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_01d80e(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6);
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_01d80e(d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, a6);
         if self.restarted.is_some() {
             regs.d0 = d0;
             regs.d1 = d1;
@@ -11937,47 +10706,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d80e(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-        a6: u32,
-    ) -> (
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        bool,
-        bool,
-    ) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d80e(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, bool, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -12020,15 +10750,9 @@ impl Game {
         self.insn(0x01D82C, 24);
         self.write32(0xFFFF92FA_u32, 0x1D95E_u32);
         self.insn(0x01D834, 20);
-        (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        ) = self.r_0094d8(
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x,
-        );
+        (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c) = self.r_0094d8(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x);
         if self.restarted.is_some() {
-            return (
-                d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-            );
+            return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
         }
         self.insn(0x01D83A, 28);
         let t2: u32 = s4_l;
@@ -12074,9 +10798,7 @@ impl Game {
         self.insn(0x01D8A4, 12);
         s8_b = 0xFE_u8;
         self.insn(0x01D8A8, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01D8AC, 8);
         self.insn(0x01D8AE, 16);
         self.write16(a6.wrapping_add(0xE_u32), 0x88_u16);
@@ -12095,9 +10817,7 @@ impl Game {
         self.insn(0x01D8D4, 12);
         s8_b = 1_u8;
         self.insn(0x01D8D8, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01D8DC, 8);
         self.insn(0x01D8DE, 16);
         self.write8(a5.wrapping_add(5_u32), 0x81_u8);
@@ -12112,9 +10832,7 @@ impl Game {
         self.insn(0x01D8FA, 12);
         s8_b = 1_u8;
         self.insn(0x01D8FE, 18);
-        (d5, d6, a5, a6, x, c) = self.r_001222(
-            d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-        );
+        (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
         self.insn(0x01D902, 8);
         self.insn(0x01D904, 16);
         self.write8(a5.wrapping_add(5_u32), 0x81_u8);
@@ -12154,34 +10872,11 @@ impl Game {
         self.insn(0x01D958, 18);
         self.r_0034b6(d0);
         self.insn(0x01D95C, 16);
-        return (
-            d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c,
-        );
+        return (d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01d96e(
-        &mut self,
-        d0: u32,
-        d1: u32,
-        d2: u32,
-        d3: u32,
-        d4: u32,
-        d5: u32,
-        d6: u32,
-        d7: u32,
-        a1: u32,
-        a2: u32,
-        a3: u32,
-        a4: u32,
-        a5: u32,
-    ) -> (u32, u32, u32, u32, u32) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01d96e(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32) -> (u32, u32, u32, u32, u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -12216,9 +10911,7 @@ impl Game {
             self.insn(0x01D97E, 12);
             s8_b = 2_u8;
             self.insn(0x01D982, 18);
-            (d5, d6, a5, a6, x, c) = self.r_001222(
-                d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-            );
+            (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
             self.insn(0x01D986, 8);
             self.insn(0x01D988, 18);
             (d0, d1, x) = self.r_001be2(d1);
@@ -12256,13 +10949,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01d9be(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -12429,13 +11116,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01da30(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -12498,13 +11179,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01da48(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -12601,13 +11276,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01da7c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -12708,13 +11377,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01daae(&mut self, d4: u32, d5: u32, d6: u32) -> (u32, u32, u32, u32, u32, u32) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -12769,13 +11432,7 @@ impl Game {
         return (d4, d5, d6, a4, a5, a6);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dae0(&mut self, d4: u32, d5: u32) -> (u32, u32, u32, u32) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -12830,13 +11487,7 @@ impl Game {
         return (d4, d5, a4, a5);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01db0c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -12978,13 +11629,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01db7e(&mut self, d0: u32, a6: u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -13021,8 +11666,7 @@ impl Game {
                 let t5: u16 = ((d0 as u8) as i8 as i16 as u16);
                 d0 = (d0 & 0xFFFF_0000) | u32::from(t5);
                 self.insn(0x01DB84, 30);
-                let t6: u32 =
-                    self.read32(0x1DBA8_u32.wrapping_add(((d0 as u16) as i16 as i32 as u32)));
+                let t6: u32 = self.read32(0x1DBA8_u32.wrapping_add(((d0 as u16) as i16 as i32 as u32)));
                 let t7: u32 = t6;
                 self.write32(a6.wrapping_add(0x20_u32), t7);
                 self.insn(0x01DB8A, 16);
@@ -13058,13 +11702,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dbb0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -13115,9 +11753,7 @@ impl Game {
             self.insn(0x01DBE0, 12);
             s8_b = 1_u8;
             self.insn(0x01DBE4, 18);
-            (d5, d6, a5, a6, x, c) = self.r_001222(
-                d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-            );
+            (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
             self.insn(0x01DBE8, 8);
             self.insn(0x01DBEA, 18);
             self.r_00152a(a6);
@@ -13167,13 +11803,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dc12(&mut self, d0: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -13226,13 +11856,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dc46(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -13322,13 +11946,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dc60(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -13394,13 +12012,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dc7c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -13518,8 +12130,7 @@ impl Game {
                             self.insn(0x01DD40, 18);
                             (d1, d2, x) = self.r_0034de(d0, d1, d2, a4);
                             self.insn(0x01DD44, 18);
-                            (d0, d1, d2, d5, a0, a5, x, z, c) =
-                                self.r_001336(d0, d1, d2, d5, a4, x);
+                            (d0, d1, d2, d5, a0, a5, x, z, c) = self.r_001336(d0, d1, d2, d5, a4, x);
                             self.insn(0x01DD48, 10);
                             {
                                 let mut unwound = false;
@@ -13678,13 +12289,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dd58(&mut self, d0: u32, d1: u32, d3: u32, a4: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
@@ -13753,13 +12358,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dd9e(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -13884,13 +12483,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01de02(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -13927,13 +12520,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01de14(&mut self, d0: u32) -> (u32, bool, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -13987,13 +12574,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01de36(&mut self, d0: u32, d3: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14033,13 +12614,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01de4e(&mut self, d0: u32, d3: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14079,13 +12654,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01de66(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -14133,9 +12702,7 @@ impl Game {
             self.insn(0x01DE8C, 12);
             s8_b = 1_u8;
             self.insn(0x01DE90, 18);
-            (d5, d6, a5, a6, x, c) = self.r_001222(
-                d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l,
-            );
+            (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s8_b, s6_b, s4_l);
             self.insn(0x01DE94, 8);
             self.insn(0x01DE96, 20);
             self.r_01dec4();
@@ -14187,13 +12754,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dec4(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -14250,13 +12811,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01defc(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -14349,13 +12904,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01df1e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -14537,13 +13086,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dfa4(&mut self, d0: u32, d3: u32, a4: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14586,13 +13129,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dfc0(&mut self, d0: u32, d3: u32, a4: u32) -> u32 {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14635,13 +13172,7 @@ impl Game {
         return d0;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01dfdc(&mut self, d0: u32, d1: u32, a4: u32) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
@@ -14730,13 +13261,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e032(&mut self, d0: u32, d1: u32, d2: u32, a4: u32) -> (u32, u32, u32, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = d1;
@@ -14811,13 +13336,7 @@ impl Game {
         return (d0, d1, d2, x);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e078(&mut self, d0: u32) -> (u32, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14866,13 +13385,7 @@ impl Game {
         return (d0, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e09a(&mut self, d0: u32) -> (u32, bool) {
         let mut d0: u32 = d0;
         let mut d1: u32 = 0;
@@ -14921,13 +13434,7 @@ impl Game {
         return (d0, c);
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e0bc(&mut self, a4: u32) -> bool {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -15027,13 +13534,7 @@ impl Game {
         return x;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e0fc(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15121,13 +13622,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e12a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15219,13 +13714,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e16e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15273,8 +13762,7 @@ impl Game {
                 let t4: u16 = t3.wrapping_add((d1 as u16));
                 d1 = (d1 & 0xFFFF_0000) | u32::from(t4);
                 self.insn(0x01E18C, 18);
-                let t5: u32 =
-                    self.read32(0x1E1AE_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
+                let t5: u32 = self.read32(0x1E1AE_u32.wrapping_add(((d1 as u16) as i16 as i32 as u32)));
                 a0 = t5;
                 self.insn(0x01E190, 12);
                 d5 = (d5 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF8A57_u32));
@@ -15283,29 +13771,7 @@ impl Game {
                 self.insn(0x01E198, 16);
                 let mut unwound = false;
                 {
-                    let mut regs = Regs {
-                        d0,
-                        d1,
-                        d2,
-                        d3,
-                        d4,
-                        d5,
-                        d6,
-                        d7,
-                        a0,
-                        a1,
-                        a2,
-                        a3,
-                        a4,
-                        a5,
-                        a6,
-                        x,
-                        n,
-                        z,
-                        v,
-                        c,
-                        unwound: false,
-                    };
+                    let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                     self.call_family_2(a0, &mut regs);
                     d0 = regs.d0;
                     d1 = regs.d1;
@@ -15352,29 +13818,7 @@ impl Game {
         {
             let mut unwound = false;
             {
-                let mut regs = Regs {
-                    d0,
-                    d1,
-                    d2,
-                    d3,
-                    d4,
-                    d5,
-                    d6,
-                    d7,
-                    a0,
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    x,
-                    n,
-                    z,
-                    v,
-                    c,
-                    unwound: false,
-                };
+                let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
                 self.r_01e1ac(&mut regs);
                 d0 = regs.d0;
                 d1 = regs.d1;
@@ -15408,13 +13852,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e1ac(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15450,13 +13888,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e1ca(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15521,8 +13953,7 @@ impl Game {
                 break 'l01e1f6;
             } else {
                 self.insn(0x01E1F2, 14);
-                let t5: u8 =
-                    self.read8(0x1E214_u32.wrapping_add(((d0 as u16) as i16 as i32 as u32)));
+                let t5: u8 = self.read8(0x1E214_u32.wrapping_add(((d0 as u16) as i16 as i32 as u32)));
                 d1 = (d1 & 0xFFFF_FF00) | u32::from(t5);
                 break 'l01e1f6;
             }
@@ -15552,13 +13983,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e21c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -15788,13 +14213,7 @@ impl Game {
         }
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e300(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -15886,13 +14305,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e33a(&mut self) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -15975,13 +14388,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e374(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -16028,13 +14435,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e38c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -16077,13 +14478,7 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01e3a0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
         let mut d1: u32 = regs.d1;
@@ -16151,8 +14546,7 @@ impl Game {
                     self.insn(0x01E3C8, 24);
                     self.write32(0xFFFF80D0_u32, 0x1DF1E_u32);
                     self.insn(0x01E3D0, 18);
-                    (d0, d5, a5, x) =
-                        self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
+                    (d0, d5, a5, x) = self.r_0012a0(d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, x);
                     self.insn(0x01E3D4, 16);
                     self.write8(a5.wrapping_add(4_u32), 0x1F_u8);
                     self.insn(0x01E3DA, 16);
@@ -16225,21 +14619,8 @@ impl Game {
         return;
     }
 
-    #[allow(
-        unused_mut,
-        unused_variables,
-        unused_assignments,
-        unreachable_code,
-        clippy::all
-    )]
-    pub fn r_01e428(
-        &mut self,
-        d1: u32,
-        d2: u32,
-        a0: u32,
-        a4: u32,
-        a5: u32,
-    ) -> (u32, u32, u32, bool) {
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_01e428(&mut self, d1: u32, d2: u32, a0: u32, a4: u32, a5: u32) -> (u32, u32, u32, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = d1;
         let mut d2: u32 = d2;
@@ -16371,4 +14752,5 @@ impl Game {
             return (d0, d1, d2, x);
         }
     }
+
 }

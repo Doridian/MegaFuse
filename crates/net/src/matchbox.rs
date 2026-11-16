@@ -17,9 +17,7 @@
 use std::collections::BTreeMap;
 use std::sync::mpsc;
 
-use matchbox_socket::{
-    ChannelConfig, MessageLoopFuture, PeerState, RtcIceServerConfig, WebRtcSocket,
-};
+use matchbox_socket::{ChannelConfig, MessageLoopFuture, PeerState, RtcIceServerConfig, WebRtcSocket};
 
 use crate::transport::{PeerId, Role, Transport, TransportEvent};
 
@@ -145,9 +143,7 @@ impl Transport for MatchboxTransport {
             return Err("already connected".to_owned());
         }
         if !valid_room(room) {
-            return Err(format!(
-                "{room:?} isn't a room name: letters, digits, - and _ only"
-            ));
+            return Err(format!("{room:?} isn't a room name: letters, digits, - and _ only"));
         }
         if !self.signal.starts_with("ws://") && !self.signal.starts_with("wss://") {
             return Err(format!("{} isn't a ws:// or wss:// URL", self.signal));
@@ -168,9 +164,7 @@ impl Transport for MatchboxTransport {
         if self.closed {
             return out;
         }
-        let Some(socket) = &mut self.socket else {
-            return out;
-        };
+        let Some(socket) = &mut self.socket else { return out };
         let (changes, gone) = match socket.try_update_peers() {
             Ok(changes) => (changes, false),
             Err(_) => (Vec::new(), true),
@@ -192,9 +186,7 @@ impl Transport for MatchboxTransport {
         }
         let ended = self.done.as_ref().and_then(|d| match d.try_recv() {
             Ok(why) => Some(why),
-            Err(mpsc::TryRecvError::Disconnected) => {
-                Some("the connection's thread stopped".to_owned())
-            }
+            Err(mpsc::TryRecvError::Disconnected) => Some("the connection's thread stopped".to_owned()),
             Err(mpsc::TryRecvError::Empty) => None,
         });
         if let Some(why) = ended.or_else(|| gone.then(|| "the socket closed".to_owned())) {
@@ -215,11 +207,7 @@ impl Transport for MatchboxTransport {
     fn peers(&self) -> Vec<PeerId> {
         self.socket
             .as_ref()
-            .map(|s| {
-                s.connected_peers()
-                    .map(|id| PeerId(id.0.as_u128()))
-                    .collect()
-            })
+            .map(|s| s.connected_peers().map(|id| PeerId(id.0.as_u128())).collect())
             .unwrap_or_default()
     }
 
@@ -286,14 +274,8 @@ mod tests {
 
     #[test]
     fn rooms_and_urls() {
-        assert_eq!(
-            room_url("ws://x:3536/", "abc", Role::Host),
-            "ws://x:3536/abc~host"
-        );
-        assert_eq!(
-            room_url("ws://x:3536", "abc", Role::Client),
-            "ws://x:3536/abc"
-        );
+        assert_eq!(room_url("ws://x:3536/", "abc", Role::Host), "ws://x:3536/abc~host");
+        assert_eq!(room_url("ws://x:3536", "abc", Role::Client), "ws://x:3536/abc");
         assert!(valid_room("Game_1-a"));
         assert!(!valid_room("a/b") && !valid_room("") && !valid_room("x~host"));
         let mut ice = IceServers {

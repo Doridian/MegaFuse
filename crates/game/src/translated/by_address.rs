@@ -8,626 +8,182 @@ impl Game {
     #[allow(clippy::all)]
     pub fn call_by_address(&mut self, entry: u32, regs: &mut Regs) -> bool {
         match entry {
-            0x000264 => {
-                self.r_000264();
-            }
-            0x000268 => {
-                regs.d0 = self.r_000268(regs.d0);
-            }
-            0x000282 => {
-                (regs.d0, regs.c) = self.r_000282(regs.d0);
-            }
-            0x00028E => {
-                regs.d0 = self.r_00028e(regs.d0);
-            }
-            0x0002DA => {
-                self.r_0002da();
-            }
-            0x0002E0 => {
-                self.r_0002e0();
-            }
-            0x0002E6 => {
-                self.r_0002e6();
-            }
-            0x000302 => {
-                (regs.a0, regs.x) = self.r_000302();
-            }
-            0x00033A => {
-                self.r_00033a();
-            }
-            0x000356 => {
-                self.r_000356();
-            }
-            0x000372 => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6) = self.r_000372(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x000264 => { self.r_000264(); }
+            0x000268 => { regs.d0 = self.r_000268(regs.d0); }
+            0x000282 => { (regs.d0, regs.c) = self.r_000282(regs.d0); }
+            0x00028E => { regs.d0 = self.r_00028e(regs.d0); }
+            0x0002DA => { self.r_0002da(); }
+            0x0002E0 => { self.r_0002e0(); }
+            0x0002E6 => { self.r_0002e6(); }
+            0x000302 => { (regs.a0, regs.x) = self.r_000302(); }
+            0x00033A => { self.r_00033a(); }
+            0x000356 => { self.r_000356(); }
+            0x000372 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6) = self.r_000372(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0003D8 => self.r_0003d8(regs),
-            0x0003DA => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6) = self.r_0003da(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x000404 => {
-                (regs.d6, regs.a6, regs.x, regs.c) =
-                    self.r_000404(regs.d0, regs.d4, regs.d5, regs.d6, regs.a0);
-            }
-            0x0004FE => {
-                self.r_0004fe(regs.a0);
-            }
-            0x000510 => {
-                self.r_000510(regs.a0);
-            }
-            0x000558 => {
-                regs.c = self.r_000558(regs.a6);
-            }
-            0x000560 => {
-                (regs.d6, regs.x, regs.c) = self.r_000560(regs.d5, regs.d6, regs.x);
-            }
-            0x000564 => {
-                (regs.x, regs.c) = self.r_000564(regs.d5, regs.d6, regs.x);
-            }
-            0x0005C0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a3,
-                    regs.a4, regs.a6,
-                ) = self.r_0005c0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4,
-                );
-            }
-            0x0005F8 => {
-                (regs.d6, regs.a6, regs.x) = self.r_0005f8(regs.d6);
-            }
-            0x00060A => {
-                (regs.d5, regs.a5) = self.r_00060a(regs.d5);
-            }
-            0x00061C => {
-                (regs.d4, regs.a4) = self.r_00061c(regs.d4);
-            }
-            0x0006F6 => {
-                (regs.d6, regs.x) = self.r_0006f6(regs.d6, regs.a0);
-            }
-            0x000704 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_000704(regs.d0);
-            }
-            0x000752 => {
-                self.r_000752(regs.d0, regs.d1, regs.d2);
-            }
-            0x000776 => {
-                regs.d0 = self.r_000776(regs.d0, regs.a0, regs.a1);
-            }
-            0x000796 => {
-                (regs.d5, regs.a5, regs.x, regs.c) = self.r_000796(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
-            0x0007D2 => {
-                regs.c = self.r_0007d2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.x,
-                );
-            }
-            0x0007F4 => {
-                (regs.d5, regs.c) = self.r_0007f4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
-            0x000800 => {
-                (regs.d5, regs.n, regs.z, regs.c) = self.r_000800(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x0003DA => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6) = self.r_0003da(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x000404 => { (regs.d6, regs.a6, regs.x, regs.c) = self.r_000404(regs.d0, regs.d4, regs.d5, regs.d6, regs.a0); }
+            0x0004FE => { self.r_0004fe(regs.a0); }
+            0x000510 => { self.r_000510(regs.a0); }
+            0x000558 => { regs.c = self.r_000558(regs.a6); }
+            0x000560 => { (regs.d6, regs.x, regs.c) = self.r_000560(regs.d5, regs.d6, regs.x); }
+            0x000564 => { (regs.x, regs.c) = self.r_000564(regs.d5, regs.d6, regs.x); }
+            0x0005C0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a3, regs.a4, regs.a6) = self.r_0005c0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4); }
+            0x0005F8 => { (regs.d6, regs.a6, regs.x) = self.r_0005f8(regs.d6); }
+            0x00060A => { (regs.d5, regs.a5) = self.r_00060a(regs.d5); }
+            0x00061C => { (regs.d4, regs.a4) = self.r_00061c(regs.d4); }
+            0x0006F6 => { (regs.d6, regs.x) = self.r_0006f6(regs.d6, regs.a0); }
+            0x000704 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_000704(regs.d0); }
+            0x000752 => { self.r_000752(regs.d0, regs.d1, regs.d2); }
+            0x000776 => { regs.d0 = self.r_000776(regs.d0, regs.a0, regs.a1); }
+            0x000796 => { (regs.d5, regs.a5, regs.x, regs.c) = self.r_000796(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
+            0x0007D2 => { regs.c = self.r_0007d2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.x); }
+            0x0007F4 => { (regs.d5, regs.c) = self.r_0007f4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
+            0x000800 => { (regs.d5, regs.n, regs.z, regs.c) = self.r_000800(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x000810 => self.r_000810(regs),
-            0x00084E => {
-                regs.a4 = self.r_00084e(regs.a5);
-            }
-            0x000870 => {
-                regs.x = self.r_000870(regs.d0, regs.d5);
-            }
-            0x000890 => {
-                regs.c = self.r_000890();
-            }
-            0x0008B2 => {
-                (
-                    regs.d0, regs.d1, regs.d3, regs.d6, regs.d7, regs.a3, regs.a4, regs.a6,
-                ) = self.r_0008b2(
-                    regs.d0, regs.d1, regs.d3, regs.d6, regs.d7, regs.a3, regs.a4, regs.a6,
-                );
-            }
-            0x000946 => {
-                (
-                    regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a3, regs.a6,
-                ) = self.r_000946(regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a5);
-            }
-            0x000A1E => {
-                (
-                    regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a6,
-                ) = self.r_000a1e(regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a5);
-            }
-            0x000B48 => {
-                (regs.d6, regs.a6, regs.x) = self.r_000b48(regs.d6);
-            }
-            0x000B5A => {
-                (regs.d5, regs.a5, regs.x) = self.r_000b5a(regs.d5);
-            }
-            0x000B6C => {
-                self.r_000b6c(regs.d4);
-            }
-            0x000C86 => {
-                regs.a0 = self.r_000c86(regs.d0);
-            }
-            0x000C90 => {
-                (regs.d6, regs.a6) = self.r_000c90(regs.d6);
-            }
-            0x000CBA => {
-                self.r_000cba();
-            }
+            0x00084E => { regs.a4 = self.r_00084e(regs.a5); }
+            0x000870 => { regs.x = self.r_000870(regs.d0, regs.d5); }
+            0x000890 => { regs.c = self.r_000890(); }
+            0x0008B2 => { (regs.d0, regs.d1, regs.d3, regs.d6, regs.d7, regs.a3, regs.a4, regs.a6) = self.r_0008b2(regs.d0, regs.d1, regs.d3, regs.d6, regs.d7, regs.a3, regs.a4, regs.a6); }
+            0x000946 => { (regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a3, regs.a6) = self.r_000946(regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a5); }
+            0x000A1E => { (regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a6) = self.r_000a1e(regs.d0, regs.d3, regs.d6, regs.d7, regs.a2, regs.a5); }
+            0x000B48 => { (regs.d6, regs.a6, regs.x) = self.r_000b48(regs.d6); }
+            0x000B5A => { (regs.d5, regs.a5, regs.x) = self.r_000b5a(regs.d5); }
+            0x000B6C => { self.r_000b6c(regs.d4); }
+            0x000C86 => { regs.a0 = self.r_000c86(regs.d0); }
+            0x000C90 => { (regs.d6, regs.a6) = self.r_000c90(regs.d6); }
+            0x000CBA => { self.r_000cba(); }
             0x000CF4 => self.r_000cf4(regs),
-            0x000D4C => {
-                (regs.d0, regs.d1) = self.r_000d4c(regs.d0, regs.d1);
-            }
-            0x000D7A => {
-                self.r_000d7a();
-            }
+            0x000D4C => { (regs.d0, regs.d1) = self.r_000d4c(regs.d0, regs.d1); }
+            0x000D7A => { self.r_000d7a(); }
             0x000D8E => self.r_000d8e(regs),
-            0x000E26 => {
-                (regs.d0, regs.d1) = self.r_000e26(regs.d0, regs.d1);
-            }
-            0x000E3E => {
-                (regs.d0, regs.d1, regs.d6, regs.a6, regs.x) = self.r_000e3e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x000E26 => { (regs.d0, regs.d1) = self.r_000e26(regs.d0, regs.d1); }
+            0x000E3E => { (regs.d0, regs.d1, regs.d6, regs.a6, regs.x) = self.r_000e3e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x000E6C => self.r_000e6c(regs),
-            0x000E98 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_000e98(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
-            0x000E9E => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_000e9e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x000FBE => {
-                (regs.d0, regs.x, regs.c) = self.r_000fbe(regs.d0);
-            }
-            0x000FDA => {
-                (regs.d0, regs.x, regs.c) = self.r_000fda(regs.d0, regs.a3);
-            }
-            0x001030 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_001030(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00108C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_00108c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x000E98 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_000e98(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
+            0x000E9E => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_000e9e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x000FBE => { (regs.d0, regs.x, regs.c) = self.r_000fbe(regs.d0); }
+            0x000FDA => { (regs.d0, regs.x, regs.c) = self.r_000fda(regs.d0, regs.a3); }
+            0x001030 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_001030(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00108C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_00108c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x0010C8 => self.r_0010c8(regs),
-            0x0010D6 => {
-                regs.x = self.r_0010d6(regs.d0);
-            }
-            0x0010EC => {
-                self.r_0010ec();
-            }
-            0x00112C => {
-                self.r_00112c();
-            }
-            0x0011CA => {
-                (regs.d1, regs.x) = self.r_0011ca(regs.d0, regs.d2);
-            }
-            0x0011D2 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_0011d2(regs.d0, regs.d1, regs.a0);
-            }
+            0x0010D6 => { regs.x = self.r_0010d6(regs.d0); }
+            0x0010EC => { self.r_0010ec(); }
+            0x00112C => { self.r_00112c(); }
+            0x0011CA => { (regs.d1, regs.x) = self.r_0011ca(regs.d0, regs.d2); }
+            0x0011D2 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_0011d2(regs.d0, regs.d1, regs.a0); }
             0x001212 => self.r_001212(regs),
-            0x00121A => {
-                (regs.d6, regs.x, regs.c) = self.r_00121a(regs.d5, regs.d6, regs.x);
-            }
-            0x001278 => {
-                self.r_001278();
-            }
-            0x0012A0 => {
-                (regs.d0, regs.d5, regs.a5, regs.x) = self.r_0012a0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
-            0x0012B6 => {
-                regs.x = self.r_0012b6(regs.a4);
-            }
-            0x001300 => {
-                self.r_001300(regs.a4);
-            }
-            0x00130E => {
-                (regs.a0, regs.x, regs.c) = self.r_00130e(regs.d0, regs.a4);
-            }
-            0x00132A => {
-                regs.a0 = self.r_00132a(regs.d0, regs.a4);
-            }
-            0x001334 => {
-                self.r_001334();
-            }
-            0x001336 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.z, regs.c,
-                ) = self.r_001336(regs.d0, regs.d1, regs.d2, regs.d5, regs.a4, regs.x);
-            }
-            0x0013C0 => {
-                regs.c = self.r_0013c0(regs.d0, regs.a5);
-            }
-            0x0013D6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_0013d6(regs.d0, regs.d1, regs.d2, regs.d5, regs.a6);
-            }
-            0x001456 => {
-                (regs.d0, regs.x, regs.c) = self.r_001456(regs.d0);
-            }
-            0x001486 => {
-                (regs.x, regs.c) = self.r_001486(regs.d0, regs.d1, regs.a0, regs.x);
-            }
-            0x00152A => {
-                self.r_00152a(regs.a6);
-            }
-            0x00153A => {
-                self.r_00153a(regs.a6);
-            }
-            0x001542 => {
-                self.r_001542(regs.a4);
-            }
-            0x001550 => {
-                (regs.d0, regs.x) = self.r_001550(regs.d0, regs.a6);
-            }
-            0x00157A => {
-                self.r_00157a();
-            }
-            0x0015D4 => {
-                regs.d0 = self.r_0015d4();
-            }
-            0x0015E6 => {
-                (regs.d0, regs.x) = self.r_0015e6(regs.a4);
-            }
-            0x0015F8 => {
-                regs.d0 = self.r_0015f8(regs.a6);
-            }
-            0x00160A => {
-                self.r_00160a();
-            }
-            0x001620 => {
-                self.r_001620(regs.d0);
-            }
-            0x001652 => {
-                regs.x = self.r_001652();
-            }
-            0x00167A => {
-                (regs.a0, regs.x) = self.r_00167a();
-            }
-            0x00168C => {
-                (regs.d0, regs.a0) = self.r_00168c(regs.d0);
-            }
-            0x0016AC => {
-                (regs.a0, regs.x) = self.r_0016ac();
-            }
-            0x0016B0 => {
-                regs.a0 = self.r_0016b0();
-            }
-            0x0016CE => {
-                (regs.d0, regs.d1) = self.r_0016ce(regs.d0, regs.d1);
-            }
-            0x0016F6 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_0016f6(regs.d0, regs.d1);
-            }
-            0x001726 => {
-                regs.x = self.r_001726(regs.d0, regs.a6);
-            }
-            0x00173E => {
-                regs.x = self.r_00173e(regs.d0, regs.a4);
-            }
-            0x001756 => {
-                regs.x = self.r_001756(regs.d0, regs.d2, regs.d3);
-            }
-            0x0017B8 => {
-                (regs.d0, regs.x, regs.c) = self.r_0017b8(regs.d0, regs.d1);
-            }
-            0x00182E => {
-                (regs.d0, regs.z, regs.c) = self.r_00182e(regs.d0, regs.a4);
-            }
-            0x001840 => {
-                (regs.d0, regs.z, regs.c) = self.r_001840(regs.d0, regs.a4);
-            }
-            0x001852 => {
-                self.r_001852(regs.a4);
-            }
-            0x001858 => {
-                self.r_001858(regs.a4);
-            }
-            0x00186A => {
-                self.r_00186a(regs.a4);
-            }
-            0x00187C => {
-                self.r_00187c(regs.a6);
-            }
-            0x001896 => {
-                (regs.d0, regs.z) = self.r_001896(regs.d0, regs.a6);
-            }
-            0x0018A8 => {
-                (regs.d0, regs.z) = self.r_0018a8(regs.d0, regs.a6);
-            }
-            0x0018B6 => {
-                (regs.d0, regs.z) = self.r_0018b6(regs.d0, regs.a6);
-            }
-            0x0018C4 => {
-                (regs.d0, regs.d1, regs.a0, regs.x, regs.c) =
-                    self.r_0018c4(regs.d0, regs.d1, regs.a0, regs.a6);
-            }
-            0x0018F8 => {
-                (regs.d0, regs.c) = self.r_0018f8(regs.x);
-            }
-            0x00190A => {
-                (regs.d0, regs.x, regs.c) = self.r_00190a(regs.a4, regs.x);
-            }
-            0x00191C => {
-                (regs.d0, regs.c) = self.r_00191c(regs.a6, regs.x);
-            }
-            0x00192A => {
-                (regs.d0, regs.x, regs.c) = self.r_00192a(regs.d0, regs.x);
-            }
-            0x00197A => {
-                regs.a0 = self.r_00197a();
-            }
-            0x001984 => {
-                regs.a0 = self.r_001984();
-            }
-            0x00198E => {
-                regs.a0 = self.r_00198e();
-            }
-            0x001998 => {
-                regs.a0 = self.r_001998();
-            }
-            0x0019A2 => {
-                regs.a0 = self.r_0019a2();
-            }
-            0x0019AC => {
-                regs.a0 = self.r_0019ac();
-            }
-            0x0019B6 => {
-                regs.a0 = self.r_0019b6();
-            }
-            0x0019C0 => {
-                (regs.d0, regs.d1, regs.x) = self.r_0019c0(regs.d0, regs.d1, regs.a4);
-            }
-            0x0019DA => {
-                (regs.d0, regs.d1, regs.x) = self.r_0019da(regs.d0, regs.d1, regs.a4);
-            }
-            0x0019F4 => {
-                self.r_0019f4(regs.a4);
-            }
-            0x001A02 => {
-                self.r_001a02(regs.a4);
-            }
-            0x001A10 => {
-                self.r_001a10(regs.a4);
-            }
-            0x001A18 => {
-                self.r_001a18(regs.a4);
-            }
-            0x001A20 => {
-                self.r_001a20(regs.a6);
-            }
-            0x001A28 => {
-                self.r_001a28(regs.a6);
-            }
-            0x001A30 => {
-                self.r_001a30(regs.a6);
-            }
-            0x001A3E => {
-                self.r_001a3e(regs.a6);
-            }
-            0x001A4C => {
-                regs.d1 = self.r_001a4c(regs.d1, regs.a4);
-            }
-            0x001A6A => {
-                regs.d1 = self.r_001a6a(regs.d1, regs.a4);
-            }
-            0x001A88 => {
-                (regs.d0, regs.d1, regs.x, regs.n, regs.c) =
-                    self.r_001a88(regs.d0, regs.d1, regs.a6);
-            }
-            0x001AA2 => {
-                (regs.d0, regs.d1, regs.x, regs.n, regs.c) =
-                    self.r_001aa2(regs.d0, regs.d1, regs.a6);
-            }
-            0x001ABC => {
-                (regs.d0, regs.x, regs.n) = self.r_001abc(regs.d0, regs.a4);
-            }
-            0x001ACA => {
-                (regs.d0, regs.x, regs.n) = self.r_001aca(regs.d0, regs.a6);
-            }
-            0x001AD8 => {
-                self.r_001ad8(regs.a4);
-            }
-            0x001AF6 => {
-                regs.d0 = self.r_001af6(regs.a4);
-            }
-            0x001B14 => {
-                regs.d0 = self.r_001b14(regs.a6);
-            }
-            0x001B32 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_001b32(regs.d1, regs.a4, regs.a5);
-            }
-            0x001B50 => {
-                (regs.d0, regs.x, regs.c) = self.r_001b50(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x001B5C => {
-                (regs.d0, regs.x, regs.c) = self.r_001b5c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
-            0x001B60 => {
-                (regs.d0, regs.x, regs.c) = self.r_001b60(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3,
-                );
-            }
-            0x001B74 => {
-                (regs.d0, regs.x, regs.c) = self.r_001b74(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x001B7E => {
-                (regs.d0, regs.x, regs.c) = self.r_001b7e(regs.a5, regs.a6);
-            }
-            0x001B94 => {
-                (regs.d0, regs.x, regs.c) = self.r_001b94(regs.a5, regs.a6);
-            }
-            0x001BA4 => {
-                (regs.d0, regs.x, regs.c) = self.r_001ba4(regs.a5, regs.a6);
-            }
-            0x001BB4 => {
-                (regs.c, regs.unwound) = self.r_001bb4();
-            }
-            0x001BC0 => {
-                regs.d0 = self.r_001bc0(regs.d0, regs.d1);
-            }
-            0x001BE2 => {
-                (regs.d0, regs.d1, regs.x) = self.r_001be2(regs.d1);
-            }
-            0x001C16 => {
-                self.r_001c16();
-            }
-            0x001C3A => {
-                regs.c = self.r_001c3a();
-            }
-            0x001C48 => {
-                self.r_001c48();
-            }
-            0x001C56 => {
-                (regs.d6, regs.a6, regs.x) = self.r_001c56(regs.d4, regs.d5, regs.d6);
-            }
+            0x00121A => { (regs.d6, regs.x, regs.c) = self.r_00121a(regs.d5, regs.d6, regs.x); }
+            0x001278 => { self.r_001278(); }
+            0x0012A0 => { (regs.d0, regs.d5, regs.a5, regs.x) = self.r_0012a0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
+            0x0012B6 => { regs.x = self.r_0012b6(regs.a4); }
+            0x001300 => { self.r_001300(regs.a4); }
+            0x00130E => { (regs.a0, regs.x, regs.c) = self.r_00130e(regs.d0, regs.a4); }
+            0x00132A => { regs.a0 = self.r_00132a(regs.d0, regs.a4); }
+            0x001334 => { self.r_001334(); }
+            0x001336 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.z, regs.c) = self.r_001336(regs.d0, regs.d1, regs.d2, regs.d5, regs.a4, regs.x); }
+            0x0013C0 => { regs.c = self.r_0013c0(regs.d0, regs.a5); }
+            0x0013D6 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_0013d6(regs.d0, regs.d1, regs.d2, regs.d5, regs.a6); }
+            0x001456 => { (regs.d0, regs.x, regs.c) = self.r_001456(regs.d0); }
+            0x001486 => { (regs.x, regs.c) = self.r_001486(regs.d0, regs.d1, regs.a0, regs.x); }
+            0x00152A => { self.r_00152a(regs.a6); }
+            0x00153A => { self.r_00153a(regs.a6); }
+            0x001542 => { self.r_001542(regs.a4); }
+            0x001550 => { (regs.d0, regs.x) = self.r_001550(regs.d0, regs.a6); }
+            0x00157A => { self.r_00157a(); }
+            0x0015D4 => { regs.d0 = self.r_0015d4(); }
+            0x0015E6 => { (regs.d0, regs.x) = self.r_0015e6(regs.a4); }
+            0x0015F8 => { regs.d0 = self.r_0015f8(regs.a6); }
+            0x00160A => { self.r_00160a(); }
+            0x001620 => { self.r_001620(regs.d0); }
+            0x001652 => { regs.x = self.r_001652(); }
+            0x00167A => { (regs.a0, regs.x) = self.r_00167a(); }
+            0x00168C => { (regs.d0, regs.a0) = self.r_00168c(regs.d0); }
+            0x0016AC => { (regs.a0, regs.x) = self.r_0016ac(); }
+            0x0016B0 => { regs.a0 = self.r_0016b0(); }
+            0x0016CE => { (regs.d0, regs.d1) = self.r_0016ce(regs.d0, regs.d1); }
+            0x0016F6 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_0016f6(regs.d0, regs.d1); }
+            0x001726 => { regs.x = self.r_001726(regs.d0, regs.a6); }
+            0x00173E => { regs.x = self.r_00173e(regs.d0, regs.a4); }
+            0x001756 => { regs.x = self.r_001756(regs.d0, regs.d2, regs.d3); }
+            0x0017B8 => { (regs.d0, regs.x, regs.c) = self.r_0017b8(regs.d0, regs.d1); }
+            0x00182E => { (regs.d0, regs.z, regs.c) = self.r_00182e(regs.d0, regs.a4); }
+            0x001840 => { (regs.d0, regs.z, regs.c) = self.r_001840(regs.d0, regs.a4); }
+            0x001852 => { self.r_001852(regs.a4); }
+            0x001858 => { self.r_001858(regs.a4); }
+            0x00186A => { self.r_00186a(regs.a4); }
+            0x00187C => { self.r_00187c(regs.a6); }
+            0x001896 => { (regs.d0, regs.z) = self.r_001896(regs.d0, regs.a6); }
+            0x0018A8 => { (regs.d0, regs.z) = self.r_0018a8(regs.d0, regs.a6); }
+            0x0018B6 => { (regs.d0, regs.z) = self.r_0018b6(regs.d0, regs.a6); }
+            0x0018C4 => { (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_0018c4(regs.d0, regs.d1, regs.a0, regs.a6); }
+            0x0018F8 => { (regs.d0, regs.c) = self.r_0018f8(regs.x); }
+            0x00190A => { (regs.d0, regs.x, regs.c) = self.r_00190a(regs.a4, regs.x); }
+            0x00191C => { (regs.d0, regs.c) = self.r_00191c(regs.a6, regs.x); }
+            0x00192A => { (regs.d0, regs.x, regs.c) = self.r_00192a(regs.d0, regs.x); }
+            0x00197A => { regs.a0 = self.r_00197a(); }
+            0x001984 => { regs.a0 = self.r_001984(); }
+            0x00198E => { regs.a0 = self.r_00198e(); }
+            0x001998 => { regs.a0 = self.r_001998(); }
+            0x0019A2 => { regs.a0 = self.r_0019a2(); }
+            0x0019AC => { regs.a0 = self.r_0019ac(); }
+            0x0019B6 => { regs.a0 = self.r_0019b6(); }
+            0x0019C0 => { (regs.d0, regs.d1, regs.x) = self.r_0019c0(regs.d0, regs.d1, regs.a4); }
+            0x0019DA => { (regs.d0, regs.d1, regs.x) = self.r_0019da(regs.d0, regs.d1, regs.a4); }
+            0x0019F4 => { self.r_0019f4(regs.a4); }
+            0x001A02 => { self.r_001a02(regs.a4); }
+            0x001A10 => { self.r_001a10(regs.a4); }
+            0x001A18 => { self.r_001a18(regs.a4); }
+            0x001A20 => { self.r_001a20(regs.a6); }
+            0x001A28 => { self.r_001a28(regs.a6); }
+            0x001A30 => { self.r_001a30(regs.a6); }
+            0x001A3E => { self.r_001a3e(regs.a6); }
+            0x001A4C => { regs.d1 = self.r_001a4c(regs.d1, regs.a4); }
+            0x001A6A => { regs.d1 = self.r_001a6a(regs.d1, regs.a4); }
+            0x001A88 => { (regs.d0, regs.d1, regs.x, regs.n, regs.c) = self.r_001a88(regs.d0, regs.d1, regs.a6); }
+            0x001AA2 => { (regs.d0, regs.d1, regs.x, regs.n, regs.c) = self.r_001aa2(regs.d0, regs.d1, regs.a6); }
+            0x001ABC => { (regs.d0, regs.x, regs.n) = self.r_001abc(regs.d0, regs.a4); }
+            0x001ACA => { (regs.d0, regs.x, regs.n) = self.r_001aca(regs.d0, regs.a6); }
+            0x001AD8 => { self.r_001ad8(regs.a4); }
+            0x001AF6 => { regs.d0 = self.r_001af6(regs.a4); }
+            0x001B14 => { regs.d0 = self.r_001b14(regs.a6); }
+            0x001B32 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_001b32(regs.d1, regs.a4, regs.a5); }
+            0x001B50 => { (regs.d0, regs.x, regs.c) = self.r_001b50(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x001B5C => { (regs.d0, regs.x, regs.c) = self.r_001b5c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
+            0x001B60 => { (regs.d0, regs.x, regs.c) = self.r_001b60(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3); }
+            0x001B74 => { (regs.d0, regs.x, regs.c) = self.r_001b74(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x001B7E => { (regs.d0, regs.x, regs.c) = self.r_001b7e(regs.a5, regs.a6); }
+            0x001B94 => { (regs.d0, regs.x, regs.c) = self.r_001b94(regs.a5, regs.a6); }
+            0x001BA4 => { (regs.d0, regs.x, regs.c) = self.r_001ba4(regs.a5, regs.a6); }
+            0x001BB4 => { (regs.c, regs.unwound) = self.r_001bb4(); }
+            0x001BC0 => { regs.d0 = self.r_001bc0(regs.d0, regs.d1); }
+            0x001BE2 => { (regs.d0, regs.d1, regs.x) = self.r_001be2(regs.d1); }
+            0x001C16 => { self.r_001c16(); }
+            0x001C3A => { regs.c = self.r_001c3a(); }
+            0x001C48 => { self.r_001c48(); }
+            0x001C56 => { (regs.d6, regs.a6, regs.x) = self.r_001c56(regs.d4, regs.d5, regs.d6); }
             0x001C96 => self.r_001c96(regs),
-            0x001CA0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_001ca0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x001CFA => {
-                (regs.d4, regs.a4, regs.x) = self.r_001cfa(regs.d4);
-            }
-            0x001D0C => {
-                (regs.d5, regs.a5) = self.r_001d0c(regs.d5);
-            }
-            0x001D6E => {
-                (regs.d6, regs.a6, regs.x) = self.r_001d6e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x001E30 => {
-                (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x) = self.r_001e30(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x001E86 => {
-                regs.x = self.r_001e86(regs.a4, regs.a5);
-            }
-            0x001EA2 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ea2(regs.d0, regs.d4);
-            }
-            0x001EC2 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ec2(regs.d0, regs.d4);
-            }
-            0x001EC8 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ec8(regs.d0, regs.d4, regs.a0);
-            }
-            0x001EE0 => {
-                (regs.d0, regs.d1, regs.a0, regs.a1, regs.x) = self.r_001ee0(regs.d0, regs.d4);
-            }
-            0x001F06 => {
-                regs.d1 = self.r_001f06(regs.d0, regs.d4);
-            }
+            0x001CA0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_001ca0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x001CFA => { (regs.d4, regs.a4, regs.x) = self.r_001cfa(regs.d4); }
+            0x001D0C => { (regs.d5, regs.a5) = self.r_001d0c(regs.d5); }
+            0x001D6E => { (regs.d6, regs.a6, regs.x) = self.r_001d6e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x001E30 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x) = self.r_001e30(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x001E86 => { regs.x = self.r_001e86(regs.a4, regs.a5); }
+            0x001EA2 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ea2(regs.d0, regs.d4); }
+            0x001EC2 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ec2(regs.d0, regs.d4); }
+            0x001EC8 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_001ec8(regs.d0, regs.d4, regs.a0); }
+            0x001EE0 => { (regs.d0, regs.d1, regs.a0, regs.a1, regs.x) = self.r_001ee0(regs.d0, regs.d4); }
+            0x001F06 => { regs.d1 = self.r_001f06(regs.d0, regs.d4); }
             0x001F7E => self.r_001f7e(regs),
-            0x001FD4 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_001fd4(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x001FD6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_001fd6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x001FE6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_001fe6(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x001FD4 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_001fd4(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x001FD6 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_001fd6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x001FE6 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_001fe6(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x002038 => self.r_002038(regs),
             0x00207C => self.r_00207c(regs),
-            0x00209E => {
-                self.r_00209e();
-            }
+            0x00209E => { self.r_00209e(); }
             0x0020AE => self.r_0020ae(regs),
-            0x0020B0 => {
-                (regs.d0, regs.x, regs.c) = self.r_0020b0(regs.d0, regs.a4, regs.x);
-            }
-            0x0020E2 => {
-                (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) =
-                    self.r_0020e2(regs.d0, regs.d4, regs.d5);
-            }
-            0x00211C => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d7, regs.a0, regs.a4, regs.a5, regs.x,
-                ) = self.r_00211c(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d7, regs.a0, regs.a5,
-                );
-            }
+            0x0020B0 => { (regs.d0, regs.x, regs.c) = self.r_0020b0(regs.d0, regs.a4, regs.x); }
+            0x0020E2 => { (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_0020e2(regs.d0, regs.d4, regs.d5); }
+            0x00211C => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d7, regs.a0, regs.a4, regs.a5, regs.x) = self.r_00211c(regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d7, regs.a0, regs.a5); }
             0x0022DC => self.r_0022dc(regs),
             0x0022EA => self.r_0022ea(regs),
             0x0022F8 => self.r_0022f8(regs),
@@ -637,177 +193,50 @@ impl Game {
             0x002354 => self.r_002354(regs),
             0x0023AC => self.r_0023ac(regs),
             0x0023B2 => self.r_0023b2(regs),
-            0x0023BA => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_0023ba(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002494 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_002494(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                );
-            }
-            0x00254C => {
-                (regs.d0, regs.d1, regs.d4, regs.a0, regs.a4, regs.x, regs.c) =
-                    self.r_00254c(regs.d0, regs.d1, regs.d4, regs.a0, regs.a4, regs.x);
-            }
-            0x002596 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c,
-                ) = self.r_002596(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                );
-            }
+            0x0023BA => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_0023ba(regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002494 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_002494(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x); }
+            0x00254C => { (regs.d0, regs.d1, regs.d4, regs.a0, regs.a4, regs.x, regs.c) = self.r_00254c(regs.d0, regs.d1, regs.d4, regs.a0, regs.a4, regs.x); }
+            0x002596 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c) = self.r_002596(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x); }
             0x002602 => self.r_002602(regs),
-            0x002624 => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_002624(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x00262A => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_00262a(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x002662 => {
-                regs.c = self.r_002662();
-            }
-            0x0026EE => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c,
-                ) = self.r_0026ee(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                );
-            }
+            0x002624 => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_002624(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x00262A => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_00262a(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x002662 => { regs.c = self.r_002662(); }
+            0x0026EE => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c) = self.r_0026ee(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x); }
             0x00275A => self.r_00275a(regs),
-            0x00277C => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_00277c(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x002782 => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_002782(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x0027BA => {
-                regs.c = self.r_0027ba();
-            }
-            0x002846 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c,
-                ) = self.r_002846(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                );
-            }
+            0x00277C => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_00277c(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x002782 => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_002782(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x0027BA => { regs.c = self.r_0027ba(); }
+            0x002846 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c) = self.r_002846(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x); }
             0x0028B2 => self.r_0028b2(regs),
-            0x0028D4 => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_0028d4(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x0028DA => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_0028da(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x002912 => {
-                regs.c = self.r_002912();
-            }
-            0x00299E => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c,
-                ) = self.r_00299e(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                );
-            }
+            0x0028D4 => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_0028d4(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x0028DA => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_0028da(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x002912 => { regs.c = self.r_002912(); }
+            0x00299E => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c) = self.r_00299e(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x); }
             0x002A0A => self.r_002a0a(regs),
-            0x002A2C => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_002a2c(regs.d0, regs.d1, regs.d4);
-            }
-            0x002A3A => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_002a3a(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
-            0x002A72 => {
-                regs.c = self.r_002a72();
-            }
-            0x002B1A => {
-                (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) =
-                    self.r_002b1a(regs.d0, regs.d1, regs.d4);
-            }
-            0x002B84 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_002b84(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002BA2 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_002ba2(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002BC0 => {
-                (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a6) = self.r_002bc0(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002BDE => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_002bde(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002BFC => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_002bfc(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6,
-                );
-            }
-            0x002C36 => {
-                (regs.d0, regs.a0, regs.x, regs.c) = self.r_002c36(regs.d0, regs.a4);
-            }
+            0x002A2C => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_002a2c(regs.d0, regs.d1, regs.d4); }
+            0x002A3A => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_002a3a(regs.d0, regs.d1, regs.d4, regs.a4); }
+            0x002A72 => { regs.c = self.r_002a72(); }
+            0x002B1A => { (regs.d0, regs.d1, regs.d4, regs.a4, regs.x, regs.c) = self.r_002b1a(regs.d0, regs.d1, regs.d4); }
+            0x002B84 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_002b84(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002BA2 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_002ba2(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002BC0 => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a6) = self.r_002bc0(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002BDE => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_002bde(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002BFC => { (regs.d0, regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_002bfc(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6); }
+            0x002C36 => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_002c36(regs.d0, regs.a4); }
             0x002C54 => self.r_002c54(regs),
             0x002C74 => self.r_002c74(regs),
             0x002C8C => self.r_002c8c(regs),
             0x002CA4 => self.r_002ca4(regs),
-            0x002CC0 => {
-                (regs.d0, regs.x, regs.c) = self.r_002cc0(regs.d0, regs.x, regs.c);
-            }
-            0x002D3E => {
-                (regs.d0, regs.a0) = self.r_002d3e(regs.d0, regs.d4, regs.d5, regs.a0);
-            }
+            0x002CC0 => { (regs.d0, regs.x, regs.c) = self.r_002cc0(regs.d0, regs.x, regs.c); }
+            0x002D3E => { (regs.d0, regs.a0) = self.r_002d3e(regs.d0, regs.d4, regs.d5, regs.a0); }
             0x002DE2 => self.r_002de2(regs),
-            0x002E24 => {
-                regs.c = self.r_002e24(regs.a4);
-            }
-            0x002E4E => {
-                (regs.d0, regs.a0) = self.r_002e4e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x002E24 => { regs.c = self.r_002e24(regs.a4); }
+            0x002E4E => { (regs.d0, regs.a0) = self.r_002e4e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x002EB0 => self.r_002eb0(regs),
-            0x002EB8 => {
-                self.r_002eb8(regs.d0, regs.d4);
-            }
+            0x002EB8 => { self.r_002eb8(regs.d0, regs.d4); }
             0x002F34 => self.r_002f34(regs),
-            0x002F70 => {
-                (regs.d0, regs.d1, regs.a0, regs.a1, regs.x) =
-                    self.r_002f70(regs.d0, regs.d1, regs.d4, regs.a0, regs.a1);
-            }
-            0x003032 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_003032(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
+            0x002F70 => { (regs.d0, regs.d1, regs.a0, regs.a1, regs.x) = self.r_002f70(regs.d0, regs.d1, regs.d4, regs.a0, regs.a1); }
+            0x003032 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c) = self.r_003032(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
             0x003166 => self.r_003166(regs),
             0x0031D4 => self.r_0031d4(regs),
             0x0031F4 => self.r_0031f4(regs),
@@ -816,604 +245,194 @@ impl Game {
             0x0032AE => self.r_0032ae(regs),
             0x0032E2 => self.r_0032e2(regs),
             0x00334A => self.r_00334a(regs),
-            0x00334C => {
-                (regs.d1, regs.a0) = self.r_00334c(
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a6,
-                );
-            }
-            0x0033C0 => {
-                regs.x = self.r_0033c0();
-            }
+            0x00334C => { (regs.d1, regs.a0) = self.r_00334c(regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a6); }
+            0x0033C0 => { regs.x = self.r_0033c0(); }
             0x00341E => self.r_00341e(regs),
-            0x003486 => {
-                (
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                ) = self.r_003486(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00349E => {
-                self.r_00349e(regs.d0);
-            }
-            0x0034B6 => {
-                self.r_0034b6(regs.d0);
-            }
-            0x0034CE => {
-                regs.d0 = self.r_0034ce(regs.d0);
-            }
-            0x0034DE => {
-                (regs.d1, regs.d2, regs.x) = self.r_0034de(regs.d0, regs.d1, regs.d2, regs.a4);
-            }
-            0x0034E6 => {
-                (regs.d1, regs.d2, regs.x, regs.c) = self.r_0034e6(regs.d0, regs.d1, regs.d2);
-            }
-            0x003554 => {
-                (regs.d1, regs.d2, regs.x, regs.c) =
-                    self.r_003554(regs.d0, regs.d1, regs.d2, regs.a6);
-            }
-            0x00355E => {
-                (regs.d5, regs.a5) = self.r_00355e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x003608 => {
-                (regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5) = self.r_003608(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0036D6 => {
-                (regs.d4, regs.d5, regs.a5) = self.r_0036d6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
-            0x00389E => {
-                regs.d0 = self.r_00389e(regs.d0, regs.a4);
-            }
-            0x003928 => {
-                (regs.d0, regs.d4, regs.a4) = self.r_003928(regs.d0, regs.d4, regs.a4);
-            }
-            0x003988 => {
-                (regs.d0, regs.d1, regs.d4, regs.a4) =
-                    self.r_003988(regs.d0, regs.d1, regs.d4, regs.a4, regs.a5);
-            }
-            0x00398C => {
-                (regs.d0, regs.d1, regs.d4, regs.a4) =
-                    self.r_00398c(regs.d0, regs.d1, regs.d4, regs.a4, regs.a5);
-            }
-            0x0039C0 => {
-                (regs.d0, regs.d1) = self.r_0039c0(regs.d0, regs.d1, regs.a4);
-            }
-            0x003A04 => {
-                (regs.d0, regs.d1, regs.x) = self.r_003a04(regs.d0, regs.d1, regs.a4);
-            }
-            0x003AC4 => {
-                regs.c = self.r_003ac4(regs.d0, regs.a4);
-            }
-            0x003AEA => {
-                self.r_003aea(regs.a4);
-            }
-            0x003B28 => {
-                (regs.d0, regs.n) = self.r_003b28(regs.d1, regs.a4, regs.a5);
-            }
-            0x003B94 => {
-                (regs.d0, regs.d1, regs.d4, regs.a4) =
-                    self.r_003b94(regs.d0, regs.d1, regs.d4, regs.a4);
-            }
+            0x003486 => { (regs.d2, regs.d3, regs.d4, regs.d5, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5) = self.r_003486(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00349E => { self.r_00349e(regs.d0); }
+            0x0034B6 => { self.r_0034b6(regs.d0); }
+            0x0034CE => { regs.d0 = self.r_0034ce(regs.d0); }
+            0x0034DE => { (regs.d1, regs.d2, regs.x) = self.r_0034de(regs.d0, regs.d1, regs.d2, regs.a4); }
+            0x0034E6 => { (regs.d1, regs.d2, regs.x, regs.c) = self.r_0034e6(regs.d0, regs.d1, regs.d2); }
+            0x003554 => { (regs.d1, regs.d2, regs.x, regs.c) = self.r_003554(regs.d0, regs.d1, regs.d2, regs.a6); }
+            0x00355E => { (regs.d5, regs.a5) = self.r_00355e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x003608 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5) = self.r_003608(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0036D6 => { (regs.d4, regs.d5, regs.a5) = self.r_0036d6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
+            0x00389E => { regs.d0 = self.r_00389e(regs.d0, regs.a4); }
+            0x003928 => { (regs.d0, regs.d4, regs.a4) = self.r_003928(regs.d0, regs.d4, regs.a4); }
+            0x003988 => { (regs.d0, regs.d1, regs.d4, regs.a4) = self.r_003988(regs.d0, regs.d1, regs.d4, regs.a4, regs.a5); }
+            0x00398C => { (regs.d0, regs.d1, regs.d4, regs.a4) = self.r_00398c(regs.d0, regs.d1, regs.d4, regs.a4, regs.a5); }
+            0x0039C0 => { (regs.d0, regs.d1) = self.r_0039c0(regs.d0, regs.d1, regs.a4); }
+            0x003A04 => { (regs.d0, regs.d1, regs.x) = self.r_003a04(regs.d0, regs.d1, regs.a4); }
+            0x003AC4 => { regs.c = self.r_003ac4(regs.d0, regs.a4); }
+            0x003AEA => { self.r_003aea(regs.a4); }
+            0x003B28 => { (regs.d0, regs.n) = self.r_003b28(regs.d1, regs.a4, regs.a5); }
+            0x003B94 => { (regs.d0, regs.d1, regs.d4, regs.a4) = self.r_003b94(regs.d0, regs.d1, regs.d4, regs.a4); }
             0x003BFE => self.r_003bfe(regs),
             0x003C2A => self.r_003c2a(regs),
-            0x003C48 => {
-                regs.c = self.r_003c48(regs.a4);
-            }
+            0x003C48 => { regs.c = self.r_003c48(regs.a4); }
             0x003C6C => self.r_003c6c(regs),
             0x003CA2 => self.r_003ca2(regs),
             0x003CD8 => self.r_003cd8(regs),
             0x003D0A => self.r_003d0a(regs),
-            0x003D3C => {
-                regs.c = self.r_003d3c(regs.a4);
-            }
+            0x003D3C => { regs.c = self.r_003d3c(regs.a4); }
             0x003D54 => self.r_003d54(regs),
             0x003D6A => self.r_003d6a(regs),
             0x003D9E => self.r_003d9e(regs),
             0x003DCE => self.r_003dce(regs),
             0x003DFE => self.r_003dfe(regs),
-            0x003E44 => {
-                regs.d0 = self.r_003e44();
-            }
-            0x003E5C => {
-                (regs.d0, regs.c) = self.r_003e5c(regs.d0);
-            }
-            0x003E68 => {
-                (regs.d0, regs.c) = self.r_003e68(regs.d0);
-            }
-            0x003E7A => {
-                regs.c = self.r_003e7a();
-            }
-            0x003E80 => {
-                regs.c = self.r_003e80();
-            }
-            0x003E90 => {
-                (regs.d1, regs.n, regs.c) = self.r_003e90(regs.d0, regs.d1);
-            }
-            0x003EC4 => {
-                self.r_003ec4(regs.d1, regs.a4);
-            }
+            0x003E44 => { regs.d0 = self.r_003e44(); }
+            0x003E5C => { (regs.d0, regs.c) = self.r_003e5c(regs.d0); }
+            0x003E68 => { (regs.d0, regs.c) = self.r_003e68(regs.d0); }
+            0x003E7A => { regs.c = self.r_003e7a(); }
+            0x003E80 => { regs.c = self.r_003e80(); }
+            0x003E90 => { (regs.d1, regs.n, regs.c) = self.r_003e90(regs.d0, regs.d1); }
+            0x003EC4 => { self.r_003ec4(regs.d1, regs.a4); }
             0x003F1A => self.r_003f1a(regs),
-            0x003F70 => {
-                (regs.d0, regs.d1) = self.r_003f70(regs.d0, regs.d1, regs.a4);
-            }
-            0x003FAA => {
-                (regs.d0, regs.d1) = self.r_003faa(regs.d0, regs.d1, regs.a4);
-            }
-            0x003FC0 => {
-                regs.d0 = self.r_003fc0(regs.d0, regs.a4);
-            }
-            0x003FE8 => {
-                regs.d0 = self.r_003fe8(regs.d0, regs.a4);
-            }
+            0x003F70 => { (regs.d0, regs.d1) = self.r_003f70(regs.d0, regs.d1, regs.a4); }
+            0x003FAA => { (regs.d0, regs.d1) = self.r_003faa(regs.d0, regs.d1, regs.a4); }
+            0x003FC0 => { regs.d0 = self.r_003fc0(regs.d0, regs.a4); }
+            0x003FE8 => { regs.d0 = self.r_003fe8(regs.d0, regs.a4); }
             0x004050 => self.r_004050(regs),
             0x004070 => self.r_004070(regs),
             0x004088 => self.r_004088(regs),
-            0x004096 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x,
-                    regs.c,
-                ) = self.r_004096(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0040C0 => {
-                (regs.d0, regs.d1, regs.n, regs.c) =
-                    self.r_0040c0(regs.d0, regs.d1, regs.a0, regs.a4, regs.a5);
-            }
-            0x00410C => {
-                (regs.d0, regs.d1, regs.d2, regs.x) =
-                    self.r_00410c(regs.d0, regs.d1, regs.d2, regs.x);
-            }
-            0x004132 => {
-                regs.d0 = self.r_004132(regs.d0, regs.d1, regs.x);
-            }
-            0x00414A => {
-                (regs.d0, regs.d1, regs.x) = self.r_00414a(regs.d0, regs.d1, regs.x);
-            }
-            0x0041D0 => {
-                regs.d0 = self.r_0041d0(regs.d0, regs.d1);
-            }
-            0x0042EC => {
-                regs.d0 = self.r_0042ec(regs.d0, regs.d1);
-            }
-            0x0042FE => {
-                (regs.d0, regs.x) = self.r_0042fe(regs.d0, regs.d1, regs.d2);
-            }
-            0x004348 => {
-                (regs.d0, regs.x, regs.c) = self.r_004348(regs.d0);
-            }
-            0x0043A8 => {
-                (regs.d0, regs.x) = self.r_0043a8(regs.d0, regs.d4, regs.d5, regs.d6);
-            }
+            0x004096 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c) = self.r_004096(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0040C0 => { (regs.d0, regs.d1, regs.n, regs.c) = self.r_0040c0(regs.d0, regs.d1, regs.a0, regs.a4, regs.a5); }
+            0x00410C => { (regs.d0, regs.d1, regs.d2, regs.x) = self.r_00410c(regs.d0, regs.d1, regs.d2, regs.x); }
+            0x004132 => { regs.d0 = self.r_004132(regs.d0, regs.d1, regs.x); }
+            0x00414A => { (regs.d0, regs.d1, regs.x) = self.r_00414a(regs.d0, regs.d1, regs.x); }
+            0x0041D0 => { regs.d0 = self.r_0041d0(regs.d0, regs.d1); }
+            0x0042EC => { regs.d0 = self.r_0042ec(regs.d0, regs.d1); }
+            0x0042FE => { (regs.d0, regs.x) = self.r_0042fe(regs.d0, regs.d1, regs.d2); }
+            0x004348 => { (regs.d0, regs.x, regs.c) = self.r_004348(regs.d0); }
+            0x0043A8 => { (regs.d0, regs.x) = self.r_0043a8(regs.d0, regs.d4, regs.d5, regs.d6); }
             0x0043DA => self.r_0043da(regs),
-            0x004424 => {
-                (regs.d0, regs.x, regs.n) = self.r_004424(regs.d0, regs.a4);
-            }
-            0x00442C => {
-                (regs.z, regs.c) = self.r_00442c();
-            }
-            0x004448 => {
-                self.r_004448();
-            }
-            0x004464 => {
-                self.r_004464();
-            }
-            0x004480 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a3,
-                    regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_004480(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2,
-                );
-            }
-            0x004526 => {
-                self.r_004526(regs.d0, regs.d4);
-            }
-            0x004568 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a3, regs.a4,
-                ) = self.r_004568(
-                    regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a4,
-                );
-            }
+            0x004424 => { (regs.d0, regs.x, regs.n) = self.r_004424(regs.d0, regs.a4); }
+            0x00442C => { (regs.z, regs.c) = self.r_00442c(); }
+            0x004448 => { self.r_004448(); }
+            0x004464 => { self.r_004464(); }
+            0x004480 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a3, regs.a4, regs.a5, regs.x, regs.c) = self.r_004480(regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2); }
+            0x004526 => { self.r_004526(regs.d0, regs.d4); }
+            0x004568 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a3, regs.a4) = self.r_004568(regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a4); }
             0x0045E2 => self.r_0045e2(regs),
             0x0046FC => self.r_0046fc(regs),
             0x00477A => self.r_00477a(regs),
-            0x0047C6 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_0047c6(regs.d0, regs.d1, regs.d4, regs.d5, regs.a4);
-            }
-            0x004828 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_004828(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3,
-                );
-            }
+            0x0047C6 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c) = self.r_0047c6(regs.d0, regs.d1, regs.d4, regs.d5, regs.a4); }
+            0x004828 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c) = self.r_004828(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3); }
             0x00490C => self.r_00490c(regs),
             0x00495A => self.r_00495a(regs),
             0x00498E => self.r_00498e(regs),
             0x0049C0 => self.r_0049c0(regs),
             0x004A0E => self.r_004a0e(regs),
             0x004A8E => self.r_004a8e(regs),
-            0x004AA2 => {
-                regs.d0 = self.r_004aa2(regs.d0, regs.a4);
-            }
+            0x004AA2 => { regs.d0 = self.r_004aa2(regs.d0, regs.a4); }
             0x004AB0 => self.r_004ab0(regs),
             0x004AC2 => self.r_004ac2(regs),
             0x004AD4 => self.r_004ad4(regs),
             0x004AFA => self.r_004afa(regs),
             0x004B26 => self.r_004b26(regs),
-            0x004BD8 => {
-                (regs.d4, regs.a0, regs.a4) = self.r_004bd8(regs.d0, regs.d4);
-            }
+            0x004BD8 => { (regs.d4, regs.a0, regs.a4) = self.r_004bd8(regs.d0, regs.d4); }
             0x004BF6 => self.r_004bf6(regs),
-            0x004CA8 => {
-                (regs.d4, regs.d5, regs.d6, regs.a4, regs.a6) = self.r_004ca8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x004CA8 => { (regs.d4, regs.d5, regs.d6, regs.a4, regs.a6) = self.r_004ca8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x004D24 => self.r_004d24(regs),
             0x004D6C => self.r_004d6c(regs),
             0x004D7E => self.r_004d7e(regs),
-            0x004DFE => {
-                (
-                    regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                ) = self.r_004dfe(regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6);
-            }
+            0x004DFE => { (regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_004dfe(regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6); }
             0x004E5C => self.r_004e5c(regs),
-            0x004EA6 => {
-                (
-                    regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                ) = self.r_004ea6(
-                    regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a6,
-                );
-            }
-            0x004ED8 => {
-                (
-                    regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                ) = self.r_004ed8(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6,
-                );
-            }
+            0x004EA6 => { (regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_004ea6(regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a6); }
+            0x004ED8 => { (regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_004ed8(regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6); }
             0x004F00 => self.r_004f00(regs),
             0x004F36 => self.r_004f36(regs),
             0x004F48 => self.r_004f48(regs),
             0x004F5A => self.r_004f5a(regs),
             0x004F6C => self.r_004f6c(regs),
-            0x004FD0 => {
-                (regs.d0, regs.x, regs.c) = self.r_004fd0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x004FF4 => {
-                (regs.d0, regs.x, regs.c) = self.r_004ff4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x004FD0 => { (regs.d0, regs.x, regs.c) = self.r_004fd0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x004FF4 => { (regs.d0, regs.x, regs.c) = self.r_004ff4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x005038 => self.r_005038(regs),
             0x00505C => self.r_00505c(regs),
-            0x005082 => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) =
-                    self.r_005082(regs.d0, regs.d1, regs.d2, regs.d3, regs.d6, regs.a5);
-            }
-            0x00509E => {
-                (regs.d6, regs.x, regs.c) = self.r_00509e(regs.d5, regs.d6, regs.x);
-            }
-            0x005252 => {
-                (regs.d0, regs.d4, regs.a4, regs.c) = self.r_005252(regs.d0);
-            }
-            0x005294 => {
-                (regs.x, regs.c) = self.r_005294(regs.d0, regs.d1);
-            }
+            0x005082 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_005082(regs.d0, regs.d1, regs.d2, regs.d3, regs.d6, regs.a5); }
+            0x00509E => { (regs.d6, regs.x, regs.c) = self.r_00509e(regs.d5, regs.d6, regs.x); }
+            0x005252 => { (regs.d0, regs.d4, regs.a4, regs.c) = self.r_005252(regs.d0); }
+            0x005294 => { (regs.x, regs.c) = self.r_005294(regs.d0, regs.d1); }
             0x0052E6 => self.r_0052e6(regs),
             0x0052EA => self.r_0052ea(regs),
-            0x0052F0 => {
-                (regs.x, regs.c) = self.r_0052f0(regs.d0);
-            }
-            0x005336 => {
-                (
-                    regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.c,
-                ) = self.r_005336(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0052F0 => { (regs.x, regs.c) = self.r_0052f0(regs.d0); }
+            0x005336 => { (regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.c) = self.r_005336(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x005356 => self.r_005356(regs),
-            0x005378 => {
-                (regs.d1, regs.d6, regs.a6, regs.x) =
-                    self.r_005378(regs.d0, regs.d1, regs.d6, regs.a6, regs.x);
-            }
-            0x0053A6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_0053a6(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0053EC => {
-                regs.a6 = self.r_0053ec(regs.d0, regs.d4, regs.a4, regs.a6);
-            }
+            0x005378 => { (regs.d1, regs.d6, regs.a6, regs.x) = self.r_005378(regs.d0, regs.d1, regs.d6, regs.a6, regs.x); }
+            0x0053A6 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_0053a6(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0053EC => { regs.a6 = self.r_0053ec(regs.d0, regs.d4, regs.a4, regs.a6); }
             0x0054AE => self.r_0054ae(regs),
             0x005506 => self.r_005506(regs),
-            0x005516 => {
-                (regs.x, regs.c) = self.r_005516(regs.d0);
-            }
-            0x00555E => {
-                regs.x = self.r_00555e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0055A0 => {
-                (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0055a0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x005516 => { (regs.x, regs.c) = self.r_005516(regs.d0); }
+            0x00555E => { regs.x = self.r_00555e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0055A0 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0055a0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00560A => self.r_00560a(regs),
             0x0056EC => self.r_0056ec(regs),
-            0x005776 => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a6,
-                ) = self.r_005776(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x005892 => {
-                (regs.d4, regs.a0, regs.a4, regs.x) = self.r_005892(regs.d4, regs.a4);
-            }
+            0x005776 => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a6) = self.r_005776(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x005892 => { (regs.d4, regs.a0, regs.a4, regs.x) = self.r_005892(regs.d4, regs.a4); }
             0x0058C0 => self.r_0058c0(regs),
             0x0058CC => self.r_0058cc(regs),
             0x0058D8 => self.r_0058d8(regs),
             0x0058E4 => self.r_0058e4(regs),
-            0x0058F0 => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.c,
-                ) = self.r_0058f0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x0059F6 => {
-                (regs.d0, regs.a0, regs.x) = self.r_0059f6(regs.d0, regs.d6);
-            }
-            0x005A0C => {
-                regs.x = self.r_005a0c(regs.d0);
-            }
-            0x005A4E => {
-                (regs.d0, regs.d4, regs.d6, regs.a0, regs.a4, regs.x, regs.c) =
-                    self.r_005a4e(regs.d0, regs.d4, regs.d5, regs.d6, regs.a6);
-            }
-            0x005A76 => {
-                (regs.d6, regs.a6, regs.x, regs.z, regs.c) =
-                    self.r_005a76(regs.d2, regs.d6, regs.a6);
-            }
-            0x005AC4 => {
-                (regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.c) = self.r_005ac4(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a6,
-                );
-            }
-            0x005B62 => {
-                (regs.a0, regs.c) = self.r_005b62(regs.a6);
-            }
-            0x005B8C => {
-                (regs.d0, regs.d6, regs.a0, regs.a6, regs.x) = self.r_005b8c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x005BD2 => {
-                (regs.d0, regs.a0, regs.x) = self.r_005bd2(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0058F0 => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.c) = self.r_0058f0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x0059F6 => { (regs.d0, regs.a0, regs.x) = self.r_0059f6(regs.d0, regs.d6); }
+            0x005A0C => { regs.x = self.r_005a0c(regs.d0); }
+            0x005A4E => { (regs.d0, regs.d4, regs.d6, regs.a0, regs.a4, regs.x, regs.c) = self.r_005a4e(regs.d0, regs.d4, regs.d5, regs.d6, regs.a6); }
+            0x005A76 => { (regs.d6, regs.a6, regs.x, regs.z, regs.c) = self.r_005a76(regs.d2, regs.d6, regs.a6); }
+            0x005AC4 => { (regs.d1, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.c) = self.r_005ac4(regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a6); }
+            0x005B62 => { (regs.a0, regs.c) = self.r_005b62(regs.a6); }
+            0x005B8C => { (regs.d0, regs.d6, regs.a0, regs.a6, regs.x) = self.r_005b8c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x005BD2 => { (regs.d0, regs.a0, regs.x) = self.r_005bd2(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x005C10 => self.r_005c10(regs),
             0x005C32 => self.r_005c32(regs),
-            0x005CD0 => {
-                (regs.d1, regs.d2) = self.r_005cd0(regs.d0, regs.d1, regs.d2, regs.a6);
-            }
+            0x005CD0 => { (regs.d1, regs.d2) = self.r_005cd0(regs.d0, regs.d1, regs.d2, regs.a6); }
             0x005D46 => self.r_005d46(regs),
-            0x005D7C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_005d7c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x005DC8 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_005dc8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x005D7C => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_005d7c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x005DC8 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_005dc8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x005E02 => self.r_005e02(regs),
-            0x005E0E => {
-                (regs.x, regs.z, regs.c) = self.r_005e0e(regs.d2, regs.d6, regs.a6);
-            }
-            0x005E50 => {
-                (regs.d0, regs.d1, regs.d6, regs.a2, regs.a6, regs.x) =
-                    self.r_005e50(regs.d0, regs.d1, regs.d2, regs.d6, regs.a2, regs.a6, regs.x);
-            }
+            0x005E0E => { (regs.x, regs.z, regs.c) = self.r_005e0e(regs.d2, regs.d6, regs.a6); }
+            0x005E50 => { (regs.d0, regs.d1, regs.d6, regs.a2, regs.a6, regs.x) = self.r_005e50(regs.d0, regs.d1, regs.d2, regs.d6, regs.a2, regs.a6, regs.x); }
             0x005E78 => self.r_005e78(regs),
             0x005E8A => self.r_005e8a(regs),
-            0x005EDC => {
-                (regs.d0, regs.x) = self.r_005edc(regs.a6);
-            }
-            0x005EEA => {
-                self.r_005eea();
-            }
+            0x005EDC => { (regs.d0, regs.x) = self.r_005edc(regs.a6); }
+            0x005EEA => { self.r_005eea(); }
             0x005EFC => self.r_005efc(regs),
-            0x005F3A => {
-                (regs.d0, regs.d1, regs.d6, regs.a6, regs.c) =
-                    self.r_005f3a(regs.d0, regs.d1, regs.d2, regs.d6, regs.a2);
-            }
-            0x005F4E => {
-                (regs.d0, regs.d1, regs.x, regs.c) =
-                    self.r_005f4e(regs.d0, regs.d1, regs.d2, regs.a2, regs.a6, regs.x);
-            }
-            0x005FAC => {
-                regs.d1 = self.r_005fac(regs.d0, regs.d1, regs.a2, regs.a6);
-            }
-            0x005FC4 => {
-                (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_005fc4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x00601E => {
-                (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_00601e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a6,
-                );
-            }
-            0x006072 => {
-                self.r_006072();
-            }
-            0x006074 => {
-                (regs.d0, regs.x) = self.r_006074(regs.d0, regs.a6);
-            }
-            0x0060CC => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_0060cc(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
-            0x006112 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6,
-                ) = self.r_006112(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0061F6 => {
-                (regs.d0, regs.d1) = self.r_0061f6(regs.d0, regs.d1);
-            }
-            0x006216 => {
-                regs.d0 = self.r_006216(regs.d0);
-            }
+            0x005F3A => { (regs.d0, regs.d1, regs.d6, regs.a6, regs.c) = self.r_005f3a(regs.d0, regs.d1, regs.d2, regs.d6, regs.a2); }
+            0x005F4E => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_005f4e(regs.d0, regs.d1, regs.d2, regs.a2, regs.a6, regs.x); }
+            0x005FAC => { regs.d1 = self.r_005fac(regs.d0, regs.d1, regs.a2, regs.a6); }
+            0x005FC4 => { (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_005fc4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x); }
+            0x00601E => { (regs.d0, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_00601e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a6); }
+            0x006072 => { self.r_006072(); }
+            0x006074 => { (regs.d0, regs.x) = self.r_006074(regs.d0, regs.a6); }
+            0x0060CC => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_0060cc(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
+            0x006112 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_006112(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0061F6 => { (regs.d0, regs.d1) = self.r_0061f6(regs.d0, regs.d1); }
+            0x006216 => { regs.d0 = self.r_006216(regs.d0); }
             0x006238 => self.r_006238(regs),
             0x006244 => self.r_006244(regs),
             0x00624A => self.r_00624a(regs),
             0x006256 => self.r_006256(regs),
-            0x00625C => {
-                self.r_00625c(regs.d0);
-            }
-            0x0062C0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1,
-                    regs.a2, regs.a3, regs.x, regs.c,
-                ) = self.r_0062c0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1, regs.x,
-                );
-            }
-            0x0062C4 => {
-                (regs.d3, regs.d4, regs.d5, regs.a0, regs.x) = self.r_0062c4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1,
-                );
-            }
-            0x006386 => {
-                self.r_006386();
-            }
-            0x0063D2 => {
-                self.r_0063d2(regs.a2);
-            }
-            0x00644A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.a0, regs.a1, regs.a2, regs.x,
-                ) = self.r_00644a(regs.d1, regs.d2, regs.d3);
-            }
-            0x006540 => {
-                regs.d0 = self.r_006540(regs.d0);
-            }
-            0x0065B6 => {
-                (
-                    regs.d0, regs.d2, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0065b6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00625C => { self.r_00625c(regs.d0); }
+            0x0062C0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1, regs.a2, regs.a3, regs.x, regs.c) = self.r_0062c0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1, regs.x); }
+            0x0062C4 => { (regs.d3, regs.d4, regs.d5, regs.a0, regs.x) = self.r_0062c4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1); }
+            0x006386 => { self.r_006386(); }
+            0x0063D2 => { self.r_0063d2(regs.a2); }
+            0x00644A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.a0, regs.a1, regs.a2, regs.x) = self.r_00644a(regs.d1, regs.d2, regs.d3); }
+            0x006540 => { regs.d0 = self.r_006540(regs.d0); }
+            0x0065B6 => { (regs.d0, regs.d2, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_0065b6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x006652 => self.r_006652(regs),
-            0x00667E => {
-                (regs.d0, regs.d1, regs.a0, regs.x) = self.r_00667e(regs.d0, regs.d1, regs.a0);
-            }
-            0x0066BE => {
-                (regs.d1, regs.x, regs.c) = self.r_0066be(regs.d1, regs.d2);
-            }
-            0x0066FE => {
-                (regs.d2, regs.x) = self.r_0066fe(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x006766 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_006766(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00667E => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_00667e(regs.d0, regs.d1, regs.a0); }
+            0x0066BE => { (regs.d1, regs.x, regs.c) = self.r_0066be(regs.d1, regs.d2); }
+            0x0066FE => { (regs.d2, regs.x) = self.r_0066fe(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x006766 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_006766(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0067B4 => self.r_0067b4(regs),
-            0x0067C8 => {
-                (regs.d0, regs.x, regs.c) = self.r_0067c8(regs.d0, regs.d1, regs.d2);
-            }
-            0x006802 => {
-                self.r_006802(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00685A => {
-                self.r_00685a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x006918 => {
-                (regs.d0, regs.d1, regs.d2) = self.r_006918(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0067C8 => { (regs.d0, regs.x, regs.c) = self.r_0067c8(regs.d0, regs.d1, regs.d2); }
+            0x006802 => { self.r_006802(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00685A => { self.r_00685a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x006918 => { (regs.d0, regs.d1, regs.d2) = self.r_006918(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00693A => self.r_00693a(regs),
-            0x006948 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6,
-                ) = self.r_006948(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x006948 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_006948(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x0069EE => self.r_0069ee(regs),
             0x006A0E => self.r_006a0e(regs),
             0x006A46 => self.r_006a46(regs),
@@ -1423,12 +442,7 @@ impl Game {
             0x006A84 => self.r_006a84(regs),
             0x006AAA => self.r_006aaa(regs),
             0x006AC8 => self.r_006ac8(regs),
-            0x006CD2 => {
-                (regs.d0, regs.d1, regs.d2) = self.r_006cd2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x006CD2 => { (regs.d0, regs.d1, regs.d2) = self.r_006cd2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x006CFC => self.r_006cfc(regs),
             0x006D10 => self.r_006d10(regs),
             0x006D30 => self.r_006d30(regs),
@@ -1437,210 +451,80 @@ impl Game {
             0x006D72 => self.r_006d72(regs),
             0x006DD4 => self.r_006dd4(regs),
             0x006DF2 => self.r_006df2(regs),
-            0x006E10 => {
-                self.r_006e10(regs.d0, regs.a0, regs.a4, regs.a5);
-            }
-            0x006E28 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) =
-                    self.r_006e28(regs.d0, regs.d1, regs.d2, regs.a0, regs.a4, regs.a5);
-            }
-            0x006E7C => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) =
-                    self.r_006e7c(regs.d1, regs.d2, regs.a0, regs.a4, regs.a5);
-            }
-            0x006E82 => {
-                (regs.d0, regs.a0, regs.x, regs.c) =
-                    self.r_006e82(regs.d0, regs.a0, regs.a4, regs.a5);
-            }
+            0x006E10 => { self.r_006e10(regs.d0, regs.a0, regs.a4, regs.a5); }
+            0x006E28 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_006e28(regs.d0, regs.d1, regs.d2, regs.a0, regs.a4, regs.a5); }
+            0x006E7C => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_006e7c(regs.d1, regs.d2, regs.a0, regs.a4, regs.a5); }
+            0x006E82 => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_006e82(regs.d0, regs.a0, regs.a4, regs.a5); }
             0x006EE0 => self.r_006ee0(regs),
-            0x006F1A => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_006f1a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x006F1A => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_006f1a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x006F42 => self.r_006f42(regs),
             0x006F66 => self.r_006f66(regs),
             0x006F9E => self.r_006f9e(regs),
-            0x006FA0 => {
-                self.r_006fa0(regs.a4);
-            }
+            0x006FA0 => { self.r_006fa0(regs.a4); }
             0x006FC6 => self.r_006fc6(regs),
-            0x006FEE => {
-                self.r_006fee();
-            }
+            0x006FEE => { self.r_006fee(); }
             0x006FF0 => self.r_006ff0(regs),
             0x007000 => self.r_007000(regs),
             0x007020 => self.r_007020(regs),
             0x00706C => self.r_00706c(regs),
             0x0070C8 => self.r_0070c8(regs),
             0x0070D6 => self.r_0070d6(regs),
-            0x0070F4 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0070f4(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0070F4 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0070f4(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0070FC => self.r_0070fc(regs),
             0x007110 => self.r_007110(regs),
             0x007174 => self.r_007174(regs),
-            0x007178 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_007178(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a6,
-                );
-            }
-            0x00718E => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00718e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a6,
-                );
-            }
-            0x0071A0 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0071a0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x007178 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_007178(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6); }
+            0x00718E => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00718e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6); }
+            0x0071A0 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0071a0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0071B0 => self.r_0071b0(regs),
             0x0071D2 => self.r_0071d2(regs),
             0x00720A => self.r_00720a(regs),
-            0x00722E => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00722e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00725A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x,
-                    regs.c,
-                ) = self.r_00725a(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00722E => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00722e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00725A => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x, regs.c) = self.r_00725a(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0072A6 => self.r_0072a6(regs),
             0x0072D0 => self.r_0072d0(regs),
             0x0072E0 => self.r_0072e0(regs),
             0x0072F8 => self.r_0072f8(regs),
-            0x007308 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_007308(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
-            0x00730C => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_00730c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x007308 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_007308(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
+            0x00730C => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_00730c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00731C => self.r_00731c(regs),
             0x007368 => self.r_007368(regs),
-            0x007386 => {
-                self.r_007386();
-            }
+            0x007386 => { self.r_007386(); }
             0x00738C => self.r_00738c(regs),
             0x0073CA => self.r_0073ca(regs),
             0x0073E4 => self.r_0073e4(regs),
-            0x007428 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_007428(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x007438 => {
-                (regs.d0, regs.x, regs.c) = self.r_007438(regs.d0, regs.x);
-            }
+            0x007428 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_007428(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x007438 => { (regs.d0, regs.x, regs.c) = self.r_007438(regs.d0, regs.x); }
             0x0074B8 => self.r_0074b8(regs),
             0x0074DC => self.r_0074dc(regs),
             0x0075A6 => self.r_0075a6(regs),
-            0x0075D6 => {
-                (regs.d0, regs.d1, regs.a0, regs.x, regs.c) =
-                    self.r_0075d6(regs.d0, regs.d1, regs.d2, regs.d6, regs.a0, regs.a6, regs.x);
-            }
+            0x0075D6 => { (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_0075d6(regs.d0, regs.d1, regs.d2, regs.d6, regs.a0, regs.a6, regs.x); }
             0x007602 => self.r_007602(regs),
             0x00762C => self.r_00762c(regs),
             0x00764A => self.r_00764a(regs),
             0x007674 => self.r_007674(regs),
-            0x0076F0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0076f0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x0076F0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0076f0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x007708 => self.r_007708(regs),
             0x00772E => self.r_00772e(regs),
             0x007744 => self.r_007744(regs),
             0x007762 => self.r_007762(regs),
-            0x007766 => {
-                regs.c = self.r_007766(regs.a4, regs.c);
-            }
+            0x007766 => { regs.c = self.r_007766(regs.a4, regs.c); }
             0x007774 => self.r_007774(regs),
             0x0077D2 => self.r_0077d2(regs),
-            0x00781A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00781a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x007834 => {
-                (
-                    regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                ) = self.r_007834(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00781A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00781a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x007834 => { (regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_007834(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00793A => self.r_00793a(regs),
             0x007970 => self.r_007970(regs),
             0x00799E => self.r_00799e(regs),
             0x0079D2 => self.r_0079d2(regs),
             0x007A00 => self.r_007a00(regs),
-            0x007A18 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_007a18(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x007A56 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_007a56(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x007A18 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_007a18(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x007A56 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_007a56(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x007A90 => self.r_007a90(regs),
-            0x007DFA => {
-                self.r_007dfa();
-            }
-            0x007E08 => {
-                regs.d7 = self.r_007e08();
-            }
-            0x007E1E => {
-                regs.d0 = self.r_007e1e(regs.d1, regs.d7);
-            }
-            0x007E92 => {
-                regs.d0 = self.r_007e92(regs.d0, regs.d7, regs.a1);
-            }
+            0x007DFA => { self.r_007dfa(); }
+            0x007E08 => { regs.d7 = self.r_007e08(); }
+            0x007E1E => { regs.d0 = self.r_007e1e(regs.d1, regs.d7); }
+            0x007E92 => { regs.d0 = self.r_007e92(regs.d0, regs.d7, regs.a1); }
             0x007EC8 => self.r_007ec8(regs),
             0x007ECC => self.r_007ecc(regs),
             0x007ED0 => self.r_007ed0(regs),
@@ -1649,441 +533,144 @@ impl Game {
             0x007EDC => self.r_007edc(regs),
             0x007EE0 => self.r_007ee0(regs),
             0x007EE4 => self.r_007ee4(regs),
-            0x007EE8 => {
-                (regs.d0, regs.d1) = self.r_007ee8(regs.d1, regs.a0);
-            }
-            0x007F04 => {
-                (regs.d0, regs.d1) = self.r_007f04(regs.d0, regs.d1, regs.a0);
-            }
-            0x007F26 => {
-                regs.d0 = self.r_007f26(regs.d0, regs.d1, regs.a0, regs.a1);
-            }
-            0x007F4A => {
-                (regs.d1, regs.a1, regs.c) = self.r_007f4a(regs.d0, regs.d1, regs.a1);
-            }
-            0x007FC2 => {
-                self.r_007fc2(regs.d0, regs.d1, regs.d7, regs.a0, regs.a1);
-            }
-            0x007FF4 => {
-                (regs.d0, regs.d1, regs.d6, regs.d7, regs.a1, regs.c) =
-                    self.r_007ff4(regs.d0, regs.d1, regs.d6, regs.d7, regs.a0, regs.a1);
-            }
-            0x008022 => {
-                (regs.d0, regs.d2, regs.d6, regs.d7, regs.c) =
-                    self.r_008022(regs.d0, regs.d2, regs.d6, regs.d7, regs.a0);
-            }
-            0x008114 => {
-                (regs.d0, regs.d1, regs.d6, regs.d7, regs.a1, regs.a2, regs.c) =
-                    self.r_008114(regs.d1, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2);
-            }
+            0x007EE8 => { (regs.d0, regs.d1) = self.r_007ee8(regs.d1, regs.a0); }
+            0x007F04 => { (regs.d0, regs.d1) = self.r_007f04(regs.d0, regs.d1, regs.a0); }
+            0x007F26 => { regs.d0 = self.r_007f26(regs.d0, regs.d1, regs.a0, regs.a1); }
+            0x007F4A => { (regs.d1, regs.a1, regs.c) = self.r_007f4a(regs.d0, regs.d1, regs.a1); }
+            0x007FC2 => { self.r_007fc2(regs.d0, regs.d1, regs.d7, regs.a0, regs.a1); }
+            0x007FF4 => { (regs.d0, regs.d1, regs.d6, regs.d7, regs.a1, regs.c) = self.r_007ff4(regs.d0, regs.d1, regs.d6, regs.d7, regs.a0, regs.a1); }
+            0x008022 => { (regs.d0, regs.d2, regs.d6, regs.d7, regs.c) = self.r_008022(regs.d0, regs.d2, regs.d6, regs.d7, regs.a0); }
+            0x008114 => { (regs.d0, regs.d1, regs.d6, regs.d7, regs.a1, regs.a2, regs.c) = self.r_008114(regs.d1, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2); }
             0x008126 => self.r_008126(regs),
             0x00812A => self.r_00812a(regs),
             0x00812E => self.r_00812e(regs),
-            0x008176 => {
-                (regs.d0, regs.d1, regs.d6, regs.d7, regs.c) =
-                    self.r_008176(regs.d0, regs.d1, regs.d6, regs.d7, regs.a0);
-            }
-            0x008194 => {
-                (regs.d0, regs.d6, regs.d7, regs.c) =
-                    self.r_008194(regs.d0, regs.d6, regs.d7, regs.a0);
-            }
-            0x00819A => {
-                (regs.d0, regs.d7, regs.c) = self.r_00819a(regs.d0, regs.d7, regs.a0);
-            }
-            0x0081AE => {
-                (regs.d0, regs.d7, regs.c) = self.r_0081ae(regs.d0, regs.d7, regs.a0);
-            }
-            0x0081C2 => {
-                regs.c = self.r_0081c2();
-            }
+            0x008176 => { (regs.d0, regs.d1, regs.d6, regs.d7, regs.c) = self.r_008176(regs.d0, regs.d1, regs.d6, regs.d7, regs.a0); }
+            0x008194 => { (regs.d0, regs.d6, regs.d7, regs.c) = self.r_008194(regs.d0, regs.d6, regs.d7, regs.a0); }
+            0x00819A => { (regs.d0, regs.d7, regs.c) = self.r_00819a(regs.d0, regs.d7, regs.a0); }
+            0x0081AE => { (regs.d0, regs.d7, regs.c) = self.r_0081ae(regs.d0, regs.d7, regs.a0); }
+            0x0081C2 => { regs.c = self.r_0081c2(); }
             0x00821C => self.r_00821c(regs),
             0x00822A => self.r_00822a(regs),
             0x00822E => self.r_00822e(regs),
             0x008238 => self.r_008238(regs),
             0x008268 => self.r_008268(regs),
             0x008278 => self.r_008278(regs),
-            0x008286 => {
-                (regs.d0, regs.a0, regs.a1) = self.r_008286(regs.d0, regs.a0, regs.a1);
-            }
-            0x0082FA => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a4, regs.a5, regs.a6,
-                ) = self.r_0082fa(regs.d4);
-            }
-            0x00841E => {
-                regs.a2 = self.r_00841e();
-            }
-            0x00846C => {
-                (regs.d1, regs.d2, regs.d3, regs.a6) = self.r_00846c();
-            }
-            0x008490 => {
-                (regs.d0, regs.d1, regs.d2) = self.r_008490(regs.d1);
-            }
-            0x00849E => {
-                self.r_00849e();
-            }
-            0x0084B4 => {
-                self.r_0084b4();
-            }
-            0x0084CE => {
-                regs.d1 = self.r_0084ce();
-            }
-            0x0084F6 => {
-                self.r_0084f6();
-            }
-            0x0084FE => {
-                self.r_0084fe();
-            }
-            0x008504 => {
-                self.r_008504(regs.d0);
-            }
-            0x008508 => {
-                (regs.d0, regs.d2, regs.d3, regs.a6) = self.r_008508(regs.d0, regs.d1);
-            }
-            0x008552 => {
-                self.r_008552();
-            }
-            0x00855A => {
-                self.r_00855a();
-            }
-            0x008560 => {
-                self.r_008560();
-            }
-            0x00856A => {
-                (regs.d0, regs.a1) = self.r_00856a(regs.a1);
-            }
-            0x00858A => {
-                self.r_00858a(regs.d0);
-            }
-            0x008604 => {
-                (regs.d2, regs.d3, regs.d5, regs.d6, regs.a5, regs.a6) =
-                    self.r_008604(regs.d2, regs.d5, regs.d6, regs.d7, regs.a6);
-            }
-            0x008624 => {
-                self.r_008624();
-            }
+            0x008286 => { (regs.d0, regs.a0, regs.a1) = self.r_008286(regs.d0, regs.a0, regs.a1); }
+            0x0082FA => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a4, regs.a5, regs.a6) = self.r_0082fa(regs.d4); }
+            0x00841E => { regs.a2 = self.r_00841e(); }
+            0x00846C => { (regs.d1, regs.d2, regs.d3, regs.a6) = self.r_00846c(); }
+            0x008490 => { (regs.d0, regs.d1, regs.d2) = self.r_008490(regs.d1); }
+            0x00849E => { self.r_00849e(); }
+            0x0084B4 => { self.r_0084b4(); }
+            0x0084CE => { regs.d1 = self.r_0084ce(); }
+            0x0084F6 => { self.r_0084f6(); }
+            0x0084FE => { self.r_0084fe(); }
+            0x008504 => { self.r_008504(regs.d0); }
+            0x008508 => { (regs.d0, regs.d2, regs.d3, regs.a6) = self.r_008508(regs.d0, regs.d1); }
+            0x008552 => { self.r_008552(); }
+            0x00855A => { self.r_00855a(); }
+            0x008560 => { self.r_008560(); }
+            0x00856A => { (regs.d0, regs.a1) = self.r_00856a(regs.a1); }
+            0x00858A => { self.r_00858a(regs.d0); }
+            0x008604 => { (regs.d2, regs.d3, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_008604(regs.d2, regs.d5, regs.d6, regs.d7, regs.a6); }
+            0x008624 => { self.r_008624(); }
             0x008632 => self.r_008632(regs),
-            0x008644 => {
-                self.r_008644();
-            }
-            0x008656 => {
-                self.r_008656();
-            }
+            0x008644 => { self.r_008644(); }
+            0x008656 => { self.r_008656(); }
             0x008664 => self.r_008664(regs),
-            0x00867E => {
-                self.r_00867e();
-            }
-            0x00868E => {
-                self.r_00868e();
-            }
-            0x0086A4 => {
-                self.r_0086a4(regs.a0);
-            }
-            0x0086BA => {
-                self.r_0086ba(regs.a0);
-            }
-            0x008706 => {
-                self.r_008706();
-            }
-            0x008716 => {
-                self.r_008716(regs.a0);
-            }
-            0x00872C => {
-                self.r_00872c(regs.a0);
-            }
-            0x0087F6 => {
-                (regs.d4, regs.d7, regs.x) =
-                    self.r_0087f6(regs.d0, regs.d1, regs.d2, regs.d4, regs.d7);
-            }
-            0x00890C => {
-                (regs.d4, regs.d7) = self.r_00890c(regs.d0, regs.d1, regs.d2, regs.d4, regs.d7);
-            }
-            0x00895E => {
-                self.r_00895e(regs.d2);
-            }
-            0x008980 => {
-                self.r_008980(regs.d0);
-            }
-            0x008984 => {
-                self.r_008984();
-            }
-            0x008986 => {
-                self.r_008986(regs.d0, regs.d1, regs.d2);
-            }
-            0x00899E => {
-                self.r_00899e(regs.d0);
-            }
-            0x008B62 => {
-                (regs.d2, regs.d4) = self.r_008b62(regs.d1, regs.d2, regs.d4);
-            }
-            0x008C3A => {
-                (regs.d1, regs.d2, regs.a2) = self.r_008c3a(regs.d1, regs.d2);
-            }
-            0x008C6A => {
-                (regs.d1, regs.d7) = self.r_008c6a(regs.d0, regs.d1, regs.d7);
-            }
-            0x008D4E => {
-                self.r_008d4e(regs.a2);
-            }
-            0x008DE2 => {
-                regs.d7 = self.r_008de2(regs.d1, regs.d2, regs.d3, regs.d7, regs.a1);
-            }
-            0x008E9E => {
-                self.r_008e9e(regs.d0);
-            }
-            0x008EC6 => {
-                self.r_008ec6(regs.d0);
-            }
-            0x008EEE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a6, regs.x,
-                ) = self.r_008eee(regs.d1, regs.d3, regs.d4, regs.d6, regs.d7, regs.a6);
-            }
-            0x008F72 => {
-                (regs.d4, regs.d6) = self.r_008f72(regs.d4, regs.d6, regs.a6);
-            }
-            0x009056 => {
-                (regs.d0, regs.d2, regs.a0) = self.r_009056();
-            }
-            0x009086 => {
-                self.r_009086();
-            }
-            0x0090F2 => {
-                regs.z = self.r_0090f2();
-            }
-            0x00912A => {
-                regs.d0 = self.r_00912a(regs.d1);
-            }
-            0x00918E => {
-                self.r_00918e(regs.d1, regs.a1);
-            }
-            0x00919C => {
-                self.r_00919c(regs.d1, regs.a1);
-            }
-            0x0091AA => {
-                self.r_0091aa(regs.d1, regs.a1);
-            }
-            0x0091B8 => {
-                regs.d0 = self.r_0091b8(regs.d1, regs.a1);
-            }
-            0x0091C6 => {
-                regs.d0 = self.r_0091c6(regs.d1, regs.a1);
-            }
-            0x0091D4 => {
-                regs.d0 = self.r_0091d4(regs.d1, regs.a1);
-            }
-            0x0091E2 => {
-                self.r_0091e2(regs.d1, regs.a1);
-            }
-            0x00922C => {
-                self.r_00922c();
-            }
+            0x00867E => { self.r_00867e(); }
+            0x00868E => { self.r_00868e(); }
+            0x0086A4 => { self.r_0086a4(regs.a0); }
+            0x0086BA => { self.r_0086ba(regs.a0); }
+            0x008706 => { self.r_008706(); }
+            0x008716 => { self.r_008716(regs.a0); }
+            0x00872C => { self.r_00872c(regs.a0); }
+            0x0087F6 => { (regs.d4, regs.d7, regs.x) = self.r_0087f6(regs.d0, regs.d1, regs.d2, regs.d4, regs.d7); }
+            0x00890C => { (regs.d4, regs.d7) = self.r_00890c(regs.d0, regs.d1, regs.d2, regs.d4, regs.d7); }
+            0x00895E => { self.r_00895e(regs.d2); }
+            0x008980 => { self.r_008980(regs.d0); }
+            0x008984 => { self.r_008984(); }
+            0x008986 => { self.r_008986(regs.d0, regs.d1, regs.d2); }
+            0x00899E => { self.r_00899e(regs.d0); }
+            0x008B62 => { (regs.d2, regs.d4) = self.r_008b62(regs.d1, regs.d2, regs.d4); }
+            0x008C3A => { (regs.d1, regs.d2, regs.a2) = self.r_008c3a(regs.d1, regs.d2); }
+            0x008C6A => { (regs.d1, regs.d7) = self.r_008c6a(regs.d0, regs.d1, regs.d7); }
+            0x008D4E => { self.r_008d4e(regs.a2); }
+            0x008DE2 => { regs.d7 = self.r_008de2(regs.d1, regs.d2, regs.d3, regs.d7, regs.a1); }
+            0x008E9E => { self.r_008e9e(regs.d0); }
+            0x008EC6 => { self.r_008ec6(regs.d0); }
+            0x008EEE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a0, regs.a1, regs.a6, regs.x) = self.r_008eee(regs.d1, regs.d3, regs.d4, regs.d6, regs.d7, regs.a6); }
+            0x008F72 => { (regs.d4, regs.d6) = self.r_008f72(regs.d4, regs.d6, regs.a6); }
+            0x009056 => { (regs.d0, regs.d2, regs.a0) = self.r_009056(); }
+            0x009086 => { self.r_009086(); }
+            0x0090F2 => { regs.z = self.r_0090f2(); }
+            0x00912A => { regs.d0 = self.r_00912a(regs.d1); }
+            0x00918E => { self.r_00918e(regs.d1, regs.a1); }
+            0x00919C => { self.r_00919c(regs.d1, regs.a1); }
+            0x0091AA => { self.r_0091aa(regs.d1, regs.a1); }
+            0x0091B8 => { regs.d0 = self.r_0091b8(regs.d1, regs.a1); }
+            0x0091C6 => { regs.d0 = self.r_0091c6(regs.d1, regs.a1); }
+            0x0091D4 => { regs.d0 = self.r_0091d4(regs.d1, regs.a1); }
+            0x0091E2 => { self.r_0091e2(regs.d1, regs.a1); }
+            0x00922C => { self.r_00922c(); }
             0x009248 => self.r_009248(regs),
             0x0092BE => self.r_0092be(regs),
             0x0092E8 => self.r_0092e8(regs),
-            0x009310 => {
-                self.r_009310(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x009310 => { self.r_009310(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x009368 => self.r_009368(regs),
             0x0093B8 => self.r_0093b8(regs),
-            0x0093BA => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a6,
-                ) = self.r_0093ba(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a6,
-                );
-            }
-            0x0093F0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a6,
-                ) = self.r_0093f0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0093BA => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6) = self.r_0093ba(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6); }
+            0x0093F0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6) = self.r_0093f0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x0093F6 => self.r_0093f6(regs),
-            0x0093FA => {
-                self.r_0093fa();
-            }
-            0x0093FC => {
-                regs.x = self.r_0093fc(regs.d1, regs.d2);
-            }
-            0x00946E => {
-                regs.x = self.r_00946e(regs.d0, regs.d1, regs.a0);
-            }
-            0x009490 => {
-                self.r_009490();
-            }
-            0x0094B0 => {
-                self.r_0094b0();
-            }
-            0x0094B2 => {
-                regs.c = self.r_0094b2();
-            }
-            0x0094C8 => {
-                self.r_0094c8(regs.d0);
-            }
-            0x0094D8 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0094d8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x00956C => {
-                (
-                    regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_00956c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x0093FA => { self.r_0093fa(); }
+            0x0093FC => { regs.x = self.r_0093fc(regs.d1, regs.d2); }
+            0x00946E => { regs.x = self.r_00946e(regs.d0, regs.d1, regs.a0); }
+            0x009490 => { self.r_009490(); }
+            0x0094B0 => { self.r_0094b0(); }
+            0x0094B2 => { regs.c = self.r_0094b2(); }
+            0x0094C8 => { self.r_0094c8(regs.d0); }
+            0x0094D8 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0094d8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x00956C => { (regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_00956c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x0095BA => self.r_0095ba(regs),
             0x0095CE => self.r_0095ce(regs),
-            0x0095D0 => {
-                (
-                    regs.d0, regs.d1, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2,
-                    regs.a3, regs.a5, regs.x,
-                ) = self.r_0095d0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0095D0 => { (regs.d0, regs.d1, regs.d3, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.x) = self.r_0095d0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00960A => self.r_00960a(regs),
             0x009620 => self.r_009620(regs),
             0x009622 => self.r_009622(regs),
             0x00962A => self.r_00962a(regs),
             0x009632 => self.r_009632(regs),
-            0x009634 => {
-                self.r_009634();
-            }
+            0x009634 => { self.r_009634(); }
             0x009636 => self.r_009636(regs),
             0x009640 => self.r_009640(regs),
             0x009648 => self.r_009648(regs),
-            0x009658 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_009658(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x009674 => {
-                (
-                    regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a5, regs.a6, regs.x,
-                ) = self.r_009674(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x009692 => {
-                (regs.d0, regs.a4) = self.r_009692(regs.d0, regs.a4);
-            }
+            0x009658 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_009658(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x009674 => { (regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x) = self.r_009674(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x009692 => { (regs.d0, regs.a4) = self.r_009692(regs.d0, regs.a4); }
             0x0096AA => self.r_0096aa(regs),
-            0x0096AC => {
-                self.r_0096ac(regs.d0);
-            }
-            0x0096B0 => {
-                self.r_0096b0(regs.d0, regs.a0);
-            }
-            0x0096CE => {
-                (regs.d0, regs.d1, regs.d2, regs.d5) = self.r_0096ce(regs.d0, regs.d1, regs.d2);
-            }
-            0x009716 => {
-                (regs.d0, regs.d1, regs.d2) = self.r_009716(regs.d0, regs.d1, regs.d2, regs.a5);
-            }
-            0x00977E => {
-                self.r_00977e();
-            }
-            0x009790 => {
-                self.r_009790();
-            }
-            0x0097CE => {
-                self.r_0097ce();
-            }
+            0x0096AC => { self.r_0096ac(regs.d0); }
+            0x0096B0 => { self.r_0096b0(regs.d0, regs.a0); }
+            0x0096CE => { (regs.d0, regs.d1, regs.d2, regs.d5) = self.r_0096ce(regs.d0, regs.d1, regs.d2); }
+            0x009716 => { (regs.d0, regs.d1, regs.d2) = self.r_009716(regs.d0, regs.d1, regs.d2, regs.a5); }
+            0x00977E => { self.r_00977e(); }
+            0x009790 => { self.r_009790(); }
+            0x0097CE => { self.r_0097ce(); }
             0x009800 => self.r_009800(regs),
             0x00981C => self.r_00981c(regs),
-            0x009822 => {
-                regs.c = self.r_009822();
-            }
-            0x009840 => {
-                (regs.d0, regs.a0, regs.a1) = self.r_009840();
-            }
-            0x009874 => {
-                (regs.d0, regs.a0, regs.a1, regs.x) = self.r_009874(regs.a1);
-            }
-            0x00989A => {
-                (regs.d0, regs.a0, regs.a1) = self.r_00989a();
-            }
-            0x0098F8 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0098f8(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x0098FC => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0098fc(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x009966 => {
-                (regs.d0, regs.d1, regs.x) = self.r_009966(regs.d0, regs.d1);
-            }
-            0x0099A2 => {
-                (regs.x, regs.c) = self.r_0099a2(regs.d4);
-            }
-            0x0099E6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0099e6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x009ACA => {
-                (regs.d6, regs.a6, regs.x, regs.c) = self.r_009aca(regs.d4, regs.d5, regs.d6);
-            }
+            0x009822 => { regs.c = self.r_009822(); }
+            0x009840 => { (regs.d0, regs.a0, regs.a1) = self.r_009840(); }
+            0x009874 => { (regs.d0, regs.a0, regs.a1, regs.x) = self.r_009874(regs.a1); }
+            0x00989A => { (regs.d0, regs.a0, regs.a1) = self.r_00989a(); }
+            0x0098F8 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0098f8(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0098FC => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0098fc(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x009966 => { (regs.d0, regs.d1, regs.x) = self.r_009966(regs.d0, regs.d1); }
+            0x0099A2 => { (regs.x, regs.c) = self.r_0099a2(regs.d4); }
+            0x0099E6 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0099e6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x009ACA => { (regs.d6, regs.a6, regs.x, regs.c) = self.r_009aca(regs.d4, regs.d5, regs.d6); }
             0x009AEC => self.r_009aec(regs),
-            0x009B0A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_009b0a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x009C7A => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_009c7a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x009B0A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_009b0a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x009C7A => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_009c7a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x009D02 => self.r_009d02(regs),
-            0x009D32 => {
-                self.r_009d32();
-            }
+            0x009D32 => { self.r_009d32(); }
             0x009D34 => self.r_009d34(regs),
             0x009D7C => self.r_009d7c(regs),
             0x009D8C => self.r_009d8c(regs),
@@ -2092,441 +679,168 @@ impl Game {
             0x009DBC => self.r_009dbc(regs),
             0x009DBE => self.r_009dbe(regs),
             0x009DCC => self.r_009dcc(regs),
-            0x009DD8 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_009dd8(regs.d0, regs.d1, regs.d5, regs.d6, regs.a5);
-            }
+            0x009DD8 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_009dd8(regs.d0, regs.d1, regs.d5, regs.d6, regs.a5); }
             0x009E0A => self.r_009e0a(regs),
-            0x009E1C => {
-                regs.d1 = self.r_009e1c(regs.d0, regs.d1, regs.a6);
-            }
+            0x009E1C => { regs.d1 = self.r_009e1c(regs.d0, regs.d1, regs.a6); }
             0x009E2E => self.r_009e2e(regs),
-            0x009E40 => {
-                regs.d1 = self.r_009e40(regs.d0, regs.d1, regs.a6);
-            }
+            0x009E40 => { regs.d1 = self.r_009e40(regs.d0, regs.d1, regs.a6); }
             0x009E52 => self.r_009e52(regs),
-            0x009E60 => {
-                regs.d1 = self.r_009e60(regs.d1, regs.a6);
-            }
+            0x009E60 => { regs.d1 = self.r_009e60(regs.d1, regs.a6); }
             0x009E7C => self.r_009e7c(regs),
-            0x009E86 => {
-                regs.d1 = self.r_009e86(regs.d0, regs.d1, regs.a6);
-            }
+            0x009E86 => { regs.d1 = self.r_009e86(regs.d0, regs.d1, regs.a6); }
             0x009E94 => self.r_009e94(regs),
             0x009EA4 => self.r_009ea4(regs),
             0x009EC0 => self.r_009ec0(regs),
-            0x009EEC => {
-                self.r_009eec();
-            }
+            0x009EEC => { self.r_009eec(); }
             0x009EEE => self.r_009eee(regs),
             0x009F30 => self.r_009f30(regs),
             0x009F70 => self.r_009f70(regs),
             0x009F86 => self.r_009f86(regs),
             0x009F9C => self.r_009f9c(regs),
             0x009FAA => self.r_009faa(regs),
-            0x009FC6 => {
-                (regs.d0, regs.d5, regs.a5, regs.x, regs.c) =
-                    self.r_009fc6(regs.d5, regs.a5, regs.a6);
-            }
-            0x00A030 => {
-                (regs.d0, regs.x, regs.c) = self.r_00a030(regs.d0, regs.a5, regs.a6);
-            }
-            0x00A040 => {
-                regs.d0 = self.r_00a040(regs.d0, regs.a6);
-            }
-            0x00A506 => {
-                (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a506(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00A51A => {
-                (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a51a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00A52E => {
-                (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c) = self.r_00a52e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00A542 => {
-                (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x) = self.r_00a542(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00A556 => {
-                self.r_00a556();
-            }
-            0x00A55E => {
-                self.r_00a55e();
-            }
-            0x00A592 => {
-                self.r_00a592(regs.d0, regs.d3);
-            }
-            0x00A5AC => {
-                self.r_00a5ac(regs.d0, regs.d3);
-            }
+            0x009FC6 => { (regs.d0, regs.d5, regs.a5, regs.x, regs.c) = self.r_009fc6(regs.d5, regs.a5, regs.a6); }
+            0x00A030 => { (regs.d0, regs.x, regs.c) = self.r_00a030(regs.d0, regs.a5, regs.a6); }
+            0x00A040 => { regs.d0 = self.r_00a040(regs.d0, regs.a6); }
+            0x00A506 => { (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a506(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00A51A => { (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a51a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00A52E => { (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c) = self.r_00a52e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00A542 => { (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x) = self.r_00a542(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00A556 => { self.r_00a556(); }
+            0x00A55E => { self.r_00a55e(); }
+            0x00A592 => { self.r_00a592(regs.d0, regs.d3); }
+            0x00A5AC => { self.r_00a5ac(regs.d0, regs.d3); }
             0x00A5E6 => self.r_00a5e6(regs),
             0x00A61C => self.r_00a61c(regs),
-            0x00A63A => {
-                (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a63a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00A63A => { (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a63a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00A664 => self.r_00a664(regs),
-            0x00A686 => {
-                (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a686(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00A686 => { (regs.d0, regs.a1, regs.x, regs.c) = self.r_00a686(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00A6A4 => self.r_00a6a4(regs),
-            0x00A6C0 => {
-                (regs.d0, regs.d6, regs.a1, regs.a6, regs.x) = self.r_00a6c0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00A702 => {
-                (regs.d0, regs.x, regs.z, regs.c) = self.r_00a702(regs.d0, regs.d3, regs.a6);
-            }
-            0x00A738 => {
-                (regs.d6, regs.a0, regs.a1, regs.x, regs.c) = self.r_00a738(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00A6C0 => { (regs.d0, regs.d6, regs.a1, regs.a6, regs.x) = self.r_00a6c0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00A702 => { (regs.d0, regs.x, regs.z, regs.c) = self.r_00a702(regs.d0, regs.d3, regs.a6); }
+            0x00A738 => { (regs.d6, regs.a0, regs.a1, regs.x, regs.c) = self.r_00a738(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00A73C => self.r_00a73c(regs),
             0x00A744 => self.r_00a744(regs),
-            0x00A75C => {
-                regs.x = self.r_00a75c(regs.d3, regs.a6);
-            }
-            0x00A770 => {
-                self.r_00a770(regs.d3);
-            }
-            0x00A784 => {
-                regs.x = self.r_00a784(regs.d3);
-            }
-            0x00A7C8 => {
-                regs.d3 = self.r_00a7c8(regs.d3);
-            }
+            0x00A75C => { regs.x = self.r_00a75c(regs.d3, regs.a6); }
+            0x00A770 => { self.r_00a770(regs.d3); }
+            0x00A784 => { regs.x = self.r_00a784(regs.d3); }
+            0x00A7C8 => { regs.d3 = self.r_00a7c8(regs.d3); }
             0x00A8C2 => self.r_00a8c2(regs),
-            0x00A904 => {
-                self.r_00a904(regs.a6);
-            }
-            0x00A952 => {
-                (regs.a0, regs.a1) = self.r_00a952(regs.a0, regs.a1);
-            }
-            0x00AA00 => {
-                (regs.d0, regs.a0, regs.x, regs.c) =
-                    self.r_00aa00(regs.d4, regs.d5, regs.d6, regs.a0);
-            }
+            0x00A904 => { self.r_00a904(regs.a6); }
+            0x00A952 => { (regs.a0, regs.a1) = self.r_00a952(regs.a0, regs.a1); }
+            0x00AA00 => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_00aa00(regs.d4, regs.d5, regs.d6, regs.a0); }
             0x00AA52 => self.r_00aa52(regs),
             0x00AAC0 => self.r_00aac0(regs),
             0x00AAC4 => self.r_00aac4(regs),
-            0x00AACC => {
-                self.r_00aacc();
-            }
-            0x00AAD4 => {
-                self.r_00aad4(regs.a6);
-            }
-            0x00AADC => {
-                (regs.x, regs.c) = self.r_00aadc();
-            }
-            0x00AAE2 => {
-                regs.x = self.r_00aae2(regs.a0, regs.a1);
-            }
-            0x00AB12 => {
-                self.r_00ab12(regs.d1);
-            }
-            0x00AB78 => {
-                self.r_00ab78(regs.d1);
-            }
-            0x00ABA6 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_00aba6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x00ABE0 => {
-                (regs.d0, regs.d1, regs.x) = self.r_00abe0(regs.d0, regs.d1, regs.x);
-            }
-            0x00AC64 => {
-                (regs.d0, regs.x) = self.r_00ac64(regs.d0);
-            }
-            0x00ACA4 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a1, regs.a5, regs.a6, regs.x,
-                ) = self.r_00aca4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x00AD66 => {
-                (regs.d0, regs.x) = self.r_00ad66(regs.d0);
-            }
-            0x00ADC0 => {
-                (regs.d0, regs.x) = self.r_00adc0(regs.d0);
-            }
-            0x00ADCA => {
-                regs.x = self.r_00adca(regs.d0, regs.x);
-            }
-            0x00ADF2 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_00adf2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00AACC => { self.r_00aacc(); }
+            0x00AAD4 => { self.r_00aad4(regs.a6); }
+            0x00AADC => { (regs.x, regs.c) = self.r_00aadc(); }
+            0x00AAE2 => { regs.x = self.r_00aae2(regs.a0, regs.a1); }
+            0x00AB12 => { self.r_00ab12(regs.d1); }
+            0x00AB78 => { self.r_00ab78(regs.d1); }
+            0x00ABA6 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_00aba6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x00ABE0 => { (regs.d0, regs.d1, regs.x) = self.r_00abe0(regs.d0, regs.d1, regs.x); }
+            0x00AC64 => { (regs.d0, regs.x) = self.r_00ac64(regs.d0); }
+            0x00ACA4 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a1, regs.a5, regs.a6, regs.x) = self.r_00aca4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x00AD66 => { (regs.d0, regs.x) = self.r_00ad66(regs.d0); }
+            0x00ADC0 => { (regs.d0, regs.x) = self.r_00adc0(regs.d0); }
+            0x00ADCA => { regs.x = self.r_00adca(regs.d0, regs.x); }
+            0x00ADF2 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_00adf2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00AE6E => self.r_00ae6e(regs),
-            0x00AEFA => {
-                (regs.d0, regs.d3, regs.x, regs.c) =
-                    self.r_00aefa(regs.d0, regs.d3, regs.a5, regs.a6);
-            }
-            0x00AF26 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a0,
-                    regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_00af26(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4,
-                    regs.a5, regs.a6,
-                );
-            }
-            0x00B126 => {
-                self.r_00b126(regs.d1, regs.d4);
-            }
-            0x00B158 => {
-                (regs.d1, regs.c) = self.r_00b158(regs.d1, regs.d4);
-            }
-            0x00B1A2 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6,
-                ) = self.r_00b1a2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00AEFA => { (regs.d0, regs.d3, regs.x, regs.c) = self.r_00aefa(regs.d0, regs.d3, regs.a5, regs.a6); }
+            0x00AF26 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.x) = self.r_00af26(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6); }
+            0x00B126 => { self.r_00b126(regs.d1, regs.d4); }
+            0x00B158 => { (regs.d1, regs.c) = self.r_00b158(regs.d1, regs.d4); }
+            0x00B1A2 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_00b1a2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00B1DC => self.r_00b1dc(regs),
             0x00B21A => self.r_00b21a(regs),
-            0x00B2A0 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a1, regs.a5, regs.a6,
-                ) = self.r_00b2a0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00B2A0 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a1, regs.a5, regs.a6) = self.r_00b2a0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00B2DE => self.r_00b2de(regs),
             0x00B300 => self.r_00b300(regs),
-            0x00B312 => {
-                (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_00b312(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2,
-                    regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00B346 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a1, regs.a5, regs.a6,
-                ) = self.r_00b346(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00B312 => { (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_00b312(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00B346 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a1, regs.a5, regs.a6) = self.r_00b346(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00B378 => self.r_00b378(regs),
             0x00B39E => self.r_00b39e(regs),
-            0x00B3BC => {
-                (regs.d0, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_00b3bc(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00B3BC => { (regs.d0, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_00b3bc(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00B414 => self.r_00b414(regs),
             0x00B49A => self.r_00b49a(regs),
             0x00B4C6 => self.r_00b4c6(regs),
-            0x00B4E4 => {
-                self.r_00b4e4();
-            }
-            0x00B7F4 => {
-                (regs.a0, regs.a1) = self.r_00b7f4(regs.d0);
-            }
-            0x00B832 => {
-                self.r_00b832();
-            }
-            0x00B84C => {
-                self.r_00b84c();
-            }
-            0x00B84E => {
-                self.r_00b84e(regs.d0);
-            }
-            0x00B89E => {
-                regs.d0 = self.r_00b89e(regs.d0);
-            }
+            0x00B4E4 => { self.r_00b4e4(); }
+            0x00B7F4 => { (regs.a0, regs.a1) = self.r_00b7f4(regs.d0); }
+            0x00B832 => { self.r_00b832(); }
+            0x00B84C => { self.r_00b84c(); }
+            0x00B84E => { self.r_00b84e(regs.d0); }
+            0x00B89E => { regs.d0 = self.r_00b89e(regs.d0); }
             0x00B8C0 => self.r_00b8c0(regs),
-            0x00B954 => {
-                self.r_00b954();
-            }
-            0x00B9D0 => {
-                regs.a0 = self.r_00b9d0();
-            }
-            0x00BAA8 => {
-                self.r_00baa8(regs.d0, regs.d1, regs.d2);
-            }
+            0x00B954 => { self.r_00b954(); }
+            0x00B9D0 => { regs.a0 = self.r_00b9d0(); }
+            0x00BAA8 => { self.r_00baa8(regs.d0, regs.d1, regs.d2); }
             0x00BB06 => self.r_00bb06(regs),
             0x00BB30 => self.r_00bb30(regs),
             0x00BB54 => self.r_00bb54(regs),
             0x00BB6E => self.r_00bb6e(regs),
-            0x00BB94 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_00bb94(regs.d0);
-            }
-            0x00BBC0 => {
-                self.r_00bbc0(regs.d4, regs.d5, regs.d6, regs.a6);
-            }
+            0x00BB94 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_00bb94(regs.d0); }
+            0x00BBC0 => { self.r_00bbc0(regs.d4, regs.d5, regs.d6, regs.a6); }
             0x00BC4E => self.r_00bc4e(regs),
-            0x00BC70 => {
-                self.r_00bc70();
-            }
+            0x00BC70 => { self.r_00bc70(); }
             0x00BC72 => self.r_00bc72(regs),
             0x00BCC2 => self.r_00bcc2(regs),
-            0x00BCD4 => {
-                (regs.d6, regs.a6, regs.x) = self.r_00bcd4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x00BCD4 => { (regs.d6, regs.a6, regs.x) = self.r_00bcd4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x00BD14 => self.r_00bd14(regs),
             0x00BD54 => self.r_00bd54(regs),
             0x00BD6C => self.r_00bd6c(regs),
             0x00BDD8 => self.r_00bdd8(regs),
-            0x00BE40 => {
-                (regs.d0, regs.n, regs.z) = self.r_00be40(regs.d0);
-            }
-            0x00BE5A => {
-                (regs.d1, regs.d2, regs.x) = self.r_00be5a(regs.d1, regs.d2);
-            }
-            0x00BE74 => {
-                regs.x = self.r_00be74(regs.d0);
-            }
-            0x00BE96 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_00be96(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00BE40 => { (regs.d0, regs.n, regs.z) = self.r_00be40(regs.d0); }
+            0x00BE5A => { (regs.d1, regs.d2, regs.x) = self.r_00be5a(regs.d1, regs.d2); }
+            0x00BE74 => { regs.x = self.r_00be74(regs.d0); }
+            0x00BE96 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_00be96(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00BF28 => self.r_00bf28(regs),
             0x00BF86 => self.r_00bf86(regs),
-            0x00BFE4 => {
-                (regs.x, regs.c) = self.r_00bfe4();
-            }
+            0x00BFE4 => { (regs.x, regs.c) = self.r_00bfe4(); }
             0x00C028 => self.r_00c028(regs),
             0x00C054 => self.r_00c054(regs),
             0x00C0D6 => self.r_00c0d6(regs),
-            0x00C0FE => {
-                self.r_00c0fe();
-            }
+            0x00C0FE => { self.r_00c0fe(); }
             0x00C100 => self.r_00c100(regs),
             0x00C15A => self.r_00c15a(regs),
             0x00C1F6 => self.r_00c1f6(regs),
             0x00C292 => self.r_00c292(regs),
             0x00C2F2 => self.r_00c2f2(regs),
-            0x00C310 => {
-                (regs.d0, regs.x, regs.c) = self.r_00c310(regs.a5, regs.a6);
-            }
+            0x00C310 => { (regs.d0, regs.x, regs.c) = self.r_00c310(regs.a5, regs.a6); }
             0x00C380 => self.r_00c380(regs),
             0x00C3B6 => self.r_00c3b6(regs),
             0x00C3E4 => self.r_00c3e4(regs),
-            0x00C496 => {
-                (regs.d0, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5) =
-                    self.r_00c496(regs.d0, regs.d5, regs.a0);
-            }
+            0x00C496 => { (regs.d0, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5) = self.r_00c496(regs.d0, regs.d5, regs.a0); }
             0x00C4DA => self.r_00c4da(regs),
-            0x00C4FC => {
-                (regs.d0, regs.x, regs.c) = self.r_00c4fc(regs.d0, regs.d6, regs.a6, regs.x);
-            }
+            0x00C4FC => { (regs.d0, regs.x, regs.c) = self.r_00c4fc(regs.d0, regs.d6, regs.a6, regs.x); }
             0x00C544 => self.r_00c544(regs),
             0x00C568 => self.r_00c568(regs),
-            0x00C5AE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1,
-                    regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_00c5ae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00C66C => {
-                self.r_00c66c(regs.d0, regs.a4, regs.a5);
-            }
+            0x00C5AE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a0, regs.a1, regs.a4, regs.a5, regs.x, regs.c) = self.r_00c5ae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.a4, regs.a5, regs.a6); }
+            0x00C66C => { self.r_00c66c(regs.d0, regs.a4, regs.a5); }
             0x00C6AE => self.r_00c6ae(regs),
             0x00C72E => self.r_00c72e(regs),
-            0x00C73A => {
-                (regs.d0, regs.x, regs.c) = self.r_00c73a(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00C742 => {
-                self.r_00c742(regs.d0, regs.a6);
-            }
-            0x00C766 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c766(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00C73A => { (regs.d0, regs.x, regs.c) = self.r_00c73a(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00C742 => { self.r_00c742(regs.d0, regs.a6); }
+            0x00C766 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c766(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00C78E => self.r_00c78e(regs),
             0x00C796 => self.r_00c796(regs),
-            0x00C79C => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c79c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00C79C => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c79c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00C7C0 => self.r_00c7c0(regs),
             0x00C7DA => self.r_00c7da(regs),
-            0x00C7E0 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c7e0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00C7E0 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c7e0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00C80C => self.r_00c80c(regs),
             0x00C822 => self.r_00c822(regs),
-            0x00C864 => {
-                (regs.d0, regs.x, regs.c) = self.r_00c864(regs.a5, regs.a6);
-            }
-            0x00C86E => {
-                (regs.d0, regs.d6, regs.a0, regs.x, regs.c) =
-                    self.r_00c86e(regs.d5, regs.d6, regs.a6);
-            }
+            0x00C864 => { (regs.d0, regs.x, regs.c) = self.r_00c864(regs.a5, regs.a6); }
+            0x00C86E => { (regs.d0, regs.d6, regs.a0, regs.x, regs.c) = self.r_00c86e(regs.d5, regs.d6, regs.a6); }
             0x00C886 => self.r_00c886(regs),
             0x00C89E => self.r_00c89e(regs),
             0x00C8C8 => self.r_00c8c8(regs),
             0x00C8F4 => self.r_00c8f4(regs),
             0x00C8FE => self.r_00c8fe(regs),
-            0x00C904 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c904(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00C922 => {
-                (regs.d0, regs.c) = self.r_00c922(regs.d0, regs.a5);
-            }
+            0x00C904 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00c904(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00C922 => { (regs.d0, regs.c) = self.r_00c922(regs.d0, regs.a5); }
             0x00C938 => self.r_00c938(regs),
             0x00C93C => self.r_00c93c(regs),
-            0x00CA06 => {
-                (regs.d0, regs.c) = self.r_00ca06(regs.d0, regs.a5, regs.a6);
-            }
+            0x00CA06 => { (regs.d0, regs.c) = self.r_00ca06(regs.d0, regs.a5, regs.a6); }
             0x00CA0E => self.r_00ca0e(regs),
             0x00CA1E => self.r_00ca1e(regs),
             0x00CA38 => self.r_00ca38(regs),
@@ -2539,15 +853,7 @@ impl Game {
             0x00CB40 => self.r_00cb40(regs),
             0x00CB4A => self.r_00cb4a(regs),
             0x00CB7E => self.r_00cb7e(regs),
-            0x00CBE8 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_00cbe8(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3,
-                );
-            }
+            0x00CBE8 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_00cbe8(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3); }
             0x00CC06 => self.r_00cc06(regs),
             0x00CC20 => self.r_00cc20(regs),
             0x00CC5E => self.r_00cc5e(regs),
@@ -2559,99 +865,40 @@ impl Game {
             0x00CE58 => self.r_00ce58(regs),
             0x00CE9C => self.r_00ce9c(regs),
             0x00CEAC => self.r_00ceac(regs),
-            0x00CED8 => {
-                (regs.d0, regs.d1, regs.a0) = self.r_00ced8(regs.d1);
-            }
-            0x00CF42 => {
-                (regs.d0, regs.d2, regs.a0) = self.r_00cf42(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00CED8 => { (regs.d0, regs.d1, regs.a0) = self.r_00ced8(regs.d1); }
+            0x00CF42 => { (regs.d0, regs.d2, regs.a0) = self.r_00cf42(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00CF82 => self.r_00cf82(regs),
             0x00CFB6 => self.r_00cfb6(regs),
             0x00CFC0 => self.r_00cfc0(regs),
             0x00CFF8 => self.r_00cff8(regs),
-            0x00D074 => {
-                (regs.d0, regs.x, regs.c) = self.r_00d074(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x00D074 => { (regs.d0, regs.x, regs.c) = self.r_00d074(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x00D07C => self.r_00d07c(regs),
             0x00D0A8 => self.r_00d0a8(regs),
             0x00D28C => self.r_00d28c(regs),
-            0x00D2DE => {
-                (regs.d1, regs.d5, regs.a5) = self.r_00d2de(regs.d0, regs.d1, regs.d5, regs.a6);
-            }
-            0x00D314 => {
-                (regs.d1, regs.d5, regs.a5) = self.r_00d314(regs.d1, regs.d5, regs.a5, regs.a6);
-            }
-            0x00D390 => {
-                (regs.d0, regs.d1, regs.a0, regs.c) = self.r_00d390(regs.d1, regs.a0, regs.a6);
-            }
-            0x00D418 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a1, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00d418(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00D4DA => {
-                (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) = self.r_00d4da(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4,
-                );
-            }
-            0x00D564 => {
-                (regs.d0, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_00d564(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00D57C => {
-                (regs.d4, regs.a4, regs.c) = self.r_00d57c(regs.d4, regs.a6);
-            }
-            0x00D5E0 => {
-                (regs.d0, regs.a0, regs.x, regs.c) = self.r_00d5e0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00D2DE => { (regs.d1, regs.d5, regs.a5) = self.r_00d2de(regs.d0, regs.d1, regs.d5, regs.a6); }
+            0x00D314 => { (regs.d1, regs.d5, regs.a5) = self.r_00d314(regs.d1, regs.d5, regs.a5, regs.a6); }
+            0x00D390 => { (regs.d0, regs.d1, regs.a0, regs.c) = self.r_00d390(regs.d1, regs.a0, regs.a6); }
+            0x00D418 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a1, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00d418(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00D4DA => { (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) = self.r_00d4da(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4); }
+            0x00D564 => { (regs.d0, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_00d564(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00D57C => { (regs.d4, regs.a4, regs.c) = self.r_00d57c(regs.d4, regs.a6); }
+            0x00D5E0 => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_00d5e0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00D61C => self.r_00d61c(regs),
             0x00D630 => self.r_00d630(regs),
-            0x00D652 => {
-                self.r_00d652(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00D652 => { self.r_00d652(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00D6DC => self.r_00d6dc(regs),
             0x00D74E => self.r_00d74e(regs),
             0x00D75C => self.r_00d75c(regs),
-            0x00D766 => {
-                (regs.d0, regs.c) = self.r_00d766(regs.d0);
-            }
+            0x00D766 => { (regs.d0, regs.c) = self.r_00d766(regs.d0); }
             0x00D770 => self.r_00d770(regs),
             0x00D7EC => self.r_00d7ec(regs),
             0x00D816 => self.r_00d816(regs),
             0x00D820 => self.r_00d820(regs),
             0x00D84A => self.r_00d84a(regs),
             0x00D89A => self.r_00d89a(regs),
-            0x00D8A6 => {
-                (regs.d0, regs.x, regs.c) = self.r_00d8a6(regs.a5, regs.a6);
-            }
+            0x00D8A6 => { (regs.d0, regs.x, regs.c) = self.r_00d8a6(regs.a5, regs.a6); }
             0x00D8AA => self.r_00d8aa(regs),
-            0x00D8BE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6,
-                ) = self.r_00d8be(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00D8BE => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_00d8be(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00D8F0 => self.r_00d8f0(regs),
             0x00D906 => self.r_00d906(regs),
             0x00D910 => self.r_00d910(regs),
@@ -2668,18 +915,8 @@ impl Game {
             0x00DB3E => self.r_00db3e(regs),
             0x00DBBA => self.r_00dbba(regs),
             0x00DC5E => self.r_00dc5e(regs),
-            0x00DD4A => {
-                regs.d0 = self.r_00dd4a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00DD6C => {
-                (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_00dd6c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00DD4A => { regs.d0 = self.r_00dd4a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00DD6C => { (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_00dd6c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00DD84 => self.r_00dd84(regs),
             0x00DDC6 => self.r_00ddc6(regs),
             0x00DDE0 => self.r_00dde0(regs),
@@ -2687,130 +924,57 @@ impl Game {
             0x00DE62 => self.r_00de62(regs),
             0x00DEA2 => self.r_00dea2(regs),
             0x00DEBE => self.r_00debe(regs),
-            0x00DF1E => {
-                (regs.d0, regs.x, regs.c) = self.r_00df1e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00DF26 => {
-                (regs.d2, regs.d4, regs.a4) =
-                    self.r_00df26(regs.d0, regs.d2, regs.d4, regs.d5, regs.a6);
-            }
-            0x00DFC2 => {
-                (regs.d0, regs.d5, regs.a5) = self.r_00dfc2(regs.d0, regs.d5, regs.a4);
-            }
+            0x00DF1E => { (regs.d0, regs.x, regs.c) = self.r_00df1e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00DF26 => { (regs.d2, regs.d4, regs.a4) = self.r_00df26(regs.d0, regs.d2, regs.d4, regs.d5, regs.a6); }
+            0x00DFC2 => { (regs.d0, regs.d5, regs.a5) = self.r_00dfc2(regs.d0, regs.d5, regs.a4); }
             0x00DFFE => self.r_00dffe(regs),
             0x00E076 => self.r_00e076(regs),
             0x00E090 => self.r_00e090(regs),
             0x00E09A => self.r_00e09a(regs),
             0x00E0A4 => self.r_00e0a4(regs),
-            0x00E0AE => {
-                self.r_00e0ae(regs.d1, regs.d2, regs.d5, regs.a5, regs.a6);
-            }
+            0x00E0AE => { self.r_00e0ae(regs.d1, regs.d2, regs.d5, regs.a5, regs.a6); }
             0x00E0B6 => self.r_00e0b6(regs),
             0x00E11C => self.r_00e11c(regs),
             0x00E142 => self.r_00e142(regs),
-            0x00E14C => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e14c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x00E14C => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e14c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x00E170 => self.r_00e170(regs),
-            0x00E1C6 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e1c6(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00E1D6 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e1d6(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a6,
-                );
-            }
-            0x00E208 => {
-                (regs.d0, regs.x) = self.r_00e208(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00E21C => {
-                self.r_00e21c(regs.d0, regs.a5);
-            }
+            0x00E1C6 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e1c6(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00E1D6 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_00e1d6(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a6); }
+            0x00E208 => { (regs.d0, regs.x) = self.r_00e208(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00E21C => { self.r_00e21c(regs.d0, regs.a5); }
             0x00E228 => self.r_00e228(regs),
             0x00E29E => self.r_00e29e(regs),
             0x00E2B4 => self.r_00e2b4(regs),
             0x00E2D4 => self.r_00e2d4(regs),
-            0x00E2F2 => {
-                (regs.d0, regs.x, regs.c) = self.r_00e2f2(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x00E2F2 => { (regs.d0, regs.x, regs.c) = self.r_00e2f2(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x00E30A => self.r_00e30a(regs),
             0x00E30C => self.r_00e30c(regs),
             0x00E322 => self.r_00e322(regs),
-            0x00E358 => {
-                (regs.d0, regs.x, regs.c) = self.r_00e358(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00E378 => {
-                (regs.d0, regs.x, regs.c) = self.r_00e378(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x00E358 => { (regs.d0, regs.x, regs.c) = self.r_00e358(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00E378 => { (regs.d0, regs.x, regs.c) = self.r_00e378(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x00E39C => self.r_00e39c(regs),
             0x00E420 => self.r_00e420(regs),
             0x00E466 => self.r_00e466(regs),
             0x00E49E => self.r_00e49e(regs),
-            0x00E4C2 => {
-                (regs.d0, regs.x, regs.c) = self.r_00e4c2(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x00E4CA => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_00e4ca(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00E4C2 => { (regs.d0, regs.x, regs.c) = self.r_00e4c2(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x00E4CA => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_00e4ca(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00E548 => self.r_00e548(regs),
             0x00E558 => self.r_00e558(regs),
             0x00E56E => self.r_00e56e(regs),
             0x00E576 => self.r_00e576(regs),
             0x00E59A => self.r_00e59a(regs),
-            0x00E5A2 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00e5a2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00E5A2 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00e5a2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00E5D2 => self.r_00e5d2(regs),
-            0x00E5E6 => {
-                self.r_00e5e6();
-            }
+            0x00E5E6 => { self.r_00e5e6(); }
             0x00E5E8 => self.r_00e5e8(regs),
-            0x00E5F2 => {
-                (regs.d0, regs.x, regs.c) = self.r_00e5f2(regs.a5, regs.a6);
-            }
+            0x00E5F2 => { (regs.d0, regs.x, regs.c) = self.r_00e5f2(regs.a5, regs.a6); }
             0x00E61E => self.r_00e61e(regs),
             0x00E63A => self.r_00e63a(regs),
-            0x00E6B8 => {
-                (regs.d0, regs.d1, regs.d5, regs.a5) =
-                    self.r_00e6b8(regs.d0, regs.d1, regs.d5, regs.a6);
-            }
+            0x00E6B8 => { (regs.d0, regs.d1, regs.d5, regs.a5) = self.r_00e6b8(regs.d0, regs.d1, regs.d5, regs.a6); }
             0x00E6D6 => self.r_00e6d6(regs),
             0x00E6F8 => self.r_00e6f8(regs),
             0x00E752 => self.r_00e752(regs),
-            0x00E7B2 => {
-                (regs.d1, regs.d2) = self.r_00e7b2(regs.d1);
-            }
+            0x00E7B2 => { (regs.d1, regs.d2) = self.r_00e7b2(regs.d1); }
             0x00E800 => self.r_00e800(regs),
             0x00E80C => self.r_00e80c(regs),
             0x00E814 => self.r_00e814(regs),
@@ -2823,96 +987,38 @@ impl Game {
             0x00E958 => self.r_00e958(regs),
             0x00E9A2 => self.r_00e9a2(regs),
             0x00E9C4 => self.r_00e9c4(regs),
-            0x00EA30 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ea30(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a6,
-                );
-            }
-            0x00EA46 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ea46(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3,
-                );
-            }
+            0x00EA30 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ea30(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a6); }
+            0x00EA46 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ea46(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3); }
             0x00EA62 => self.r_00ea62(regs),
             0x00EA74 => self.r_00ea74(regs),
             0x00EA94 => self.r_00ea94(regs),
-            0x00EABA => {
-                (regs.d0, regs.d5, regs.a5, regs.x, regs.c) = self.r_00eaba(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a6,
-                );
-            }
+            0x00EABA => { (regs.d0, regs.d5, regs.a5, regs.x, regs.c) = self.r_00eaba(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a6); }
             0x00EAE0 => self.r_00eae0(regs),
             0x00EB10 => self.r_00eb10(regs),
-            0x00EB28 => {
-                (regs.d0, regs.d1, regs.a0) = self.r_00eb28(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x00EB28 => { (regs.d0, regs.d1, regs.a0) = self.r_00eb28(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x00EB5A => self.r_00eb5a(regs),
             0x00EB62 => self.r_00eb62(regs),
             0x00EB8C => self.r_00eb8c(regs),
             0x00EBB6 => self.r_00ebb6(regs),
             0x00EBDE => self.r_00ebde(regs),
-            0x00EC0A => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_00ec0a(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x00EC0A => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_00ec0a(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x00EC26 => self.r_00ec26(regs),
             0x00EC56 => self.r_00ec56(regs),
-            0x00EC66 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_00ec66(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x00EC7E => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00ec7e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x00EC66 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_00ec66(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x00EC7E => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ec7e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x00EC82 => self.r_00ec82(regs),
             0x00ECA4 => self.r_00eca4(regs),
             0x00ECBE => self.r_00ecbe(regs),
             0x00ECE0 => self.r_00ece0(regs),
             0x00ECFA => self.r_00ecfa(regs),
             0x00ED5E => self.r_00ed5e(regs),
-            0x00ED7A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_00ed7a(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a6,
-                );
-            }
-            0x00ED86 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ed86(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x00ED7A => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ed7a(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6); }
+            0x00ED86 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ed86(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x00ED9A => self.r_00ed9a(regs),
             0x00EDB8 => self.r_00edb8(regs),
-            0x00EE12 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ee12(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x00EE12 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00ee12(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x00EE4C => self.r_00ee4c(regs),
-            0x00EE74 => {
-                self.r_00ee74();
-            }
+            0x00EE74 => { self.r_00ee74(); }
             0x00EE76 => self.r_00ee76(regs),
             0x00EEE4 => self.r_00eee4(regs),
             0x00EEE8 => self.r_00eee8(regs),
@@ -2928,40 +1034,12 @@ impl Game {
             0x00F02A => self.r_00f02a(regs),
             0x00F048 => self.r_00f048(regs),
             0x00F072 => self.r_00f072(regs),
-            0x00F082 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_00f082(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00F0B4 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_00f0b4(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x00F102 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                ) = self.r_00f102(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x00F082 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f082(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00F0B4 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f0b4(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x00F102 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_00f102(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x00F192 => self.r_00f192(regs),
             0x00F1CC => self.r_00f1cc(regs),
-            0x00F1D0 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f1d0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
+            0x00F1D0 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f1d0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
             0x00F20E => self.r_00f20e(regs),
             0x00F23A => self.r_00f23a(regs),
             0x00F306 => self.r_00f306(regs),
@@ -2969,329 +1047,94 @@ impl Game {
             0x00F3C6 => self.r_00f3c6(regs),
             0x00F3FC => self.r_00f3fc(regs),
             0x00F4AA => self.r_00f4aa(regs),
-            0x00F4AE => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f4ae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
-            0x0100AE => {
-                (
-                    regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a5, regs.a6, regs.x,
-                ) = self.r_0100ae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x010102 => {
-                (regs.d0, regs.a0, regs.a6, regs.x, regs.c) =
-                    self.r_010102(regs.d0, regs.a0, regs.a6);
-            }
-            0x010136 => {
-                (regs.d0, regs.a6) = self.r_010136(regs.d0);
-            }
-            0x010156 => {
-                (regs.d0, regs.a6, regs.c) = self.r_010156(regs.d0);
-            }
-            0x010174 => {
-                (regs.d0, regs.a6) = self.r_010174(regs.d0);
-            }
-            0x01018C => {
-                self.r_01018c(regs.d0);
-            }
-            0x0101AE => {
-                (regs.d1, regs.x) = self.r_0101ae(regs.d1);
-            }
-            0x0101BA => {
-                (regs.d0, regs.d1, regs.a0, regs.a6) = self.r_0101ba(regs.d1, regs.a0, regs.a6);
-            }
-            0x0101C0 => {
-                (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) =
-                    self.r_0101c0(regs.d0, regs.d1, regs.a0, regs.a6);
-            }
-            0x0101C2 => {
-                (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) =
-                    self.r_0101c2(regs.d0, regs.d1, regs.a0, regs.a6);
-            }
-            0x010268 => {
-                self.r_010268(regs.d0);
-            }
-            0x0102B6 => {
-                regs.d0 = self.r_0102b6(regs.d0);
-            }
-            0x0102E8 => {
-                regs.d0 = self.r_0102e8(regs.d0);
-            }
-            0x01037C => {
-                regs.d1 = self.r_01037c(regs.d1, regs.a1);
-            }
-            0x010394 => {
-                self.r_010394(regs.d0, regs.a1);
-            }
-            0x010398 => {
-                regs.d1 = self.r_010398(regs.d1, regs.a1);
-            }
-            0x0103B0 => {
-                (regs.a0, regs.a1, regs.c) = self.r_0103b0(regs.a0, regs.a1);
-            }
-            0x0103D4 => {
-                regs.x = self.r_0103d4();
-            }
-            0x01041A => {
-                (regs.d1, regs.a1, regs.a2) = self.r_01041a(regs.d1);
-            }
-            0x010450 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_010450(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2,
-                    regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0104AE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0104ae(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x01052E => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x) = self.r_01052e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x00F4AE => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_00f4ae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
+            0x0100AE => { (regs.d0, regs.d1, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x) = self.r_0100ae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x010102 => { (regs.d0, regs.a0, regs.a6, regs.x, regs.c) = self.r_010102(regs.d0, regs.a0, regs.a6); }
+            0x010136 => { (regs.d0, regs.a6) = self.r_010136(regs.d0); }
+            0x010156 => { (regs.d0, regs.a6, regs.c) = self.r_010156(regs.d0); }
+            0x010174 => { (regs.d0, regs.a6) = self.r_010174(regs.d0); }
+            0x01018C => { self.r_01018c(regs.d0); }
+            0x0101AE => { (regs.d1, regs.x) = self.r_0101ae(regs.d1); }
+            0x0101BA => { (regs.d0, regs.d1, regs.a0, regs.a6) = self.r_0101ba(regs.d1, regs.a0, regs.a6); }
+            0x0101C0 => { (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) = self.r_0101c0(regs.d0, regs.d1, regs.a0, regs.a6); }
+            0x0101C2 => { (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) = self.r_0101c2(regs.d0, regs.d1, regs.a0, regs.a6); }
+            0x010268 => { self.r_010268(regs.d0); }
+            0x0102B6 => { regs.d0 = self.r_0102b6(regs.d0); }
+            0x0102E8 => { regs.d0 = self.r_0102e8(regs.d0); }
+            0x01037C => { regs.d1 = self.r_01037c(regs.d1, regs.a1); }
+            0x010394 => { self.r_010394(regs.d0, regs.a1); }
+            0x010398 => { regs.d1 = self.r_010398(regs.d1, regs.a1); }
+            0x0103B0 => { (regs.a0, regs.a1, regs.c) = self.r_0103b0(regs.a0, regs.a1); }
+            0x0103D4 => { regs.x = self.r_0103d4(); }
+            0x01041A => { (regs.d1, regs.a1, regs.a2) = self.r_01041a(regs.d1); }
+            0x010450 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_010450(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0104AE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0104ae(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01052E => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x) = self.r_01052e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x010566 => self.r_010566(regs),
-            0x010578 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_010578(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0105B0 => {
-                (regs.d0, regs.x) = self.r_0105b0(regs.d0);
-            }
+            0x010578 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_010578(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0105B0 => { (regs.d0, regs.x) = self.r_0105b0(regs.d0); }
             0x010662 => self.r_010662(regs),
-            0x0106B2 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_0106b2(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0106B2 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_0106b2(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x0106EC => self.r_0106ec(regs),
-            0x010718 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_010718(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x010718 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_010718(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x010764 => self.r_010764(regs),
-            0x0107B6 => {
-                (regs.d0, regs.d1, regs.a0, regs.x) =
-                    self.r_0107b6(regs.d0, regs.d1, regs.a0, regs.x);
-            }
+            0x0107B6 => { (regs.d0, regs.d1, regs.a0, regs.x) = self.r_0107b6(regs.d0, regs.d1, regs.a0, regs.x); }
             0x0107E0 => self.r_0107e0(regs),
             0x010844 => self.r_010844(regs),
-            0x010846 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_010846(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0108AE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_0108ae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x0108CA => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0108ca(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0108F2 => {
-                (regs.d0, regs.x) = self.r_0108f2(regs.d0, regs.a5, regs.a6);
-            }
-            0x01091C => {
-                (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_01091c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x010846 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_010846(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0108AE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_0108ae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x0108CA => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0108ca(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0108F2 => { (regs.d0, regs.x) = self.r_0108f2(regs.d0, regs.a5, regs.a6); }
+            0x01091C => { (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_01091c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x010974 => self.r_010974(regs),
-            0x010996 => {
-                regs.c = self.r_010996(regs.a5);
-            }
+            0x010996 => { regs.c = self.r_010996(regs.a5); }
             0x0109AC => self.r_0109ac(regs),
             0x010A18 => self.r_010a18(regs),
             0x010A7E => self.r_010a7e(regs),
-            0x010A92 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_010a92(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x010A9A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_010a9a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x010A92 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_010a92(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x010A9A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_010a9a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x010AB8 => self.r_010ab8(regs),
             0x010ADE => self.r_010ade(regs),
-            0x010B38 => {
-                self.r_010b38(
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x010B5C => {
-                self.r_010b5c(
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x010B74 => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_010b74(
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x010B8C => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_010b8c(
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x010B38 => { self.r_010b38(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6); }
+            0x010B5C => { self.r_010b5c(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6); }
+            0x010B74 => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_010b74(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6); }
+            0x010B8C => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_010b8c(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6); }
             0x010BB6 => self.r_010bb6(regs),
             0x010BCE => self.r_010bce(regs),
-            0x010C04 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_010c04(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x010C04 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_010c04(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x010C54 => self.r_010c54(regs),
             0x010C7C => self.r_010c7c(regs),
             0x010CC6 => self.r_010cc6(regs),
             0x010E20 => self.r_010e20(regs),
-            0x010E64 => {
-                regs.d0 = self.r_010e64(regs.d0, regs.a5, regs.a6);
-            }
+            0x010E64 => { regs.d0 = self.r_010e64(regs.d0, regs.a5, regs.a6); }
             0x010EA2 => self.r_010ea2(regs),
             0x010FB0 => self.r_010fb0(regs),
             0x010FEE => self.r_010fee(regs),
-            0x01109A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01109a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0110C8 => {
-                self.r_0110c8();
-            }
-            0x0110CA => {
-                (regs.x, regs.c) = self.r_0110ca(regs.d4);
-            }
+            0x01109A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01109a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0110C8 => { self.r_0110c8(); }
+            0x0110CA => { (regs.x, regs.c) = self.r_0110ca(regs.d4); }
             0x01111E => self.r_01111e(regs),
             0x011150 => self.r_011150(regs),
             0x011246 => self.r_011246(regs),
             0x01124A => self.r_01124a(regs),
             0x01127A => self.r_01127a(regs),
             0x01127E => self.r_01127e(regs),
-            0x011294 => {
-                (regs.d0, regs.x) = self.r_011294(regs.d0);
-            }
-            0x0112AA => {
-                (regs.d0, regs.x) = self.r_0112aa(regs.d0);
-            }
-            0x0112BC => {
-                (regs.x, regs.c) = self.r_0112bc();
-            }
-            0x0112E0 => {
-                self.r_0112e0(regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x);
-            }
+            0x011294 => { (regs.d0, regs.x) = self.r_011294(regs.d0); }
+            0x0112AA => { (regs.d0, regs.x) = self.r_0112aa(regs.d0); }
+            0x0112BC => { (regs.x, regs.c) = self.r_0112bc(); }
+            0x0112E0 => { self.r_0112e0(regs.d0, regs.d5, regs.d6, regs.a5, regs.a6, regs.x); }
             0x011312 => self.r_011312(regs),
-            0x011360 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a1,
-                    regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_011360(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x0113A2 => {
-                (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) =
-                    self.r_0113a2(regs.d0, regs.d1, regs.a0, regs.a6);
-            }
-            0x01141C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_01141c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2,
-                    regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x011360 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a1, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_011360(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x0113A2 => { (regs.d0, regs.d1, regs.a0, regs.a6, regs.x) = self.r_0113a2(regs.d0, regs.d1, regs.a0, regs.a6); }
+            0x01141C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_01141c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x01147C => self.r_01147c(regs),
             0x0114C0 => self.r_0114c0(regs),
             0x01151A => self.r_01151a(regs),
             0x01159A => self.r_01159a(regs),
-            0x0115C2 => {
-                (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_0115c2(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3,
-                    regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0116E4 => {
-                (regs.d0, regs.d1, regs.d3, regs.d4, regs.a0, regs.a4) =
-                    self.r_0116e4(regs.d0, regs.d1, regs.d3, regs.d4, regs.a0, regs.a6);
-            }
-            0x01174C => {
-                (regs.d0, regs.d1, regs.a0, regs.a6) =
-                    self.r_01174c(regs.d0, regs.d1, regs.d3, regs.a0, regs.a4, regs.a6);
-            }
-            0x01179C => {
-                (
-                    regs.d0, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5,
-                ) = self.r_01179c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0115C2 => { (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_0115c2(regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0116E4 => { (regs.d0, regs.d1, regs.d3, regs.d4, regs.a0, regs.a4) = self.r_0116e4(regs.d0, regs.d1, regs.d3, regs.d4, regs.a0, regs.a6); }
+            0x01174C => { (regs.d0, regs.d1, regs.a0, regs.a6) = self.r_01174c(regs.d0, regs.d1, regs.d3, regs.a0, regs.a4, regs.a6); }
+            0x01179C => { (regs.d0, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5) = self.r_01179c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01185A => self.r_01185a(regs),
             0x0118B4 => self.r_0118b4(regs),
             0x0118C0 => self.r_0118c0(regs),
@@ -3299,73 +1142,23 @@ impl Game {
             0x011920 => self.r_011920(regs),
             0x0119FA => self.r_0119fa(regs),
             0x011A38 => self.r_011a38(regs),
-            0x011A6E => {
-                (regs.d0, regs.c) = self.r_011a6e(regs.d0);
-            }
-            0x011A72 => {
-                (regs.d0, regs.c) = self.r_011a72(regs.d0);
-            }
-            0x011A82 => {
-                regs.c = self.r_011a82();
-            }
-            0x011A9C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_011a9c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x011AA4 => {
-                self.r_011aa4(regs.d0, regs.d6, regs.a6);
-            }
+            0x011A6E => { (regs.d0, regs.c) = self.r_011a6e(regs.d0); }
+            0x011A72 => { (regs.d0, regs.c) = self.r_011a72(regs.d0); }
+            0x011A82 => { regs.c = self.r_011a82(); }
+            0x011A9C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_011a9c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x011AA4 => { self.r_011aa4(regs.d0, regs.d6, regs.a6); }
             0x011AD8 => self.r_011ad8(regs),
-            0x011B62 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6,
-                ) = self.r_011b62(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x011BC0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x,
-                ) = self.r_011bc0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x011B62 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_011b62(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x011BC0 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x) = self.r_011bc0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x011C92 => self.r_011c92(regs),
-            0x011CCA => {
-                (
-                    regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                ) = self.r_011cca(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x011CCA => { (regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_011cca(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x011D4C => self.r_011d4c(regs),
-            0x011D8E => {
-                self.r_011d8e(regs.a0, regs.a5);
-            }
+            0x011D8E => { self.r_011d8e(regs.a0, regs.a5); }
             0x011D98 => self.r_011d98(regs),
-            0x011F1C => {
-                self.r_011f1c(regs.d0, regs.d1, regs.d4);
-            }
-            0x011F64 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_011f64(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x011F1C => { self.r_011f1c(regs.d0, regs.d1, regs.d4); }
+            0x011F64 => { (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_011f64(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x011F86 => self.r_011f86(regs),
-            0x011FD4 => {
-                (regs.d0, regs.d4, regs.d6, regs.a4, regs.a6, regs.x, regs.c) =
-                    self.r_011fd4(regs.d0, regs.d4, regs.d5, regs.d6, regs.a6);
-            }
+            0x011FD4 => { (regs.d0, regs.d4, regs.d6, regs.a4, regs.a6, regs.x, regs.c) = self.r_011fd4(regs.d0, regs.d4, regs.d5, regs.d6, regs.a6); }
             0x01208E => self.r_01208e(regs),
             0x0120B4 => self.r_0120b4(regs),
             0x0120F8 => self.r_0120f8(regs),
@@ -3373,34 +1166,18 @@ impl Game {
             0x01215C => self.r_01215c(regs),
             0x01218C => self.r_01218c(regs),
             0x0121B2 => self.r_0121b2(regs),
-            0x0121EE => {
-                regs.d0 = self.r_0121ee();
-            }
+            0x0121EE => { regs.d0 = self.r_0121ee(); }
             0x0121F2 => self.r_0121f2(regs),
             0x01220E => self.r_01220e(regs),
             0x012276 => self.r_012276(regs),
             0x0122A4 => self.r_0122a4(regs),
             0x0122FA => self.r_0122fa(regs),
-            0x012338 => {
-                self.r_012338(regs.a4);
-            }
-            0x012356 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_012356(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x012338 => { self.r_012338(regs.a4); }
+            0x012356 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_012356(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x012366 => self.r_012366(regs),
             0x01237C => self.r_01237c(regs),
             0x012388 => self.r_012388(regs),
-            0x0123BC => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_0123bc(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0123BC => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_0123bc(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0123C4 => self.r_0123c4(regs),
             0x0123CC => self.r_0123cc(regs),
             0x0123D8 => self.r_0123d8(regs),
@@ -3415,12 +1192,7 @@ impl Game {
             0x0124A0 => self.r_0124a0(regs),
             0x0124A8 => self.r_0124a8(regs),
             0x0124BE => self.r_0124be(regs),
-            0x0124C4 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_0124c4(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0124C4 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_0124c4(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0124CC => self.r_0124cc(regs),
             0x012502 => self.r_012502(regs),
             0x012518 => self.r_012518(regs),
@@ -3432,304 +1204,111 @@ impl Game {
             0x0125BA => self.r_0125ba(regs),
             0x0125EA => self.r_0125ea(regs),
             0x01262C => self.r_01262c(regs),
-            0x0126E2 => {
-                (regs.d0, regs.d1, regs.d5, regs.a5) =
-                    self.r_0126e2(regs.d1, regs.d5, regs.a5, regs.a6);
-            }
+            0x0126E2 => { (regs.d0, regs.d1, regs.d5, regs.a5) = self.r_0126e2(regs.d1, regs.d5, regs.a5, regs.a6); }
             0x012722 => self.r_012722(regs),
-            0x012776 => {
-                (regs.d0, regs.x, regs.c) = self.r_012776(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x012776 => { (regs.d0, regs.x, regs.c) = self.r_012776(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x01277E => self.r_01277e(regs),
             0x01278C => self.r_01278c(regs),
-            0x0127C2 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0127c2(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x01288E => {
-                (regs.d0, regs.d4, regs.d5, regs.a4, regs.a5, regs.x) = self.r_01288e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x0127C2 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0127c2(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01288E => { (regs.d0, regs.d4, regs.d5, regs.a4, regs.a5, regs.x) = self.r_01288e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x0128E6 => self.r_0128e6(regs),
             0x01296C => self.r_01296c(regs),
             0x0129E4 => self.r_0129e4(regs),
-            0x012A34 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_012a34(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6,
-                );
-            }
+            0x012A34 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_012a34(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6); }
             0x012A46 => self.r_012a46(regs),
             0x012A62 => self.r_012a62(regs),
-            0x012A8C => {
-                (regs.d0, regs.d5, regs.a5, regs.x) = self.r_012a8c(regs.d0, regs.d5, regs.a4);
-            }
-            0x012AB4 => {
-                (regs.d0, regs.x) = self.r_012ab4(regs.d0);
-            }
-            0x012AEE => {
-                (regs.d0, regs.x) = self.r_012aee(regs.d0);
-            }
-            0x012AF8 => {
-                (regs.d0, regs.d4, regs.d6, regs.a4, regs.a6, regs.x, regs.c) = self.r_012af8(
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x012A8C => { (regs.d0, regs.d5, regs.a5, regs.x) = self.r_012a8c(regs.d0, regs.d5, regs.a4); }
+            0x012AB4 => { (regs.d0, regs.x) = self.r_012ab4(regs.d0); }
+            0x012AEE => { (regs.d0, regs.x) = self.r_012aee(regs.d0); }
+            0x012AF8 => { (regs.d0, regs.d4, regs.d6, regs.a4, regs.a6, regs.x, regs.c) = self.r_012af8(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x); }
             0x012B48 => self.r_012b48(regs),
             0x012B8E => self.r_012b8e(regs),
-            0x012BD0 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_012bd0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x012BD0 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_012bd0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x012BD8 => self.r_012bd8(regs),
             0x012C7E => self.r_012c7e(regs),
             0x012CBC => self.r_012cbc(regs),
-            0x012D4A => {
-                (regs.d0, regs.d1, regs.x, regs.c) =
-                    self.r_012d4a(regs.d0, regs.d1, regs.a4, regs.x);
-            }
-            0x012D76 => {
-                (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_012d76(regs.d1, regs.a4);
-            }
-            0x012DA0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d6, regs.a0, regs.a6, regs.x, regs.c,
-                ) = self.r_012da0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x012DB6 => {
-                (regs.d0, regs.d6, regs.a0, regs.a6, regs.x, regs.c) =
-                    self.r_012db6(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4);
-            }
+            0x012D4A => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_012d4a(regs.d0, regs.d1, regs.a4, regs.x); }
+            0x012D76 => { (regs.d0, regs.d1, regs.a0, regs.x, regs.c) = self.r_012d76(regs.d1, regs.a4); }
+            0x012DA0 => { (regs.d0, regs.d1, regs.d2, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_012da0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x012DB6 => { (regs.d0, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_012db6(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4); }
             0x012E06 => self.r_012e06(regs),
             0x012E5A => self.r_012e5a(regs),
-            0x012E72 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_012e72(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x012E72 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_012e72(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x012E88 => self.r_012e88(regs),
             0x012EB0 => self.r_012eb0(regs),
             0x012EEC => self.r_012eec(regs),
             0x012F18 => self.r_012f18(regs),
-            0x012F34 => {
-                regs.c = self.r_012f34(regs.a4);
-            }
-            0x012F4C => {
-                (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_012f4c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x012F34 => { regs.c = self.r_012f34(regs.a4); }
+            0x012F4C => { (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_012f4c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x012FCC => self.r_012fcc(regs),
             0x01305E => self.r_01305e(regs),
             0x013068 => self.r_013068(regs),
-            0x0130AE => {
-                (regs.d0, regs.a0, regs.x, regs.c) = self.r_0130ae(regs.d6, regs.a6);
-            }
+            0x0130AE => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_0130ae(regs.d6, regs.a6); }
             0x0130DA => self.r_0130da(regs),
             0x013116 => self.r_013116(regs),
             0x013124 => self.r_013124(regs),
             0x013134 => self.r_013134(regs),
-            0x01313C => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01313c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01313C => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01313c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01319E => self.r_01319e(regs),
-            0x0131B4 => {
-                (regs.d0, regs.a0, regs.x, regs.c) = self.r_0131b4(regs.d6, regs.a5, regs.a6);
-            }
+            0x0131B4 => { (regs.d0, regs.a0, regs.x, regs.c) = self.r_0131b4(regs.d6, regs.a5, regs.a6); }
             0x01323E => self.r_01323e(regs),
-            0x0132E8 => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0132e8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x0132E8 => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_0132e8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01337A => self.r_01337a(regs),
             0x01338A => self.r_01338a(regs),
-            0x0133CA => {
-                (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) = self.r_0133ca(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4,
-                );
-            }
-            0x0133D0 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_0133d0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0133CA => { (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) = self.r_0133ca(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4); }
+            0x0133D0 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_0133d0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0133DA => self.r_0133da(regs),
             0x013420 => self.r_013420(regs),
             0x01343C => self.r_01343c(regs),
             0x013466 => self.r_013466(regs),
             0x0134A0 => self.r_0134a0(regs),
             0x0134E6 => self.r_0134e6(regs),
-            0x013508 => {
-                (regs.d0, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c) = self.r_013508(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x013508 => { (regs.d0, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c) = self.r_013508(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x01354C => self.r_01354c(regs),
             0x013584 => self.r_013584(regs),
             0x0135D0 => self.r_0135d0(regs),
-            0x0135E8 => {
-                (regs.d0, regs.d1, regs.d5, regs.a5) = self.r_0135e8(
-                    regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x013638 => {
-                (
-                    regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                ) = self.r_013638(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0135E8 => { (regs.d0, regs.d1, regs.d5, regs.a5) = self.r_0135e8(regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x013638 => { (regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_013638(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0136F6 => self.r_0136f6(regs),
             0x013750 => self.r_013750(regs),
-            0x013756 => {
-                (regs.d0, regs.d4, regs.a0, regs.a4, regs.x, regs.c) =
-                    self.r_013756(regs.d4, regs.d6, regs.a0, regs.a4);
-            }
+            0x013756 => { (regs.d0, regs.d4, regs.a0, regs.a4, regs.x, regs.c) = self.r_013756(regs.d4, regs.d6, regs.a0, regs.a4); }
             0x0137CA => self.r_0137ca(regs),
-            0x0137D6 => {
-                (regs.d6, regs.a4) = self.r_0137d6(regs.d4, regs.d5, regs.d6);
-            }
+            0x0137D6 => { (regs.d6, regs.a4) = self.r_0137d6(regs.d4, regs.d5, regs.d6); }
             0x01381E => self.r_01381e(regs),
             0x0138DE => self.r_0138de(regs),
-            0x0138F8 => {
-                (regs.d5, regs.a2, regs.a5, regs.c) = self.r_0138f8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x0138F8 => { (regs.d5, regs.a2, regs.a5, regs.c) = self.r_0138f8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x01393C => self.r_01393c(regs),
-            0x013988 => {
-                (regs.d0, regs.d1, regs.d5, regs.a5) =
-                    self.r_013988(regs.d0, regs.d1, regs.d3, regs.d5, regs.a2, regs.a5);
-            }
+            0x013988 => { (regs.d0, regs.d1, regs.d5, regs.a5) = self.r_013988(regs.d0, regs.d1, regs.d3, regs.d5, regs.a2, regs.a5); }
             0x0139DC => self.r_0139dc(regs),
             0x013A04 => self.r_013a04(regs),
-            0x013A82 => {
-                self.r_013a82();
-            }
+            0x013A82 => { self.r_013a82(); }
             0x013AB0 => self.r_013ab0(regs),
             0x013ABC => self.r_013abc(regs),
             0x013AD8 => self.r_013ad8(regs),
-            0x013B1C => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                ) = self.r_013b1c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x013B56 => {
-                (
-                    regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                ) = self.r_013b56(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x013BA0 => {
-                (regs.d4, regs.d5, regs.a4, regs.a5) = self.r_013ba0(regs.d4, regs.d5);
-            }
+            0x013B1C => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_013b1c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x013B56 => { (regs.d0, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_013b56(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x013BA0 => { (regs.d4, regs.d5, regs.a4, regs.a5) = self.r_013ba0(regs.d4, regs.d5); }
             0x013BB2 => self.r_013bb2(regs),
-            0x013BC4 => {
-                (regs.d6, regs.x, regs.c) = self.r_013bc4(regs.d5, regs.d6, regs.x);
-            }
+            0x013BC4 => { (regs.d6, regs.x, regs.c) = self.r_013bc4(regs.d5, regs.d6, regs.x); }
             0x013BC8 => self.r_013bc8(regs),
-            0x013BDC => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_013bdc(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x013C4E => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_013c4e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x013BDC => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_013bdc(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x013C4E => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_013c4e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x013CB0 => self.r_013cb0(regs),
-            0x013D00 => {
-                (regs.d0, regs.d1, regs.x, regs.c) =
-                    self.r_013d00(regs.d0, regs.d1, regs.a5, regs.a6);
-            }
+            0x013D00 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_013d00(regs.d0, regs.d1, regs.a5, regs.a6); }
             0x013D20 => self.r_013d20(regs),
             0x013D46 => self.r_013d46(regs),
-            0x013DB0 => {
-                (
-                    regs.d0, regs.d1, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c,
-                ) = self.r_013db0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x013DB0 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c) = self.r_013db0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x013E02 => self.r_013e02(regs),
             0x013E1C => self.r_013e1c(regs),
             0x013E3E => self.r_013e3e(regs),
             0x013E6A => self.r_013e6a(regs),
             0x013E82 => self.r_013e82(regs),
-            0x013EAE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_013eae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a6, regs.x,
-                );
-            }
+            0x013EAE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_013eae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a6, regs.x); }
             0x013ECE => self.r_013ece(regs),
             0x013EF0 => self.r_013ef0(regs),
-            0x013F14 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_013f14(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x013F14 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c) = self.r_013f14(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x013F58 => self.r_013f58(regs),
-            0x013F98 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_013f98(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x013F98 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_013f98(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x013FA0 => self.r_013fa0(regs),
             0x013FC0 => self.r_013fc0(regs),
             0x01401A => self.r_01401a(regs),
@@ -3737,249 +1316,89 @@ impl Game {
             0x0140FC => self.r_0140fc(regs),
             0x01412A => self.r_01412a(regs),
             0x014142 => self.r_014142(regs),
-            0x014188 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a6, regs.x,
-                ) = self.r_014188(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x014188 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a6, regs.x) = self.r_014188(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0142B2 => self.r_0142b2(regs),
             0x014380 => self.r_014380(regs),
-            0x0143E2 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_0143e2(regs.d1, regs.a4, regs.a5);
-            }
+            0x0143E2 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_0143e2(regs.d1, regs.a4, regs.a5); }
             0x0143FC => self.r_0143fc(regs),
-            0x014422 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6,
-                ) = self.r_014422(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x014422 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_014422(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x014436 => self.r_014436(regs),
-            0x01445C => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_01445c(regs.d1, regs.a4, regs.a5);
-            }
+            0x01445C => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_01445c(regs.d1, regs.a4, regs.a5); }
             0x014460 => self.r_014460(regs),
             0x01446E => self.r_01446e(regs),
             0x01448A => self.r_01448a(regs),
             0x0144D6 => self.r_0144d6(regs),
             0x0144EE => self.r_0144ee(regs),
             0x01451A => self.r_01451a(regs),
-            0x014528 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5,
-                    regs.a6, regs.c,
-                ) = self.r_014528(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x014528 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.c) = self.r_014528(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x014622 => self.r_014622(regs),
             0x014638 => self.r_014638(regs),
-            0x0146BE => {
-                (regs.d0, regs.x, regs.c) = self.r_0146be(regs.a5, regs.a6);
-            }
+            0x0146BE => { (regs.d0, regs.x, regs.c) = self.r_0146be(regs.a5, regs.a6); }
             0x0146C4 => self.r_0146c4(regs),
-            0x0146CE => {
-                (regs.d4, regs.d6, regs.a4, regs.a6, regs.x) =
-                    self.r_0146ce(regs.d4, regs.d5, regs.d6);
-            }
+            0x0146CE => { (regs.d4, regs.d6, regs.a4, regs.a6, regs.x) = self.r_0146ce(regs.d4, regs.d5, regs.d6); }
             0x0146F2 => self.r_0146f2(regs),
-            0x01472A => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_01472a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01472A => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_01472a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x014782 => self.r_014782(regs),
-            0x01479A => {
-                (regs.d0, regs.d5, regs.a5, regs.c) = self.r_01479a(regs.d0, regs.d5);
-            }
-            0x0147B4 => {
-                (regs.d5, regs.d6, regs.a5) = self.r_0147b4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01479A => { (regs.d0, regs.d5, regs.a5, regs.c) = self.r_01479a(regs.d0, regs.d5); }
+            0x0147B4 => { (regs.d5, regs.d6, regs.a5) = self.r_0147b4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0147DC => self.r_0147dc(regs),
             0x01481A => self.r_01481a(regs),
-            0x014842 => {
-                regs.d6 = self.r_014842(regs.d4, regs.d5, regs.d6);
-            }
-            0x014886 => {
-                (
-                    regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a6, regs.x,
-                ) = self.r_014886(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a5,
-                );
-            }
-            0x014912 => {
-                (regs.d0, regs.d5, regs.a5) = self.r_014912(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
-            0x014932 => {
-                (
-                    regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5,
-                ) = self.r_014932(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.z,
-                );
-            }
-            0x0149CA => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c,
-                ) = self.r_0149ca(
-                    regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
-            0x014B14 => {
-                (regs.d1, regs.d2) = self.r_014b14(regs.d0, regs.d1, regs.d2, regs.a4);
-            }
-            0x014B46 => {
-                regs.d0 = self.r_014b46(regs.d0);
-            }
+            0x014842 => { regs.d6 = self.r_014842(regs.d4, regs.d5, regs.d6); }
+            0x014886 => { (regs.d0, regs.d1, regs.d4, regs.d5, regs.d6, regs.a0, regs.a6, regs.x) = self.r_014886(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a5); }
+            0x014912 => { (regs.d0, regs.d5, regs.a5) = self.r_014912(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
+            0x014932 => { (regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5) = self.r_014932(regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.z); }
+            0x0149CA => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a4, regs.a5, regs.x, regs.c) = self.r_0149ca(regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
+            0x014B14 => { (regs.d1, regs.d2) = self.r_014b14(regs.d0, regs.d1, regs.d2, regs.a4); }
+            0x014B46 => { regs.d0 = self.r_014b46(regs.d0); }
             0x014B80 => self.r_014b80(regs),
             0x014BC4 => self.r_014bc4(regs),
             0x014C5E => self.r_014c5e(regs),
             0x014CCC => self.r_014ccc(regs),
-            0x014D18 => {
-                (
-                    regs.d0, regs.d2, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6,
-                ) = self.r_014d18(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x014D18 => { (regs.d0, regs.d2, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_014d18(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x014D88 => self.r_014d88(regs),
             0x014DD4 => self.r_014dd4(regs),
             0x014E0E => self.r_014e0e(regs),
             0x014E3A => self.r_014e3a(regs),
-            0x014EA4 => {
-                (regs.d0, regs.d1, regs.d2) = self.r_014ea4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
+            0x014EA4 => { (regs.d0, regs.d1, regs.d2) = self.r_014ea4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
             0x014ED2 => self.r_014ed2(regs),
             0x014F2C => self.r_014f2c(regs),
-            0x014F3E => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_014f3e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x014F46 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x,
-                    regs.c,
-                ) = self.r_014f46(
-                    regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x014F3E => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_014f3e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x014F46 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d6, regs.a0, regs.a4, regs.a6, regs.x, regs.c) = self.r_014f46(regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6); }
             0x014FE6 => self.r_014fe6(regs),
             0x015060 => self.r_015060(regs),
-            0x015068 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_015068(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x015068 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_015068(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x0150DA => self.r_0150da(regs),
             0x015144 => self.r_015144(regs),
-            0x0151B2 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0151b2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0151B2 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0151b2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0151D2 => self.r_0151d2(regs),
             0x015216 => self.r_015216(regs),
             0x01523E => self.r_01523e(regs),
             0x01525A => self.r_01525a(regs),
             0x015298 => self.r_015298(regs),
-            0x01529C => {
-                self.r_01529c(regs.a4);
-            }
-            0x0152AE => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_0152ae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0152D4 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0152d4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01529C => { self.r_01529c(regs.a4); }
+            0x0152AE => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_0152ae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0152D4 => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_0152d4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0152FA => self.r_0152fa(regs),
             0x015334 => self.r_015334(regs),
             0x01537A => self.r_01537a(regs),
             0x015394 => self.r_015394(regs),
-            0x0153B4 => {
-                self.r_0153b4();
-            }
+            0x0153B4 => { self.r_0153b4(); }
             0x0153B6 => self.r_0153b6(regs),
-            0x0153E0 => {
-                regs.c = self.r_0153e0(regs.a4);
-            }
+            0x0153E0 => { regs.c = self.r_0153e0(regs.a4); }
             0x015406 => self.r_015406(regs),
-            0x015412 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_015412(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                );
-            }
-            0x01541C => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_01541c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x015432 => {
-                regs.c = self.r_015432(regs.a4);
-            }
+            0x015412 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_015412(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c); }
+            0x01541C => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_01541c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x015432 => { regs.c = self.r_015432(regs.a4); }
             0x0154EA => self.r_0154ea(regs),
-            0x01551A => {
-                (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_01551a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01551A => { (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_01551a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x015572 => self.r_015572(regs),
             0x0155F6 => self.r_0155f6(regs),
             0x01560E => self.r_01560e(regs),
             0x01567E => self.r_01567e(regs),
-            0x0156B6 => {
-                (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_0156b6(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0156B6 => { (regs.d0, regs.d5, regs.d6, regs.a5, regs.a6) = self.r_0156b6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0156FA => self.r_0156fa(regs),
             0x015766 => self.r_015766(regs),
-            0x0157A0 => {
-                (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0157a0(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x0157A0 => { (regs.d0, regs.d1, regs.d2, regs.a0, regs.x, regs.c) = self.r_0157a0(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0157A4 => self.r_0157a4(regs),
             0x0157AC => self.r_0157ac(regs),
             0x0157BA => self.r_0157ba(regs),
@@ -3987,127 +1406,38 @@ impl Game {
             0x01582C => self.r_01582c(regs),
             0x015854 => self.r_015854(regs),
             0x015874 => self.r_015874(regs),
-            0x015884 => {
-                (regs.d4, regs.d5) = self.r_015884(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0158CA => {
-                (regs.d5, regs.a5) = self.r_0158ca(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
+            0x015884 => { (regs.d4, regs.d5) = self.r_015884(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0158CA => { (regs.d5, regs.a5) = self.r_0158ca(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
             0x0158F6 => self.r_0158f6(regs),
-            0x015904 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_015904(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.x,
-                );
-            }
+            0x015904 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_015904(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.x); }
             0x015948 => self.r_015948(regs),
-            0x015986 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_015986(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.x,
-                );
-            }
+            0x015986 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_015986(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.x); }
             0x015992 => self.r_015992(regs),
             0x0159A0 => self.r_0159a0(regs),
             0x0159F4 => self.r_0159f4(regs),
             0x015A20 => self.r_015a20(regs),
             0x015A8C => self.r_015a8c(regs),
-            0x015AAA => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4,
-                    regs.a6, regs.x,
-                ) = self.r_015aaa(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x015AB8 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4,
-                    regs.a5, regs.a6, regs.x,
-                ) = self.r_015ab8(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x015B16 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_015b16(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x015B30 => {
-                (regs.d4, regs.d5, regs.a4, regs.a5, regs.c) = self.r_015b30(regs.d4, regs.d5);
-            }
+            0x015AAA => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4, regs.a6, regs.x) = self.r_015aaa(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x015AB8 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_015ab8(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x015B16 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_015b16(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x015B30 => { (regs.d4, regs.d5, regs.a4, regs.a5, regs.c) = self.r_015b30(regs.d4, regs.d5); }
             0x015B42 => self.r_015b42(regs),
-            0x015B56 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5,
-                    regs.a6, regs.x,
-                ) = self.r_015b56(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x015B56 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6, regs.x) = self.r_015b56(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x015BC6 => self.r_015bc6(regs),
-            0x015BFC => {
-                (regs.d0, regs.x, regs.c) = self.r_015bfc(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
+            0x015BFC => { (regs.d0, regs.x, regs.c) = self.r_015bfc(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
             0x015C1C => self.r_015c1c(regs),
-            0x015C52 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_015c52(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x015C52 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_015c52(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x015DDE => self.r_015dde(regs),
             0x015E6E => self.r_015e6e(regs),
             0x015E8E => self.r_015e8e(regs),
             0x015EAC => self.r_015eac(regs),
             0x015EB4 => self.r_015eb4(regs),
-            0x015ED0 => {
-                (regs.d0, regs.d1, regs.d2) =
-                    self.r_015ed0(regs.d0, regs.d1, regs.d2, regs.a5, regs.a6);
-            }
-            0x015F46 => {
-                regs.c = self.r_015f46(regs.a5, regs.a6);
-            }
-            0x015F54 => {
-                (regs.d0, regs.a0, regs.n, regs.z) = self.r_015f54(regs.d0);
-            }
-            0x015F62 => {
-                (regs.d0, regs.a0) = self.r_015f62(regs.d0, regs.d1);
-            }
-            0x015F80 => {
-                (regs.d0, regs.a0) = self.r_015f80(regs.d0, regs.d1);
-            }
-            0x015FAE => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.a0,
-                ) = self.r_015fae(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x015ED0 => { (regs.d0, regs.d1, regs.d2) = self.r_015ed0(regs.d0, regs.d1, regs.d2, regs.a5, regs.a6); }
+            0x015F46 => { regs.c = self.r_015f46(regs.a5, regs.a6); }
+            0x015F54 => { (regs.d0, regs.a0, regs.n, regs.z) = self.r_015f54(regs.d0); }
+            0x015F62 => { (regs.d0, regs.a0) = self.r_015f62(regs.d0, regs.d1); }
+            0x015F80 => { (regs.d0, regs.a0) = self.r_015f80(regs.d0, regs.d1); }
+            0x015FAE => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.a0) = self.r_015fae(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x016048 => self.r_016048(regs),
             0x01605A => self.r_01605a(regs),
             0x016066 => self.r_016066(regs),
@@ -4129,94 +1459,44 @@ impl Game {
             0x016240 => self.r_016240(regs),
             0x016256 => self.r_016256(regs),
             0x0162E0 => self.r_0162e0(regs),
-            0x016312 => {
-                (regs.d0, regs.x, regs.n) = self.r_016312(regs.a6);
-            }
+            0x016312 => { (regs.d0, regs.x, regs.n) = self.r_016312(regs.a6); }
             0x016340 => self.r_016340(regs),
             0x016368 => self.r_016368(regs),
             0x016392 => self.r_016392(regs),
             0x0163BE => self.r_0163be(regs),
-            0x016430 => {
-                self.r_016430();
-            }
+            0x016430 => { self.r_016430(); }
             0x01643E => self.r_01643e(regs),
             0x016454 => self.r_016454(regs),
             0x0164F0 => self.r_0164f0(regs),
             0x01651A => self.r_01651a(regs),
-            0x01653C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01653c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x01653C => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_01653c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x0165B0 => self.r_0165b0(regs),
-            0x0165BA => {
-                (regs.d6, regs.x, regs.c) = self.r_0165ba(regs.d5, regs.d6, regs.x);
-            }
+            0x0165BA => { (regs.d6, regs.x, regs.c) = self.r_0165ba(regs.d5, regs.d6, regs.x); }
             0x0165BE => self.r_0165be(regs),
             0x0165EA => self.r_0165ea(regs),
             0x01661E => self.r_01661e(regs),
-            0x01667A => {
-                self.r_01667a(regs.a5, regs.a6);
-            }
+            0x01667A => { self.r_01667a(regs.a5, regs.a6); }
             0x016698 => self.r_016698(regs),
             0x0166D0 => self.r_0166d0(regs),
-            0x016702 => {
-                self.r_016702();
-            }
+            0x016702 => { self.r_016702(); }
             0x016704 => self.r_016704(regs),
-            0x016726 => {
-                (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5) = self.r_016726(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x016726 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a5) = self.r_016726(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0167A2 => self.r_0167a2(regs),
-            0x0167C6 => {
-                (regs.d1, regs.d2, regs.d3, regs.d5, regs.a0, regs.a5) =
-                    self.r_0167c6(regs.d1, regs.d2, regs.d5);
-            }
-            0x016880 => {
-                (regs.d0, regs.d1, regs.d2, regs.d6, regs.a6, regs.x, regs.c) = self.r_016880(
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6, regs.x,
-                );
-            }
-            0x0168BA => {
-                (regs.d0, regs.c) = self.r_0168ba(regs.a6);
-            }
-            0x0168CA => {
-                self.r_0168ca();
-            }
-            0x01691E => {
-                (regs.d0, regs.d1, regs.d2, regs.x) =
-                    self.r_01691e(regs.d0, regs.d1, regs.d2, regs.a6, regs.x);
-            }
-            0x0169A4 => {
-                (regs.d0, regs.x) = self.r_0169a4(regs.d0);
-            }
-            0x0169FE => {
-                (regs.d0, regs.c) = self.r_0169fe(regs.d0);
-            }
+            0x0167C6 => { (regs.d1, regs.d2, regs.d3, regs.d5, regs.a0, regs.a5) = self.r_0167c6(regs.d1, regs.d2, regs.d5); }
+            0x016880 => { (regs.d0, regs.d1, regs.d2, regs.d6, regs.a6, regs.x, regs.c) = self.r_016880(regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a6, regs.x); }
+            0x0168BA => { (regs.d0, regs.c) = self.r_0168ba(regs.a6); }
+            0x0168CA => { self.r_0168ca(); }
+            0x01691E => { (regs.d0, regs.d1, regs.d2, regs.x) = self.r_01691e(regs.d0, regs.d1, regs.d2, regs.a6, regs.x); }
+            0x0169A4 => { (regs.d0, regs.x) = self.r_0169a4(regs.d0); }
+            0x0169FE => { (regs.d0, regs.c) = self.r_0169fe(regs.d0); }
             0x016A16 => self.r_016a16(regs),
-            0x016A66 => {
-                self.r_016a66();
-            }
+            0x016A66 => { self.r_016a66(); }
             0x016A68 => self.r_016a68(regs),
             0x016CC0 => self.r_016cc0(regs),
             0x016CCA => self.r_016cca(regs),
             0x016CD4 => self.r_016cd4(regs),
             0x016CDE => self.r_016cde(regs),
-            0x016CE4 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.a0, regs.a5,
-                    regs.a6, regs.x, regs.c,
-                ) = self.r_016ce4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x016CE4 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6, regs.x, regs.c) = self.r_016ce4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x016D00 => self.r_016d00(regs),
             0x016D2A => self.r_016d2a(regs),
             0x016D56 => self.r_016d56(regs),
@@ -4225,120 +1505,46 @@ impl Game {
             0x016DBA => self.r_016dba(regs),
             0x016E3E => self.r_016e3e(regs),
             0x016E7E => self.r_016e7e(regs),
-            0x016EC4 => {
-                (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_016ec4(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x016EFE => {
-                regs.d0 = self.r_016efe(regs.d0, regs.d1);
-            }
-            0x016F08 => {
-                regs.d0 = self.r_016f08(regs.d0, regs.d1);
-            }
+            0x016EC4 => { (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_016ec4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x016EFE => { regs.d0 = self.r_016efe(regs.d0, regs.d1); }
+            0x016F08 => { regs.d0 = self.r_016f08(regs.d0, regs.d1); }
             0x016F2E => self.r_016f2e(regs),
-            0x016F66 => {
-                (regs.d0, regs.c) = self.r_016f66(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x016F74 => {
-                self.r_016f74(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x016F66 => { (regs.d0, regs.c) = self.r_016f66(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6, regs.x); }
+            0x016F74 => { self.r_016f74(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x016FC2 => self.r_016fc2(regs),
             0x01748E => self.r_01748e(regs),
             0x0174BA => self.r_0174ba(regs),
             0x0175A4 => self.r_0175a4(regs),
             0x01768A => self.r_01768a(regs),
-            0x01776C => {
-                (regs.d0, regs.x) = self.r_01776c(regs.d0, regs.d1, regs.d3);
-            }
-            0x017770 => {
-                (regs.d0, regs.x) = self.r_017770(regs.d0, regs.d1, regs.d3);
-            }
-            0x01777C => {
-                regs.d0 = self.r_01777c(regs.d0, regs.d1, regs.d3);
-            }
-            0x017780 => {
-                regs.d0 = self.r_017780(regs.d0, regs.d1, regs.d3);
-            }
-            0x01778A => {
-                regs.d0 = self.r_01778a(regs.d0, regs.d1, regs.d3);
-            }
-            0x017828 => {
-                (regs.x, regs.c) = self.r_017828(regs.d0, regs.d4, regs.d5, regs.d6);
-            }
+            0x01776C => { (regs.d0, regs.x) = self.r_01776c(regs.d0, regs.d1, regs.d3); }
+            0x017770 => { (regs.d0, regs.x) = self.r_017770(regs.d0, regs.d1, regs.d3); }
+            0x01777C => { regs.d0 = self.r_01777c(regs.d0, regs.d1, regs.d3); }
+            0x017780 => { regs.d0 = self.r_017780(regs.d0, regs.d1, regs.d3); }
+            0x01778A => { regs.d0 = self.r_01778a(regs.d0, regs.d1, regs.d3); }
+            0x017828 => { (regs.x, regs.c) = self.r_017828(regs.d0, regs.d4, regs.d5, regs.d6); }
             0x017870 => self.r_017870(regs),
-            0x0178CE => {
-                (regs.d0, regs.d1) = self.r_0178ce(regs.d0, regs.d1);
-            }
-            0x01793A => {
-                (regs.d6, regs.a6, regs.x, regs.c, regs.unwound) = self.r_01793a(regs.d6);
-            }
-            0x017952 => {
-                (regs.d0, regs.z) = self.r_017952(regs.d0);
-            }
-            0x01797A => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01797a(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x0179B0 => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_0179b0(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x0178CE => { (regs.d0, regs.d1) = self.r_0178ce(regs.d0, regs.d1); }
+            0x01793A => { (regs.d6, regs.a6, regs.x, regs.c, regs.unwound) = self.r_01793a(regs.d6); }
+            0x017952 => { (regs.d0, regs.z) = self.r_017952(regs.d0); }
+            0x01797A => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01797a(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0179B0 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_0179b0(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0179EA => self.r_0179ea(regs),
             0x017A5C => self.r_017a5c(regs),
-            0x017B46 => {
-                regs.c = self.r_017b46(regs.a6);
-            }
-            0x017B50 => {
-                regs.c = self.r_017b50(regs.a6);
-            }
-            0x017B5A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_017b5a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x017B46 => { regs.c = self.r_017b46(regs.a6); }
+            0x017B50 => { regs.c = self.r_017b50(regs.a6); }
+            0x017B5A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_017b5a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x017B92 => self.r_017b92(regs),
             0x017C2A => self.r_017c2a(regs),
             0x017CD6 => self.r_017cd6(regs),
             0x017CE6 => self.r_017ce6(regs),
             0x017D16 => self.r_017d16(regs),
-            0x017D20 => {
-                (
-                    regs.d0, regs.d1, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c,
-                ) = self.r_017d20(
-                    regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x017D20 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a1, regs.a6, regs.x, regs.c) = self.r_017d20(regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x017D4C => self.r_017d4c(regs),
             0x017D62 => self.r_017d62(regs),
             0x017D6C => self.r_017d6c(regs),
             0x017D88 => self.r_017d88(regs),
             0x017DBE => self.r_017dbe(regs),
-            0x017E12 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                ) = self.r_017e12(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x017E12 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5) = self.r_017e12(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x017E58 => self.r_017e58(regs),
             0x017E70 => self.r_017e70(regs),
             0x017E8C => self.r_017e8c(regs),
@@ -4369,156 +1575,43 @@ impl Game {
             0x018314 => self.r_018314(regs),
             0x01836C => self.r_01836c(regs),
             0x0183A0 => self.r_0183a0(regs),
-            0x0183B8 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0183b8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x018418 => {
-                self.r_018418();
-            }
-            0x01841A => {
-                self.r_01841a(regs.d0, regs.d3, regs.d5, regs.d6);
-            }
-            0x0184A8 => {
-                (regs.d0, regs.d6, regs.a6) = self.r_0184a8(regs.d0, regs.d6);
-            }
+            0x0183B8 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_0183b8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x018418 => { self.r_018418(); }
+            0x01841A => { self.r_01841a(regs.d0, regs.d3, regs.d5, regs.d6); }
+            0x0184A8 => { (regs.d0, regs.d6, regs.a6) = self.r_0184a8(regs.d0, regs.d6); }
             0x0184DA => self.r_0184da(regs),
             0x0184FE => self.r_0184fe(regs),
             0x018564 => self.r_018564(regs),
-            0x01859A => {
-                (regs.d0, regs.d1) = self.r_01859a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x0185CC => {
-                self.r_0185cc();
-            }
-            0x0185EC => {
-                (regs.d2, regs.d5, regs.d6, regs.a1, regs.a5) = self.r_0185ec(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2,
-                    regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x01865E => {
-                (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_01865e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01859A => { (regs.d0, regs.d1) = self.r_01859a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x0185CC => { self.r_0185cc(); }
+            0x0185EC => { (regs.d2, regs.d5, regs.d6, regs.a1, regs.a5) = self.r_0185ec(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01865E => { (regs.d5, regs.d6, regs.a5, regs.a6) = self.r_01865e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01868A => self.r_01868a(regs),
-            0x0186B2 => {
-                (regs.d0, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_0186b2(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x0186E8 => {
-                (
-                    regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_0186e8(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x018712 => {
-                self.r_018712(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x018772 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                ) = self.r_018772(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x01884A => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01884a(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
-            0x018860 => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_018860(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x0186B2 => { (regs.d0, regs.d5, regs.d6, regs.a0, regs.a5, regs.a6) = self.r_0186b2(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x0186E8 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_0186e8(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x018712 => { self.r_018712(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x018772 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_018772(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x01884A => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01884a(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x018860 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_018860(regs.d2, regs.d3, regs.d4, regs.d5, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x018876 => self.r_018876(regs),
-            0x018896 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_018896(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x018896 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_018896(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x0189DC => self.r_0189dc(regs),
-            0x018A0A => {
-                (regs.d0, regs.x, regs.c) = self.r_018a0a(regs.d0, regs.a5);
-            }
+            0x018A0A => { (regs.d0, regs.x, regs.c) = self.r_018a0a(regs.d0, regs.a5); }
             0x018A30 => self.r_018a30(regs),
             0x018AFA => self.r_018afa(regs),
-            0x018B0C => {
-                (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_018b0c(
-                    regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3,
-                    regs.a4, regs.a5,
-                );
-            }
+            0x018B0C => { (regs.d0, regs.d1, regs.a1, regs.x, regs.c) = self.r_018b0c(regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x018B24 => self.r_018b24(regs),
             0x018B2C => self.r_018b2c(regs),
-            0x018B3C => {
-                regs.d1 = self.r_018b3c(regs.d1);
-            }
-            0x018B82 => {
-                self.r_018b82();
-            }
-            0x018B84 => {
-                self.r_018b84();
-            }
+            0x018B3C => { regs.d1 = self.r_018b3c(regs.d1); }
+            0x018B82 => { self.r_018b82(); }
+            0x018B84 => { self.r_018b84(); }
             0x018B8C => self.r_018b8c(regs),
-            0x018BF2 => {
-                (regs.d0, regs.d1, regs.x, regs.c) =
-                    self.r_018bf2(regs.d0, regs.d1, regs.a5, regs.a6);
-            }
+            0x018BF2 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_018bf2(regs.d0, regs.d1, regs.a5, regs.a6); }
             0x018C1A => self.r_018c1a(regs),
             0x018C24 => self.r_018c24(regs),
-            0x018CB0 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                ) = self.r_018cb0(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x018D1C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                ) = self.r_018d1c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
-            0x018D22 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                ) = self.r_018d22(
-                    regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x018CB0 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5) = self.r_018cb0(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x018D1C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5) = self.r_018d1c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
+            0x018D22 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6) = self.r_018d22(regs.d0, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x018D80 => self.r_018d80(regs),
             0x018DCE => self.r_018dce(regs),
             0x018DDC => self.r_018ddc(regs),
@@ -4531,75 +1624,36 @@ impl Game {
             0x018FA4 => self.r_018fa4(regs),
             0x018FD6 => self.r_018fd6(regs),
             0x019004 => self.r_019004(regs),
-            0x01900E => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_01900e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x01905E => {
-                self.r_01905e();
-            }
+            0x01900E => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x) = self.r_01900e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x01905E => { self.r_01905e(); }
             0x019060 => self.r_019060(regs),
             0x01906E => self.r_01906e(regs),
             0x01908A => self.r_01908a(regs),
             0x0190C2 => self.r_0190c2(regs),
             0x0190EA => self.r_0190ea(regs),
-            0x01910A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01910a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x01910A => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01910a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x01910E => self.r_01910e(regs),
             0x019132 => self.r_019132(regs),
-            0x019140 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_019140(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x01914A => {
-                (regs.d0, regs.a0) = self.r_01914a(regs.d4, regs.d5, regs.d6, regs.a0);
-            }
+            0x019140 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_019140(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01914A => { (regs.d0, regs.a0) = self.r_01914a(regs.d4, regs.d5, regs.d6, regs.a0); }
             0x0191BA => self.r_0191ba(regs),
             0x0191F6 => self.r_0191f6(regs),
-            0x019200 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_019200(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x019200 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_019200(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x019214 => self.r_019214(regs),
             0x01922E => self.r_01922e(regs),
-            0x01924C => {
-                self.r_01924c();
-            }
+            0x01924C => { self.r_01924c(); }
             0x019262 => self.r_019262(regs),
             0x019298 => self.r_019298(regs),
             0x019312 => self.r_019312(regs),
             0x019366 => self.r_019366(regs),
             0x019390 => self.r_019390(regs),
-            0x0193AA => {
-                self.r_0193aa();
-            }
+            0x0193AA => { self.r_0193aa(); }
             0x0193AC => self.r_0193ac(regs),
             0x0193BA => self.r_0193ba(regs),
             0x0193BE => self.r_0193be(regs),
             0x0193C6 => self.r_0193c6(regs),
             0x019484 => self.r_019484(regs),
-            0x0194A8 => {
-                self.r_0194a8();
-            }
+            0x0194A8 => { self.r_0194a8(); }
             0x0194AA => self.r_0194aa(regs),
             0x0194BC => self.r_0194bc(regs),
             0x0194DC => self.r_0194dc(regs),
@@ -4610,117 +1664,53 @@ impl Game {
             0x01956A => self.r_01956a(regs),
             0x0195A6 => self.r_0195a6(regs),
             0x0195C2 => self.r_0195c2(regs),
-            0x0195FC => {
-                (regs.d0, regs.a0) = self.r_0195fc();
-            }
-            0x01960E => {
-                (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) =
-                    self.r_01960e(regs.d0, regs.d1, regs.d5, regs.a6);
-            }
+            0x0195FC => { (regs.d0, regs.a0) = self.r_0195fc(); }
+            0x01960E => { (regs.d0, regs.d1, regs.d5, regs.a5, regs.x, regs.c) = self.r_01960e(regs.d0, regs.d1, regs.d5, regs.a6); }
             0x01966A => self.r_01966a(regs),
             0x0196DE => self.r_0196de(regs),
             0x0197DC => self.r_0197dc(regs),
             0x019824 => self.r_019824(regs),
-            0x01982C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01982c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01982C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01982c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x0198C2 => self.r_0198c2(regs),
             0x0198E0 => self.r_0198e0(regs),
             0x019914 => self.r_019914(regs),
-            0x019934 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_019934(regs.d1, regs.a4, regs.a5);
-            }
+            0x019934 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_019934(regs.d1, regs.a4, regs.a5); }
             0x019938 => self.r_019938(regs),
             0x019988 => self.r_019988(regs),
             0x019A12 => self.r_019a12(regs),
-            0x019A48 => {
-                (regs.d0, regs.x) = self.r_019a48(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x019A48 => { (regs.d0, regs.x) = self.r_019a48(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x019ACE => self.r_019ace(regs),
             0x019B0C => self.r_019b0c(regs),
-            0x019BB4 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_019bb4(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x019BB4 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_019bb4(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x019C50 => self.r_019c50(regs),
-            0x019C8A => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_019c8a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x019C8A => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.d6, regs.a0, regs.a5, regs.x, regs.c) = self.r_019c8a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x019C9E => self.r_019c9e(regs),
-            0x019CAA => {
-                self.r_019caa();
-            }
+            0x019CAA => { self.r_019caa(); }
             0x019E26 => self.r_019e26(regs),
             0x019E46 => self.r_019e46(regs),
             0x019F0E => self.r_019f0e(regs),
-            0x019F2A => {
-                (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.x, regs.c) = self.r_019f2a(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x019F2A => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5, regs.x, regs.c) = self.r_019f2a(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x019F2E => self.r_019f2e(regs),
-            0x019F90 => {
-                (regs.d0, regs.d6, regs.x, regs.c) = self.r_019f90(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
+            0x019F90 => { (regs.d0, regs.d6, regs.x, regs.c) = self.r_019f90(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
             0x019F9A => self.r_019f9a(regs),
-            0x019FB6 => {
-                (regs.d0, regs.x) = self.r_019fb6(regs.d0, regs.d5, regs.a6);
-            }
+            0x019FB6 => { (regs.d0, regs.x) = self.r_019fb6(regs.d0, regs.d5, regs.a6); }
             0x01A022 => self.r_01a022(regs),
-            0x01A04C => {
-                (regs.d6, regs.a6, regs.x, regs.c) =
-                    self.r_01a04c(regs.d4, regs.d5, regs.d6, regs.a4);
-            }
+            0x01A04C => { (regs.d6, regs.a6, regs.x, regs.c) = self.r_01a04c(regs.d4, regs.d5, regs.d6, regs.a4); }
             0x01A082 => self.r_01a082(regs),
             0x01A09A => self.r_01a09a(regs),
             0x01A0BC => self.r_01a0bc(regs),
-            0x01A0FA => {
-                self.r_01a0fa();
-            }
-            0x01A0FC => {
-                (regs.d0, regs.d6, regs.a6, regs.x, regs.c) =
-                    self.r_01a0fc(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4);
-            }
+            0x01A0FA => { self.r_01a0fa(); }
+            0x01A0FC => { (regs.d0, regs.d6, regs.a6, regs.x, regs.c) = self.r_01a0fc(regs.d0, regs.d4, regs.d5, regs.d6, regs.a4); }
             0x01A126 => self.r_01a126(regs),
             0x01A15C => self.r_01a15c(regs),
-            0x01A18C => {
-                (regs.d0, regs.x) = self.r_01a18c(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01A18C => { (regs.d0, regs.x) = self.r_01a18c(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01A202 => self.r_01a202(regs),
             0x01A20C => self.r_01a20c(regs),
             0x01A228 => self.r_01a228(regs),
             0x01A29E => self.r_01a29e(regs),
             0x01A30A => self.r_01a30a(regs),
             0x01A314 => self.r_01a314(regs),
-            0x01A31C => {
-                self.r_01a31c();
-            }
+            0x01A31C => { self.r_01a31c(); }
             0x01A328 => self.r_01a328(regs),
             0x01A392 => self.r_01a392(regs),
             0x01A598 => self.r_01a598(regs),
@@ -4729,48 +1719,32 @@ impl Game {
             0x01A768 => self.r_01a768(regs),
             0x01A772 => self.r_01a772(regs),
             0x01A7BC => self.r_01a7bc(regs),
-            0x01A7D2 => {
-                self.r_01a7d2();
-            }
-            0x01A7D4 => {
-                (regs.d0, regs.c) = self.r_01a7d4(regs.d0);
-            }
+            0x01A7D2 => { self.r_01a7d2(); }
+            0x01A7D4 => { (regs.d0, regs.c) = self.r_01a7d4(regs.d0); }
             0x01A7EC => self.r_01a7ec(regs),
             0x01A850 => self.r_01a850(regs),
-            0x01A85C => {
-                self.r_01a85c();
-            }
-            0x01A85E => {
-                (regs.d6, regs.x, regs.c) = self.r_01a85e(regs.d5, regs.d6, regs.x);
-            }
+            0x01A85C => { self.r_01a85c(); }
+            0x01A85E => { (regs.d6, regs.x, regs.c) = self.r_01a85e(regs.d5, regs.d6, regs.x); }
             0x01A864 => self.r_01a864(regs),
             0x01A8AE => self.r_01a8ae(regs),
-            0x01A8CA => {
-                (regs.d6, regs.x, regs.c) = self.r_01a8ca(regs.d5, regs.d6, regs.x);
-            }
+            0x01A8CA => { (regs.d6, regs.x, regs.c) = self.r_01a8ca(regs.d5, regs.d6, regs.x); }
             0x01A8E2 => self.r_01a8e2(regs),
             0x01A97C => self.r_01a97c(regs),
             0x01AA64 => self.r_01aa64(regs),
             0x01AAAC => self.r_01aaac(regs),
             0x01AAB6 => self.r_01aab6(regs),
-            0x01AAE4 => {
-                self.r_01aae4();
-            }
+            0x01AAE4 => { self.r_01aae4(); }
             0x01AAE6 => self.r_01aae6(regs),
             0x01AB52 => self.r_01ab52(regs),
             0x01AB7A => self.r_01ab7a(regs),
             0x01AC44 => self.r_01ac44(regs),
             0x01ACB6 => self.r_01acb6(regs),
-            0x01AD54 => {
-                self.r_01ad54();
-            }
+            0x01AD54 => { self.r_01ad54(); }
             0x01AD56 => self.r_01ad56(regs),
             0x01AD66 => self.r_01ad66(regs),
             0x01AD76 => self.r_01ad76(regs),
             0x01AD90 => self.r_01ad90(regs),
-            0x01ADAA => {
-                self.r_01adaa();
-            }
+            0x01ADAA => { self.r_01adaa(); }
             0x01ADAC => self.r_01adac(regs),
             0x01AEE0 => self.r_01aee0(regs),
             0x01AEE4 => self.r_01aee4(regs),
@@ -4783,16 +1757,12 @@ impl Game {
             0x01B154 => self.r_01b154(regs),
             0x01B1BE => self.r_01b1be(regs),
             0x01B1F2 => self.r_01b1f2(regs),
-            0x01B26E => {
-                self.r_01b26e();
-            }
+            0x01B26E => { self.r_01b26e(); }
             0x01B270 => self.r_01b270(regs),
             0x01B294 => self.r_01b294(regs),
             0x01B2C2 => self.r_01b2c2(regs),
             0x01B318 => self.r_01b318(regs),
-            0x01B3A4 => {
-                self.r_01b3a4();
-            }
+            0x01B3A4 => { self.r_01b3a4(); }
             0x01B3A6 => self.r_01b3a6(regs),
             0x01B3CC => self.r_01b3cc(regs),
             0x01B3FE => self.r_01b3fe(regs),
@@ -4806,146 +1776,67 @@ impl Game {
             0x01B5F8 => self.r_01b5f8(regs),
             0x01B616 => self.r_01b616(regs),
             0x01B664 => self.r_01b664(regs),
-            0x01B684 => {
-                (regs.d0, regs.x, regs.c) = self.r_01b684(regs.a5, regs.a6);
-            }
-            0x01B6B4 => {
-                self.r_01b6b4();
-            }
-            0x01B6B6 => {
-                (regs.d6, regs.a6, regs.x, regs.c) = self.r_01b6b6(regs.d4, regs.d5, regs.d6);
-            }
-            0x01B816 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01b816(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01B684 => { (regs.d0, regs.x, regs.c) = self.r_01b684(regs.a5, regs.a6); }
+            0x01B6B4 => { self.r_01b6b4(); }
+            0x01B6B6 => { (regs.d6, regs.a6, regs.x, regs.c) = self.r_01b6b6(regs.d4, regs.d5, regs.d6); }
+            0x01B816 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01b816(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01B89A => self.r_01b89a(regs),
             0x01B90E => self.r_01b90e(regs),
-            0x01B962 => {
-                self.r_01b962();
-            }
+            0x01B962 => { self.r_01b962(); }
             0x01B964 => self.r_01b964(regs),
             0x01B9C4 => self.r_01b9c4(regs),
-            0x01B9E0 => {
-                self.r_01b9e0();
-            }
+            0x01B9E0 => { self.r_01b9e0(); }
             0x01B9E2 => self.r_01b9e2(regs),
-            0x01BA10 => {
-                self.r_01ba10();
-            }
-            0x01BA12 => {
-                (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01ba12(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01BA10 => { self.r_01ba10(); }
+            0x01BA12 => { (regs.d0, regs.d1, regs.d6, regs.a0, regs.a6, regs.x, regs.c) = self.r_01ba12(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01BA36 => self.r_01ba36(regs),
-            0x01BA3C => {
-                (regs.d0, regs.d3, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_01ba3c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x01BAF6 => {
-                self.r_01baf6(regs.d0);
-            }
-            0x01BB2C => {
-                regs.x = self.r_01bb2c();
-            }
-            0x01BB86 => {
-                self.r_01bb86();
-            }
-            0x01BB9A => {
-                (regs.d0, regs.d3, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_01bb9a(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x,
-                );
-            }
+            0x01BA3C => { (regs.d0, regs.d3, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_01ba3c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01BAF6 => { self.r_01baf6(regs.d0); }
+            0x01BB2C => { regs.x = self.r_01bb2c(); }
+            0x01BB86 => { self.r_01bb86(); }
+            0x01BB9A => { (regs.d0, regs.d3, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_01bb9a(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.x); }
             0x01BD36 => self.r_01bd36(regs),
             0x01BFC2 => self.r_01bfc2(regs),
-            0x01C014 => {
-                self.r_01c014();
-            }
+            0x01C014 => { self.r_01c014(); }
             0x01C016 => self.r_01c016(regs),
-            0x01C024 => {
-                (regs.d0, regs.d3) = self.r_01c024(regs.d0, regs.d3);
-            }
+            0x01C024 => { (regs.d0, regs.d3) = self.r_01c024(regs.d0, regs.d3); }
             0x01C06A => self.r_01c06a(regs),
-            0x01C082 => {
-                (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x) = self.r_01c082(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01C082 => { (regs.d0, regs.d6, regs.a0, regs.a1, regs.a6, regs.x) = self.r_01c082(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01C0D8 => self.r_01c0d8(regs),
             0x01C0F6 => self.r_01c0f6(regs),
             0x01C106 => self.r_01c106(regs),
             0x01C15C => self.r_01c15c(regs),
-            0x01C180 => {
-                self.r_01c180();
-            }
+            0x01C180 => { self.r_01c180(); }
             0x01C182 => self.r_01c182(regs),
             0x01C1A6 => self.r_01c1a6(regs),
             0x01C1C0 => self.r_01c1c0(regs),
             0x01C212 => self.r_01c212(regs),
-            0x01C23A => {
-                self.r_01c23a();
-            }
+            0x01C23A => { self.r_01c23a(); }
             0x01C23C => self.r_01c23c(regs),
-            0x01C258 => {
-                self.r_01c258();
-            }
+            0x01C258 => { self.r_01c258(); }
             0x01C28C => self.r_01c28c(regs),
-            0x01C294 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01c294(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01C294 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01c294(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01C366 => self.r_01c366(regs),
             0x01C380 => self.r_01c380(regs),
-            0x01C41E => {
-                self.r_01c41e();
-            }
+            0x01C41E => { self.r_01c41e(); }
             0x01C420 => self.r_01c420(regs),
             0x01C45A => self.r_01c45a(regs),
             0x01C494 => self.r_01c494(regs),
             0x01C4C4 => self.r_01c4c4(regs),
             0x01C514 => self.r_01c514(regs),
-            0x01C558 => {
-                (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.c) = self.r_01c558(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4,
-                );
-            }
+            0x01C558 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.c) = self.r_01c558(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4); }
             0x01C592 => self.r_01c592(regs),
             0x01C620 => self.r_01c620(regs),
-            0x01C638 => {
-                (regs.d0, regs.d1, regs.x, regs.c) = self.r_01c638(regs.d1, regs.a4, regs.a5);
-            }
+            0x01C638 => { (regs.d0, regs.d1, regs.x, regs.c) = self.r_01c638(regs.d1, regs.a4, regs.a5); }
             0x01C63E => self.r_01c63e(regs),
             0x01C64E => self.r_01c64e(regs),
             0x01C6B4 => self.r_01c6b4(regs),
-            0x01C716 => {
-                (regs.d4, regs.a0, regs.a4, regs.x, regs.c) = self.r_01c716(regs.d0);
-            }
+            0x01C716 => { (regs.d4, regs.a0, regs.a4, regs.x, regs.c) = self.r_01c716(regs.d0); }
             0x01C75A => self.r_01c75a(regs),
             0x01C780 => self.r_01c780(regs),
-            0x01C7F8 => {
-                self.r_01c7f8();
-            }
+            0x01C7F8 => { self.r_01c7f8(); }
             0x01C800 => self.r_01c800(regs),
-            0x01C89E => {
-                (regs.a0, regs.x, regs.c) = self.r_01c89e(regs.d0, regs.a4);
-            }
+            0x01C89E => { (regs.a0, regs.x, regs.c) = self.r_01c89e(regs.d0, regs.a4); }
             0x01C8AC => self.r_01c8ac(regs),
             0x01C8EA => self.r_01c8ea(regs),
             0x01C908 => self.r_01c908(regs),
@@ -4953,27 +1844,15 @@ impl Game {
             0x01C982 => self.r_01c982(regs),
             0x01C9A6 => self.r_01c9a6(regs),
             0x01CA4E => self.r_01ca4e(regs),
-            0x01CAD2 => {
-                regs.a4 = self.r_01cad2(regs.d0, regs.d1);
-            }
+            0x01CAD2 => { regs.a4 = self.r_01cad2(regs.d0, regs.d1); }
             0x01CB74 => self.r_01cb74(regs),
-            0x01CB7C => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01cb7c(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x,
-                );
-            }
+            0x01CB7C => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01cb7c(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x01CC22 => self.r_01cc22(regs),
             0x01CCB2 => self.r_01ccb2(regs),
             0x01CD5A => self.r_01cd5a(regs),
             0x01CDAA => self.r_01cdaa(regs),
             0x01CDDA => self.r_01cdda(regs),
-            0x01CE6A => {
-                (regs.a0, regs.a1) = self.r_01ce6a(regs.d4, regs.a4);
-            }
+            0x01CE6A => { (regs.a0, regs.a1) = self.r_01ce6a(regs.d4, regs.a4); }
             0x01CECA => self.r_01ceca(regs),
             0x01CEEE => self.r_01ceee(regs),
             0x01CF14 => self.r_01cf14(regs),
@@ -4981,204 +1860,87 @@ impl Game {
             0x01CFCA => self.r_01cfca(regs),
             0x01CFF6 => self.r_01cff6(regs),
             0x01D028 => self.r_01d028(regs),
-            0x01D090 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6,
-                ) = self.r_01d090(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5, regs.a6,
-                );
-            }
-            0x01D180 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4,
-                    regs.a5, regs.a6,
-                ) = self.r_01d180(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x01D208 => {
-                self.r_01d208();
-            }
+            0x01D090 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_01d090(regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5, regs.a6); }
+            0x01D180 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.d6, regs.a0, regs.a4, regs.a5, regs.a6) = self.r_01d180(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x01D208 => { self.r_01d208(); }
             0x01D20A => self.r_01d20a(regs),
-            0x01D30A => {
-                regs.c = self.r_01d30a(regs.a4);
-            }
+            0x01D30A => { regs.c = self.r_01d30a(regs.a4); }
             0x01D314 => self.r_01d314(regs),
             0x01D31C => self.r_01d31c(regs),
             0x01D3BC => self.r_01d3bc(regs),
             0x01D3E0 => self.r_01d3e0(regs),
-            0x01D44E => {
-                self.r_01d44e();
-            }
-            0x01D458 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x,
-                ) = self.r_01d458(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0,
-                    regs.a1, regs.a2, regs.a3, regs.a5,
-                );
-            }
+            0x01D44E => { self.r_01d44e(); }
+            0x01D458 => { (regs.d0, regs.d1, regs.d2, regs.d4, regs.d5, regs.a0, regs.a4, regs.a5, regs.x) = self.r_01d458(regs.d0, regs.d1, regs.d2, regs.d3, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a5); }
             0x01D4F4 => self.r_01d4f4(regs),
-            0x01D57E => {
-                self.r_01d57e();
-            }
+            0x01D57E => { self.r_01d57e(); }
             0x01D580 => self.r_01d580(regs),
             0x01D59E => self.r_01d59e(regs),
             0x01D5E0 => self.r_01d5e0(regs),
-            0x01D632 => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c,
-                ) = self.r_01d632(regs.d0, regs.d1, regs.d2, regs.d5, regs.a4, regs.x);
-            }
+            0x01D632 => { (regs.d0, regs.d1, regs.d2, regs.d5, regs.a0, regs.a5, regs.x, regs.c) = self.r_01d632(regs.d0, regs.d1, regs.d2, regs.d5, regs.a4, regs.x); }
             0x01D670 => self.r_01d670(regs),
-            0x01D6A0 => {
-                self.r_01d6a0();
-            }
+            0x01D6A0 => { self.r_01d6a0(); }
             0x01D6A2 => self.r_01d6a2(regs),
             0x01D722 => self.r_01d722(regs),
             0x01D740 => self.r_01d740(regs),
             0x01D806 => self.r_01d806(regs),
-            0x01D80E => {
-                (
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c,
-                ) = self.r_01d80e(
-                    regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1,
-                    regs.a2, regs.a3, regs.a4, regs.a5, regs.a6,
-                );
-            }
-            0x01D96E => {
-                (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5) = self.r_01d96e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01D80E => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x, regs.c) = self.r_01d80e(regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6); }
+            0x01D96E => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5) = self.r_01d96e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01D9BE => self.r_01d9be(regs),
             0x01DA30 => self.r_01da30(regs),
             0x01DA48 => self.r_01da48(regs),
             0x01DA7C => self.r_01da7c(regs),
-            0x01DAAE => {
-                (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) =
-                    self.r_01daae(regs.d4, regs.d5, regs.d6);
-            }
-            0x01DAE0 => {
-                (regs.d4, regs.d5, regs.a4, regs.a5) = self.r_01dae0(regs.d4, regs.d5);
-            }
+            0x01DAAE => { (regs.d4, regs.d5, regs.d6, regs.a4, regs.a5, regs.a6) = self.r_01daae(regs.d4, regs.d5, regs.d6); }
+            0x01DAE0 => { (regs.d4, regs.d5, regs.a4, regs.a5) = self.r_01dae0(regs.d4, regs.d5); }
             0x01DB0C => self.r_01db0c(regs),
-            0x01DB7E => {
-                self.r_01db7e(regs.d0, regs.a6);
-            }
+            0x01DB7E => { self.r_01db7e(regs.d0, regs.a6); }
             0x01DBB0 => self.r_01dbb0(regs),
-            0x01DC12 => {
-                regs.d0 = self.r_01dc12(regs.d0);
-            }
+            0x01DC12 => { regs.d0 = self.r_01dc12(regs.d0); }
             0x01DC46 => self.r_01dc46(regs),
             0x01DC60 => self.r_01dc60(regs),
             0x01DC7C => self.r_01dc7c(regs),
-            0x01DD58 => {
-                regs.d0 = self.r_01dd58(regs.d0, regs.d1, regs.d3, regs.a4);
-            }
-            0x01DD9E => {
-                self.r_01dd9e();
-            }
-            0x01DE02 => {
-                self.r_01de02();
-            }
-            0x01DE14 => {
-                (regs.d0, regs.x, regs.c) = self.r_01de14(regs.d0);
-            }
-            0x01DE36 => {
-                regs.d0 = self.r_01de36(regs.d0, regs.d3);
-            }
-            0x01DE4E => {
-                regs.d0 = self.r_01de4e(regs.d0, regs.d3);
-            }
+            0x01DD58 => { regs.d0 = self.r_01dd58(regs.d0, regs.d1, regs.d3, regs.a4); }
+            0x01DD9E => { self.r_01dd9e(); }
+            0x01DE02 => { self.r_01de02(); }
+            0x01DE14 => { (regs.d0, regs.x, regs.c) = self.r_01de14(regs.d0); }
+            0x01DE36 => { regs.d0 = self.r_01de36(regs.d0, regs.d3); }
+            0x01DE4E => { regs.d0 = self.r_01de4e(regs.d0, regs.d3); }
             0x01DE66 => self.r_01de66(regs),
-            0x01DEC4 => {
-                self.r_01dec4();
-            }
+            0x01DEC4 => { self.r_01dec4(); }
             0x01DEFC => self.r_01defc(regs),
             0x01DF1E => self.r_01df1e(regs),
-            0x01DFA4 => {
-                regs.d0 = self.r_01dfa4(regs.d0, regs.d3, regs.a4);
-            }
-            0x01DFC0 => {
-                regs.d0 = self.r_01dfc0(regs.d0, regs.d3, regs.a4);
-            }
-            0x01DFDC => {
-                self.r_01dfdc(regs.d0, regs.d1, regs.a4);
-            }
-            0x01E032 => {
-                (regs.d0, regs.d1, regs.d2, regs.x) =
-                    self.r_01e032(regs.d0, regs.d1, regs.d2, regs.a4);
-            }
-            0x01E078 => {
-                (regs.d0, regs.c) = self.r_01e078(regs.d0);
-            }
-            0x01E09A => {
-                (regs.d0, regs.c) = self.r_01e09a(regs.d0);
-            }
-            0x01E0BC => {
-                regs.x = self.r_01e0bc(regs.a4);
-            }
+            0x01DFA4 => { regs.d0 = self.r_01dfa4(regs.d0, regs.d3, regs.a4); }
+            0x01DFC0 => { regs.d0 = self.r_01dfc0(regs.d0, regs.d3, regs.a4); }
+            0x01DFDC => { self.r_01dfdc(regs.d0, regs.d1, regs.a4); }
+            0x01E032 => { (regs.d0, regs.d1, regs.d2, regs.x) = self.r_01e032(regs.d0, regs.d1, regs.d2, regs.a4); }
+            0x01E078 => { (regs.d0, regs.c) = self.r_01e078(regs.d0); }
+            0x01E09A => { (regs.d0, regs.c) = self.r_01e09a(regs.d0); }
+            0x01E0BC => { regs.x = self.r_01e0bc(regs.a4); }
             0x01E0FC => self.r_01e0fc(regs),
             0x01E12A => self.r_01e12a(regs),
             0x01E16E => self.r_01e16e(regs),
             0x01E1AC => self.r_01e1ac(regs),
             0x01E1CA => self.r_01e1ca(regs),
             0x01E21C => self.r_01e21c(regs),
-            0x01E300 => {
-                self.r_01e300();
-            }
-            0x01E33A => {
-                self.r_01e33a();
-            }
+            0x01E300 => { self.r_01e300(); }
+            0x01E33A => { self.r_01e33a(); }
             0x01E374 => self.r_01e374(regs),
             0x01E38C => self.r_01e38c(regs),
             0x01E3A0 => self.r_01e3a0(regs),
-            0x01E428 => {
-                (regs.d0, regs.d1, regs.d2, regs.x) =
-                    self.r_01e428(regs.d1, regs.d2, regs.a0, regs.a4, regs.a5);
-            }
-            0x01E478 => {
-                (regs.a0, regs.x) = self.r_01e478(regs.d0, regs.a4);
-            }
-            0x01E484 => {
-                self.r_01e484();
-            }
+            0x01E428 => { (regs.d0, regs.d1, regs.d2, regs.x) = self.r_01e428(regs.d1, regs.d2, regs.a0, regs.a4, regs.a5); }
+            0x01E478 => { (regs.a0, regs.x) = self.r_01e478(regs.d0, regs.a4); }
+            0x01E484 => { self.r_01e484(); }
             0x01E4B0 => self.r_01e4b0(regs),
             0x01E4F4 => self.r_01e4f4(regs),
             0x01E556 => self.r_01e556(regs),
             0x01E570 => self.r_01e570(regs),
-            0x01E596 => {
-                self.r_01e596(regs.a4);
-            }
-            0x01E5C2 => {
-                (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5) = self.r_01e5c2(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
+            0x01E596 => { self.r_01e596(regs.a4); }
+            0x01E5C2 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a5) = self.r_01e5c2(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
             0x01E60A => self.r_01e60a(regs),
-            0x01E648 => {
-                (regs.d0, regs.d1) = self.r_01e648(regs.d1);
-            }
-            0x01E66E => {
-                (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_01e66e(
-                    regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-                    regs.a1, regs.a2, regs.a3, regs.a4, regs.a5,
-                );
-            }
-            0x01E6AC => {
-                self.r_01e6ac(regs.a6);
-            }
+            0x01E648 => { (regs.d0, regs.d1) = self.r_01e648(regs.d1); }
+            0x01E66E => { (regs.d5, regs.d6, regs.a5, regs.a6, regs.x, regs.c) = self.r_01e66e(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5); }
+            0x01E6AC => { self.r_01e6ac(regs.a6); }
             0x01E6CC => self.r_01e6cc(regs),
-            0x01E716 => {
-                (regs.d0, regs.x, regs.c) = self.r_01e716(regs.d0, regs.d3, regs.a6);
-            }
+            0x01E716 => { (regs.d0, regs.x, regs.c) = self.r_01e716(regs.d0, regs.d3, regs.a6); }
             _ => return false,
         }
         true
@@ -5199,10 +1961,7 @@ impl Game {
             0x00033A => &[],
             0x000356 => &[],
             0x000372 => &["d0", "d1", "d6", "a0", "a6"],
-            0x0003D8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0003D8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0003DA => &["d0", "d1", "d6", "a0", "a6"],
             0x000404 => &["d6", "a6", "x", "c"],
             0x0004FE => &[],
@@ -5222,10 +1981,7 @@ impl Game {
             0x0007D2 => &["c"],
             0x0007F4 => &["d5", "c"],
             0x000800 => &["d5", "n", "z", "c"],
-            0x000810 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x000810 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x00084E => &["a4"],
             0x000870 => &["x"],
             0x000890 => &["c"],
@@ -5238,53 +1994,26 @@ impl Game {
             0x000C86 => &["a0"],
             0x000C90 => &["d6", "a6"],
             0x000CBA => &[],
-            0x000CF4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x000CF4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x000D4C => &["d0", "d1"],
             0x000D7A => &[],
-            0x000D8E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x000D8E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x000E26 => &["d0", "d1"],
             0x000E3E => &["d0", "d1", "d6", "a6", "x"],
-            0x000E6C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x000E98 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x000E9E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
+            0x000E6C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x000E98 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x000E9E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x000FBE => &["d0", "x", "c"],
             0x000FDA => &["d0", "x", "c"],
-            0x001030 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x00108C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x0010C8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x001030 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x00108C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0010C8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0010D6 => &["x"],
             0x0010EC => &[],
             0x00112C => &[],
             0x0011CA => &["d1", "x"],
             0x0011D2 => &["d0", "d1", "a0", "x"],
-            0x001212 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x001212 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00121A => &["d6", "x", "c"],
             0x001278 => &[],
             0x0012A0 => &["d0", "d5", "a5", "x"],
@@ -5374,14 +2103,8 @@ impl Game {
             0x001C3A => &["c"],
             0x001C48 => &[],
             0x001C56 => &["d6", "a6", "x"],
-            0x001C96 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x001CA0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x001C96 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x001CA0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x001CFA => &["d4", "a4", "x"],
             0x001D0C => &["d5", "a5"],
             0x001D6E => &["d6", "a6", "x"],
@@ -5392,34 +2115,14 @@ impl Game {
             0x001EC8 => &["d0", "d1", "a0", "x"],
             0x001EE0 => &["d0", "d1", "a0", "a1", "x"],
             0x001F06 => &["d1"],
-            0x001F7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x001FD4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x001FD6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x001FE6 => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "d7", "a0", "a1", "a4", "a5", "a6", "x", "c",
-            ],
-            0x002038 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00207C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x001F7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x001FD4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x001FD6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x001FE6 => &["d0", "d1", "d2", "d4", "d5", "d6", "d7", "a0", "a1", "a4", "a5", "a6", "x", "c"],
+            0x002038 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00207C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00209E => &[],
-            0x0020AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0020AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0020B0 => &["d0", "x", "c"],
             0x0020E2 => &["d0", "d5", "a0", "a5", "x", "c"],
             0x00211C => &["d0", "d1", "d4", "d5", "d7", "a0", "a4", "a5", "x"],
@@ -5468,61 +2171,25 @@ impl Game {
             0x002CA4 => &["d0", "x", "c"],
             0x002CC0 => &["d0", "x", "c"],
             0x002D3E => &["d0", "a0"],
-            0x002DE2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x002DE2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x002E24 => &["c"],
             0x002E4E => &["d0", "a0"],
-            0x002EB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x002EB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x002EB8 => &[],
-            0x002F34 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x002F34 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x002F70 => &["d0", "d1", "a0", "a1", "x"],
             0x003032 => &["d0", "d1", "d4", "d5", "a0", "a4", "a5", "x", "c"],
-            0x003166 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0031D4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0031F4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00320A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x003242 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0032AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0032E2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00334A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x003166 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0031D4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0031F4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00320A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x003242 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0032AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0032E2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00334A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00334C => &["d1", "a0"],
             0x0033C0 => &["x"],
-            0x00341E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00341E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x003486 => &["d2", "d3", "d4", "d5", "a1", "a2", "a3", "a4", "a5"],
             0x00349E => &[],
             0x0034B6 => &[],
@@ -5581,31 +2248,17 @@ impl Game {
             0x0042FE => &["d0", "x"],
             0x004348 => &["d0", "x", "c"],
             0x0043A8 => &["d0", "x"],
-            0x0043DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0043DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004424 => &["d0", "x", "n"],
             0x00442C => &["z", "c"],
             0x004448 => &[],
             0x004464 => &[],
-            0x004480 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "a0", "a3", "a4", "a5", "x", "c",
-            ],
+            0x004480 => &["d0", "d1", "d2", "d3", "d4", "d5", "a0", "a3", "a4", "a5", "x", "c"],
             0x004526 => &[],
             0x004568 => &["d0", "d1", "d2", "d3", "d4", "d5", "a3", "a4"],
-            0x0045E2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0046FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00477A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0045E2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0046FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00477A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0047C6 => &["d0", "d1", "d4", "d5", "a0", "a4", "a5", "x", "c"],
             0x004828 => &["d0", "d1", "d4", "d5", "a4", "a5", "x", "c"],
             0x00490C => &["d0", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c"],
@@ -5618,102 +2271,46 @@ impl Game {
             0x004AB0 => &["d0", "d4", "a4"],
             0x004AC2 => &["d0", "d4", "a4"],
             0x004AD4 => &["d0", "d4", "a4"],
-            0x004AFA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x004B26 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x004AFA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x004B26 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004BD8 => &["d4", "a0", "a4"],
-            0x004BF6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x004BF6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004CA8 => &["d4", "d5", "d6", "a4", "a6"],
-            0x004D24 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x004D6C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x004D7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x004D24 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x004D6C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x004D7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004DFE => &["d1", "d4", "d5", "d6", "a4", "a5", "a6"],
-            0x004E5C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x004E5C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004EA6 => &["d1", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x004ED8 => &["d1", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x004F00 => &["d1", "d4", "d6", "a0", "a4", "a6"],
             0x004F36 => &["d1", "d4", "d6", "a0", "a4", "a6"],
             0x004F48 => &["d1", "d4", "d6", "a0", "a4", "a6"],
             0x004F5A => &["d1", "d4", "d6", "a0", "a4", "a6"],
-            0x004F6C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x004F6C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x004FD0 => &["d0", "x", "c"],
             0x004FF4 => &["d0", "x", "c"],
-            0x005038 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00505C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x005038 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00505C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005082 => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
             0x00509E => &["d6", "x", "c"],
             0x005252 => &["d0", "d4", "a4", "c"],
             0x005294 => &["x", "c"],
-            0x0052E6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0052EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0052E6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0052EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0052F0 => &["x", "c"],
-            0x005336 => &[
-                "d0", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "c",
-            ],
-            0x005356 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x005336 => &["d0", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "c"],
+            0x005356 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005378 => &["d1", "d6", "a6", "x"],
-            0x0053A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
+            0x0053A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
             0x0053EC => &["a6"],
-            0x0054AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x005506 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0054AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x005506 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005516 => &["x", "c"],
             0x00555E => &["x"],
             0x0055A0 => &["d0", "d1", "d5", "d6", "a5", "a6", "x"],
-            0x00560A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0056EC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00560A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0056EC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005776 => &["d0", "d4", "d5", "d6", "a0", "a4", "a6"],
             0x005892 => &["d4", "a0", "a4", "x"],
             0x0058C0 => &["x"],
@@ -5729,29 +2326,13 @@ impl Game {
             0x005B62 => &["a0", "c"],
             0x005B8C => &["d0", "d6", "a0", "a6", "x"],
             0x005BD2 => &["d0", "a0", "x"],
-            0x005C10 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x005C32 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x005C10 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x005C32 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005CD0 => &["d1", "d2"],
-            0x005D46 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x005D7C => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c",
-            ],
-            0x005DC8 => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c",
-            ],
-            0x005E02 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x005D46 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x005D7C => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c"],
+            0x005DC8 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c"],
+            0x005E02 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005E0E => &["x", "z", "c"],
             0x005E50 => &["d0", "d1", "d6", "a2", "a6", "x"],
             0x005E78 => &["d0", "d1", "d6", "a2", "a6", "x"],
@@ -5775,35 +2356,24 @@ impl Game {
             0x00624A => &["d0"],
             0x006256 => &["d0"],
             0x00625C => &[],
-            0x0062C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "a0", "a1", "a2", "a3", "x", "c",
-            ],
+            0x0062C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "a0", "a1", "a2", "a3", "x", "c"],
             0x0062C4 => &["d3", "d4", "d5", "a0", "x"],
             0x006386 => &[],
             0x0063D2 => &[],
             0x00644A => &["d0", "d1", "d2", "d3", "a0", "a1", "a2", "x"],
             0x006540 => &["d0"],
             0x0065B6 => &["d0", "d2", "d5", "d6", "a5", "a6", "x", "c"],
-            0x006652 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006652 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00667E => &["d0", "d1", "a0", "x"],
             0x0066BE => &["d1", "x", "c"],
             0x0066FE => &["d2", "x"],
             0x006766 => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x0067B4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0067B4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0067C8 => &["d0", "x", "c"],
             0x006802 => &[],
             0x00685A => &[],
             0x006918 => &["d0", "d1", "d2"],
-            0x00693A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00693A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x006948 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x0069EE => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a5", "a6"],
             0x006A0E => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a5", "a6"],
@@ -5821,237 +2391,78 @@ impl Game {
             0x006D48 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a5", "a6"],
             0x006D5E => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a5", "a6"],
             0x006D72 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a5", "a6"],
-            0x006DD4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x006DF2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006DD4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x006DF2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x006E10 => &[],
             0x006E28 => &["d0", "d1", "d2", "a0", "x", "c"],
             0x006E7C => &["d0", "d1", "d2", "a0", "x", "c"],
             0x006E82 => &["d0", "a0", "x", "c"],
-            0x006EE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006EE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x006F1A => &["d0", "d1", "x", "c"],
-            0x006F42 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x006F66 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x006F9E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006F42 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x006F66 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x006F9E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x006FA0 => &[],
-            0x006FC6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006FC6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x006FEE => &[],
-            0x006FF0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007000 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007020 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00706C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0070C8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0070D6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x006FF0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007000 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007020 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00706C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0070C8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0070D6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0070F4 => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x0070FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007110 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007174 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007178 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00718E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0070FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007110 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007174 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007178 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00718E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0071A0 => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x0071B0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0071D2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00720A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00722E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0071B0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0071D2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00720A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00722E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00725A => &["d0", "d1", "d2", "d4", "d5", "a0", "a4", "a5", "x", "c"],
-            0x0072A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0072D0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0072E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0072F8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007308 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0072A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0072D0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0072E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0072F8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007308 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00730C => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x00731C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007368 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00731C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007368 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007386 => &[],
-            0x00738C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0073CA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0073E4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00738C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0073CA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0073E4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007428 => &["d0", "d1", "d2", "a0", "x", "c"],
             0x007438 => &["d0", "x", "c"],
-            0x0074B8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0074DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0075A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0074B8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0074DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0075A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0075D6 => &["d0", "d1", "a0", "x", "c"],
-            0x007602 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00762C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00764A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007674 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0076F0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007708 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00772E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007744 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007762 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x007602 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00762C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00764A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007674 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0076F0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007708 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00772E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007744 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007762 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007766 => &["c"],
-            0x007774 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0077D2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00781A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x007774 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0077D2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00781A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007834 => &["d1", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
-            0x00793A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007970 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00799E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0079D2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x007A00 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00793A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007970 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00799E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0079D2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x007A00 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007A18 => &["d0", "d1", "x", "c"],
             0x007A56 => &["d5", "d6", "a5", "a6", "x", "c"],
-            0x007A90 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x007A90 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x007DFA => &[],
             0x007E08 => &["d7"],
             0x007E1E => &["d0"],
@@ -6080,34 +2491,14 @@ impl Game {
             0x00819A => &["d0", "d7", "c"],
             0x0081AE => &["d0", "d7", "c"],
             0x0081C2 => &["c"],
-            0x00821C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00822A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00822E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x008238 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x008268 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x008278 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00821C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00822A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00822E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x008238 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x008268 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x008278 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x008286 => &["d0", "a0", "a1"],
-            0x0082FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a4", "a5", "a6",
-            ],
+            0x0082FA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a4", "a5", "a6"],
             0x00841E => &["a2"],
             0x00846C => &["d1", "d2", "d3", "a6"],
             0x008490 => &["d0", "d1", "d2"],
@@ -6125,16 +2516,10 @@ impl Game {
             0x00858A => &[],
             0x008604 => &["d2", "d3", "d5", "d6", "a5", "a6"],
             0x008624 => &[],
-            0x008632 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x008632 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x008644 => &[],
             0x008656 => &[],
-            0x008664 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x008664 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x00867E => &[],
             0x00868E => &[],
             0x0086A4 => &[],
@@ -6156,9 +2541,7 @@ impl Game {
             0x008DE2 => &["d7"],
             0x008E9E => &[],
             0x008EC6 => &[],
-            0x008EEE => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a0", "a1", "a6", "x",
-            ],
+            0x008EEE => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a0", "a1", "a6", "x"],
             0x008F72 => &["d4", "d6"],
             0x009056 => &["d0", "d2", "a0"],
             0x009086 => &[],
@@ -6172,36 +2555,15 @@ impl Game {
             0x0091D4 => &["d0"],
             0x0091E2 => &[],
             0x00922C => &[],
-            0x009248 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0092BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0092E8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009248 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0092BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0092E8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009310 => &[],
-            0x009368 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0093B8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0093BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x0093F0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x0093F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
+            0x009368 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0093B8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0093BA => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x0093F0 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x0093F6 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
             0x0093FA => &[],
             0x0093FC => &["x"],
             0x00946E => &["x"],
@@ -6209,70 +2571,24 @@ impl Game {
             0x0094B0 => &[],
             0x0094B2 => &["c"],
             0x0094C8 => &[],
-            0x0094D8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00956C => &[
-                "d0", "d1", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x0095BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x0095CE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x0095D0 => &[
-                "d0", "d1", "d3", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "x",
-            ],
-            0x00960A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009620 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009622 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x00962A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009632 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
+            0x0094D8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00956C => &["d0", "d1", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0095BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0095CE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0095D0 => &["d0", "d1", "d3", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "x"],
+            0x00960A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009620 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009622 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x00962A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009632 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x009634 => &[],
-            0x009636 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009640 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009648 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009658 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
-            0x009674 => &[
-                "d0", "d1", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "a6", "x",
-            ],
+            0x009636 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009640 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009648 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009658 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x009674 => &["d0", "d1", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "a6", "x"],
             0x009692 => &["d0", "a4"],
-            0x0096AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6",
-                "x",
-            ],
+            0x0096AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x0096AC => &[],
             0x0096B0 => &[],
             0x0096CE => &["d0", "d1", "d2", "d5"],
@@ -6280,64 +2596,31 @@ impl Game {
             0x00977E => &[],
             0x009790 => &[],
             0x0097CE => &[],
-            0x009800 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00981C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009800 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00981C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009822 => &["c"],
             0x009840 => &["d0", "a0", "a1"],
             0x009874 => &["d0", "a0", "a1", "x"],
             0x00989A => &["d0", "a0", "a1"],
-            0x0098F8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0098FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0098F8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0098FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009966 => &["d0", "d1", "x"],
             0x0099A2 => &["x", "c"],
-            0x0099E6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0099E6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009ACA => &["d6", "a6", "x", "c"],
-            0x009AEC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x009B0A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
+            0x009AEC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x009B0A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
             0x009C7A => &["d0", "d5", "d6", "a5", "a6", "x"],
-            0x009D02 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009D02 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009D32 => &[],
-            0x009D34 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009D34 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009D7C => &["d6", "a6", "x", "c"],
             0x009D8C => &["d6", "a6", "x", "c"],
             0x009D9C => &["d6", "a6", "x", "c"],
             0x009DAC => &["d6", "a6", "x", "c"],
             0x009DBC => &["d6", "a6", "x", "c"],
-            0x009DBE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x009DCC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009DBE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x009DCC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009DD8 => &["d0", "d1", "d5", "d6", "a0", "a5", "a6", "x", "c"],
             0x009E0A => &["d1", "d6", "a6"],
             0x009E1C => &["d1"],
@@ -6349,19 +2632,10 @@ impl Game {
             0x009E86 => &["d1"],
             0x009E94 => &["d1", "d6", "a6"],
             0x009EA4 => &["d1", "d6", "a6"],
-            0x009EC0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009EC0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009EEC => &[],
-            0x009EEE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x009F30 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x009EEE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x009F30 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x009F70 => &["d1", "d6", "a6"],
             0x009F86 => &["d1", "d6", "a6"],
             0x009F9C => &["d1", "d6", "a6"],
@@ -6377,68 +2651,35 @@ impl Game {
             0x00A55E => &[],
             0x00A592 => &[],
             0x00A5AC => &[],
-            0x00A5E6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00A61C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00A5E6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00A61C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00A63A => &["d0", "a1", "x", "c"],
-            0x00A664 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00A664 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00A686 => &["d0", "a1", "x", "c"],
-            0x00A6A4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00A6A4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00A6C0 => &["d0", "d6", "a1", "a6", "x"],
             0x00A702 => &["d0", "x", "z", "c"],
             0x00A738 => &["d6", "a0", "a1", "x", "c"],
-            0x00A73C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00A744 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00A73C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00A744 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00A75C => &["x"],
             0x00A770 => &[],
             0x00A784 => &["x"],
             0x00A7C8 => &["d3"],
-            0x00A8C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x00A8C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x00A904 => &[],
             0x00A952 => &["a0", "a1"],
             0x00AA00 => &["d0", "a0", "x", "c"],
-            0x00AA52 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00AAC0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00AAC4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x00AA52 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00AAC0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00AAC4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x00AACC => &[],
             0x00AAD4 => &[],
             0x00AADC => &["x", "c"],
             0x00AAE2 => &["x"],
             0x00AB12 => &[],
             0x00AB78 => &[],
-            0x00ABA6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
+            0x00ABA6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x00ABE0 => &["d0", "d1", "x"],
             0x00AC64 => &["d0", "x"],
             0x00ACA4 => &["d0", "d1", "d5", "d6", "a0", "a1", "a5", "a6", "x"],
@@ -6446,929 +2687,310 @@ impl Game {
             0x00ADC0 => &["d0", "x"],
             0x00ADCA => &["x"],
             0x00ADF2 => &["d0", "d5", "d6", "a5", "a6"],
-            0x00AE6E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00AE6E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00AEFA => &["d0", "d3", "x", "c"],
-            0x00AF26 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x",
-            ],
+            0x00AF26 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x"],
             0x00B126 => &[],
             0x00B158 => &["d1", "c"],
             0x00B1A2 => &["d0", "d1", "d5", "d6", "a0", "a5", "a6"],
-            0x00B1DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00B21A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00B1DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00B21A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00B2A0 => &["d0", "d1", "d5", "d6", "a1", "a5", "a6"],
-            0x00B2DE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00B300 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00B2DE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00B300 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00B312 => &["d0", "d1", "a1", "x", "c"],
             0x00B346 => &["d0", "d1", "d5", "d6", "a1", "a5", "a6"],
-            0x00B378 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00B39E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00B378 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00B39E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00B3BC => &["d0", "d5", "d6", "a0", "a5", "a6"],
-            0x00B414 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00B49A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00B4C6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x00B414 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00B49A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00B4C6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x00B4E4 => &[],
             0x00B7F4 => &["a0", "a1"],
             0x00B832 => &[],
             0x00B84C => &[],
             0x00B84E => &[],
             0x00B89E => &["d0"],
-            0x00B8C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00B8C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00B954 => &[],
             0x00B9D0 => &["a0"],
             0x00BAA8 => &[],
-            0x00BB06 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00BB30 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00BB54 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00BB6E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00BB06 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00BB30 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00BB54 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00BB6E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00BB94 => &["d0", "d1", "x", "c"],
             0x00BBC0 => &[],
             0x00BC4E => &["d1", "d6"],
             0x00BC70 => &[],
-            0x00BC72 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00BCC2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00BC72 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00BCC2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00BCD4 => &["d6", "a6", "x"],
-            0x00BD14 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00BD54 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00BD14 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00BD54 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00BD6C => &["d1", "d6"],
-            0x00BDD8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00BDD8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00BE40 => &["d0", "n", "z"],
             0x00BE5A => &["d1", "d2", "x"],
             0x00BE74 => &["x"],
-            0x00BE96 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
-            0x00BF28 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00BF86 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00BE96 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
+            0x00BF28 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00BF86 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00BFE4 => &["x", "c"],
-            0x00C028 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C054 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C0D6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C028 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C054 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C0D6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C0FE => &[],
-            0x00C100 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C15A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C1F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C292 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C2F2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C100 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C15A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C1F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C292 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C2F2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C310 => &["d0", "x", "c"],
-            0x00C380 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C3B6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C3E4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C380 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C3B6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C3E4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C496 => &["d0", "d4", "d5", "a0", "a4", "a5"],
-            0x00C4DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C4DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C4FC => &["d0", "x", "c"],
-            0x00C544 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C568 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C5AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "a0", "a1", "a4", "a5", "x", "c",
-            ],
+            0x00C544 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C568 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C5AE => &["d0", "d1", "d2", "d3", "d4", "d5", "a0", "a1", "a4", "a5", "x", "c"],
             0x00C66C => &[],
-            0x00C6AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C72E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C6AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C72E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C73A => &["d0", "x", "c"],
             0x00C742 => &[],
             0x00C766 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
-            0x00C78E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C796 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C78E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C796 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C79C => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
-            0x00C7C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C7DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C7C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C7DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C7E0 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
-            0x00C80C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C822 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C80C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C822 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C864 => &["d0", "x", "c"],
             0x00C86E => &["d0", "d6", "a0", "x", "c"],
-            0x00C886 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C89E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C8C8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C8F4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C8FE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C886 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C89E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C8C8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C8F4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C8FE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00C904 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
             0x00C922 => &["d0", "c"],
-            0x00C938 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00C93C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00C938 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00C93C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00CA06 => &["d0", "c"],
-            0x00CA0E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CA1E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CA38 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CAC2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CAE8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CAF0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB22 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB2C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB36 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB40 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB4A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CB7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00CA0E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CA1E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CA38 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CAC2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CAE8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CAF0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB22 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB2C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB36 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB40 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB4A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CB7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00CBE8 => &["d0", "d1", "d2", "d5", "d6", "a0", "a5", "a6", "x", "c"],
-            0x00CC06 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CC20 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CC5E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CCB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CCEA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CD18 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CDB2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CDDE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CE58 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CE9C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CEAC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00CC06 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CC20 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CC5E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CCB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CCEA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CD18 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CDB2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CDDE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CE58 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CE9C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CEAC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00CED8 => &["d0", "d1", "a0"],
             0x00CF42 => &["d0", "d2", "a0"],
-            0x00CF82 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CFB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CFC0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00CFF8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00CF82 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CFB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CFC0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00CFF8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D074 => &["d0", "x", "c"],
-            0x00D07C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D0A8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D28C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D07C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D0A8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D28C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D2DE => &["d1", "d5", "a5"],
             0x00D314 => &["d1", "d5", "a5"],
             0x00D390 => &["d0", "d1", "a0", "c"],
-            0x00D418 => &[
-                "d0", "d1", "d4", "d5", "d6", "a0", "a1", "a4", "a5", "a6", "x", "c",
-            ],
+            0x00D418 => &["d0", "d1", "d4", "d5", "d6", "a0", "a1", "a4", "a5", "a6", "x", "c"],
             0x00D4DA => &["d0", "d1", "d5", "a5", "x", "c"],
             0x00D564 => &["d0", "d6", "a0", "a6", "x", "c"],
             0x00D57C => &["d4", "a4", "c"],
             0x00D5E0 => &["d0", "a0", "x", "c"],
-            0x00D61C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D630 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D61C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D630 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D652 => &[],
-            0x00D6DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D74E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D75C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D6DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D74E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D75C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D766 => &["d0", "c"],
-            0x00D770 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D7EC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D816 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D820 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D84A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D89A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D770 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D7EC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D816 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D820 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D84A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D89A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D8A6 => &["d0", "x", "c"],
-            0x00D8AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D8AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00D8BE => &["d0", "d1", "d2", "d5", "d6", "a0", "a5", "a6"],
-            0x00D8F0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D906 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D910 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D91A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D95E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D990 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D9AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D9CA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D9F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00D9FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DA58 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DAE2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00DB18 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DB3E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DBBA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00DC5E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00D8F0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D906 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D910 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D91A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D95E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D990 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D9AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D9CA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D9F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00D9FA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DA58 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DAE2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00DB18 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DB3E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DBBA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00DC5E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00DD4A => &["d0"],
             0x00DD6C => &["d0", "d1", "a0", "x", "c"],
-            0x00DD84 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DDC6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DDE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DE06 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DE62 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DEA2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00DEBE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00DD84 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DDC6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DDE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DE06 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DE62 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DEA2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00DEBE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00DF1E => &["d0", "x", "c"],
             0x00DF26 => &["d2", "d4", "a4"],
             0x00DFC2 => &["d0", "d5", "a5"],
-            0x00DFFE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E076 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E090 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E09A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E0A4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00DFFE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E076 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E090 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E09A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E0A4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E0AE => &[],
-            0x00E0B6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E11C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E142 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E0B6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E11C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E142 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E14C => &["d0", "d1", "x", "c"],
-            0x00E170 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E170 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E1C6 => &["d0", "d1", "x", "c"],
             0x00E1D6 => &["d0", "d1", "x", "c"],
             0x00E208 => &["d0", "x"],
             0x00E21C => &[],
-            0x00E228 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E29E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E2B4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E2D4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E228 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E29E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E2B4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E2D4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E2F2 => &["d0", "x", "c"],
-            0x00E30A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E30C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E322 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E30A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E30C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E322 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E358 => &["d0", "x", "c"],
             0x00E378 => &["d0", "x", "c"],
-            0x00E39C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E420 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E466 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E49E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E39C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E420 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E466 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E49E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E4C2 => &["d0", "x", "c"],
             0x00E4CA => &["d0", "d5", "d6", "a5", "a6"],
-            0x00E548 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E558 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E56E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E576 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E59A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E548 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E558 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E56E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E576 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E59A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E5A2 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
-            0x00E5D2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E5D2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E5E6 => &[],
-            0x00E5E8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E5E8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E5F2 => &["d0", "x", "c"],
-            0x00E61E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E63A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E61E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E63A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E6B8 => &["d0", "d1", "d5", "a5"],
-            0x00E6D6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E6F8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00E752 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E6D6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E6F8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00E752 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00E7B2 => &["d1", "d2"],
             0x00E800 => &[],
             0x00E80C => &[],
             0x00E814 => &[],
             0x00E81C => &[],
-            0x00E828 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E860 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E8A0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E8C6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E8E4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E958 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E9A2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00E9C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00E828 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E860 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E8A0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E8C6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E8E4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E958 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E9A2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00E9C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EA30 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
             0x00EA46 => &["d0", "d5", "d6", "a5", "a6", "x", "c"],
-            0x00EA62 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EA74 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EA94 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EA62 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EA74 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EA94 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EABA => &["d0", "d5", "a5", "x", "c"],
-            0x00EAE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EB10 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EAE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EB10 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EB28 => &["d0", "d1", "a0"],
-            0x00EB5A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EB62 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EB8C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EBB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EBDE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EB5A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EB62 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EB8C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EBB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EBDE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EC0A => &["d0", "d1", "x", "c"],
-            0x00EC26 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EC56 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EC26 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EC56 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EC66 => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x00EC7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EC82 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00ECA4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00ECBE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00ECE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00ECFA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00ED5E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EC7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EC82 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00ECA4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00ECBE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00ECE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00ECFA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00ED5E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00ED7A => &["d0", "d1", "d2", "d5", "d6", "a0", "a5", "a6", "x", "c"],
             0x00ED86 => &["d5", "d6", "a5", "a6", "x", "c"],
-            0x00ED9A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EDB8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00ED9A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EDB8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EE12 => &["d5", "d6", "a5", "a6", "x", "c"],
-            0x00EE4C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00EE4C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00EE74 => &[],
-            0x00EE76 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EEE4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EEE8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EEF2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00EF16 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EF28 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00EF42 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x00EF44 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EF68 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EF80 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00EFB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F000 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F02A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F048 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F072 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F082 => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c",
-            ],
+            0x00EE76 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EEE4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EEE8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EEF2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00EF16 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EF28 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00EF42 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x00EF44 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EF68 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EF80 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00EFB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F000 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F02A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F048 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F072 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F082 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c"],
             0x00F0B4 => &["d0", "d1", "d2", "d5", "d6", "a0", "a5", "a6", "x", "c"],
             0x00F102 => &["d0", "d1", "d2", "d4", "d5", "d6", "a4", "a5", "a6"],
-            0x00F192 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F1CC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00F192 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F1CC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00F1D0 => &["d5", "d6", "a5", "a6", "x", "c"],
-            0x00F20E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F23A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F306 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F3AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F3C6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F3FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x00F4AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x00F20E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F23A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F306 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F3AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F3C6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F3FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x00F4AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x00F4AE => &["d5", "d6", "a5", "a6", "x", "c"],
-            0x0100AE => &[
-                "d0", "d1", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "a6", "x",
-            ],
+            0x0100AE => &["d0", "d1", "d3", "d4", "d5", "d6", "d7", "a1", "a2", "a3", "a5", "a6", "x"],
             0x010102 => &["d0", "a0", "a6", "x", "c"],
             0x010136 => &["d0", "a6"],
             0x010156 => &["d0", "a6", "c"],
@@ -7387,832 +3009,282 @@ impl Game {
             0x0103B0 => &["a0", "a1", "c"],
             0x0103D4 => &["x"],
             0x01041A => &["d1", "a1", "a2"],
-            0x010450 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0104AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x010450 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0104AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01052E => &["d0", "d1", "d6", "a0", "a6", "x"],
-            0x010566 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010578 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x010566 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010578 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0105B0 => &["d0", "x"],
-            0x010662 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x0106B2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x0106EC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x010718 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x010764 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
+            0x010662 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0106B2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x0106EC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x010718 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x010764 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x0107B6 => &["d0", "d1", "a0", "x"],
-            0x0107E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x010844 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x010846 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
-            0x0108AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
+            0x0107E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x010844 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x010846 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
+            0x0108AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
             0x0108CA => &["d0", "d5", "d6", "a5", "a6", "x"],
             0x0108F2 => &["d0", "x"],
             0x01091C => &["d5", "d6", "a5", "a6"],
-            0x010974 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x010974 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x010996 => &["c"],
-            0x0109AC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010A18 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010A7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010A92 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x010A9A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010AB8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010ADE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0109AC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010A18 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010A7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010A92 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x010A9A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010AB8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010ADE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x010B38 => &[],
             0x010B5C => &[],
             0x010B74 => &["d0", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
             0x010B8C => &["d0", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
-            0x010BB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010BCE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010C04 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010C54 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010C7C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010CC6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010E20 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x010BB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010BCE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010C04 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010C54 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010C7C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010CC6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010E20 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x010E64 => &["d0"],
-            0x010EA2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010FB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x010FEE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01109A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x010EA2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010FB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x010FEE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01109A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0110C8 => &[],
             0x0110CA => &["x", "c"],
-            0x01111E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x011150 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x011246 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01124A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01127A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01127E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01111E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x011150 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x011246 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01124A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01127A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01127E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011294 => &["d0", "x"],
             0x0112AA => &["d0", "x"],
             0x0112BC => &["x", "c"],
             0x0112E0 => &[],
-            0x011312 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x011360 => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "a0", "a1", "a4", "a5", "a6", "x", "c",
-            ],
+            0x011312 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x011360 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a1", "a4", "a5", "a6", "x", "c"],
             0x0113A2 => &["d0", "d1", "a0", "a6", "x"],
-            0x01141C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x01147C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0114C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01151A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01159A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01141C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x01147C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0114C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01151A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01159A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0115C2 => &["d0", "d1", "a1", "x", "c"],
             0x0116E4 => &["d0", "d1", "d3", "d4", "a0", "a4"],
             0x01174C => &["d0", "d1", "a0", "a6"],
             0x01179C => &["d0", "d2", "d4", "d5", "d6", "a0", "a4", "a5"],
-            0x01185A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0118B4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0118C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0118C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x011920 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0119FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x011A38 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01185A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0118B4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0118C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0118C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x011920 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0119FA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x011A38 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011A6E => &["d0", "c"],
             0x011A72 => &["d0", "c"],
             0x011A82 => &["c"],
-            0x011A9C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011A9C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011AA4 => &[],
-            0x011AD8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011AD8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011B62 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x011BC0 => &["d0", "d1", "d2", "d4", "d5", "a0", "a4", "a5", "x"],
-            0x011C92 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011C92 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011CCA => &["d4", "d5", "d6", "a0", "a4", "a5", "a6"],
-            0x011D4C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011D4C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011D8E => &[],
-            0x011D98 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011D98 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011F1C => &[],
             0x011F64 => &["d5", "d6", "a5", "a6"],
-            0x011F86 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x011F86 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x011FD4 => &["d0", "d4", "d6", "a4", "a6", "x", "c"],
-            0x01208E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0120B4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0120F8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x012122 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x01215C => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x01218C => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x0121B2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
+            0x01208E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0120B4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0120F8 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x012122 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x01215C => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x01218C => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x0121B2 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
             0x0121EE => &["d0"],
-            0x0121F2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x01220E => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x012276 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x0122A4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
-            0x0122FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6",
-            ],
+            0x0121F2 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x01220E => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x012276 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x0122A4 => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
+            0x0122FA => &["d0", "d1", "d2", "d3", "d4", "d6", "d7", "a1", "a2", "a3", "a4", "a6"],
             0x012338 => &[],
             0x012356 => &["d0", "d1", "d2", "d5", "a0", "a5", "x", "c"],
-            0x012366 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01237C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x012388 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012366 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01237C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x012388 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0123BC => &["d0", "d1", "x", "c"],
-            0x0123C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0123CC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0123D8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012408 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012418 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012432 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012452 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01245E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01246C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012482 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012494 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0124A0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0124A8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x0124BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0123C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0123CC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0123D8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012408 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012418 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012432 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012452 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01245E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01246C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012482 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012494 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0124A0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0124A8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x0124BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0124C4 => &["d0", "d1", "x", "c"],
-            0x0124CC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012502 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012518 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012526 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012546 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012556 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012586 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01259A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0125BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0125EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01262C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0124CC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012502 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012518 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012526 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012546 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012556 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012586 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01259A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0125BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0125EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01262C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0126E2 => &["d0", "d1", "d5", "a5"],
-            0x012722 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012722 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012776 => &["d0", "x", "c"],
-            0x01277E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01278C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0127C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01277E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01278C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0127C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01288E => &["d0", "d4", "d5", "a4", "a5", "x"],
-            0x0128E6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01296C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0129E4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0128E6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01296C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0129E4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012A34 => &["d0", "d1", "d4", "d5", "d6", "a4", "a5", "a6", "x", "c"],
-            0x012A46 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012A62 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012A46 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012A62 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012A8C => &["d0", "d5", "a5", "x"],
             0x012AB4 => &["d0", "x"],
             0x012AEE => &["d0", "x"],
             0x012AF8 => &["d0", "d4", "d6", "a4", "a6", "x", "c"],
-            0x012B48 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012B8E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012B48 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012B8E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012BD0 => &["d0", "d1", "x", "c"],
-            0x012BD8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012C7E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012CBC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012BD8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012C7E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012CBC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012D4A => &["d0", "d1", "x", "c"],
             0x012D76 => &["d0", "d1", "a0", "x", "c"],
             0x012DA0 => &["d0", "d1", "d2", "d6", "a0", "a6", "x", "c"],
             0x012DB6 => &["d0", "d6", "a0", "a6", "x", "c"],
-            0x012E06 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012E5A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012E06 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012E5A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012E72 => &["d0", "d1", "x", "c"],
-            0x012E88 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012EB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012EEC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x012F18 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012E88 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012EB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012EEC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x012F18 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x012F34 => &["c"],
             0x012F4C => &["d4", "d5", "d6", "a4", "a5", "a6"],
-            0x012FCC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01305E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013068 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x012FCC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01305E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013068 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0130AE => &["d0", "a0", "x", "c"],
-            0x0130DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013116 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013124 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013134 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x0130DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013116 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013124 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013134 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x01313C => &["d0", "d4", "d5", "d6", "a4", "a5", "a6", "x", "c"],
-            0x01319E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01319E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0131B4 => &["d0", "a0", "x", "c"],
-            0x01323E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01323E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0132E8 => &["d0", "d4", "d5", "d6", "a4", "a5", "a6", "x", "c"],
-            0x01337A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01338A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01337A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01338A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0133CA => &["d0", "d1", "d5", "a5", "x", "c"],
             0x0133D0 => &["d0", "d1", "x", "c"],
-            0x0133DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013420 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01343C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013466 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0134A0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0134E6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0133DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013420 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01343C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013466 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0134A0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0134E6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013508 => &["d0", "d4", "d5", "a4", "a5", "x", "c"],
-            0x01354C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013584 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0135D0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01354C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013584 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0135D0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0135E8 => &["d0", "d1", "d5", "a5"],
             0x013638 => &["d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
-            0x0136F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013750 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0136F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013750 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013756 => &["d0", "d4", "a0", "a4", "x", "c"],
-            0x0137CA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0137CA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0137D6 => &["d6", "a4"],
-            0x01381E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0138DE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x01381E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0138DE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x0138F8 => &["d5", "a2", "a5", "c"],
-            0x01393C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
+            0x01393C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
             0x013988 => &["d0", "d1", "d5", "a5"],
-            0x0139DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013A04 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0139DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013A04 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013A82 => &[],
-            0x013AB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013ABC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013AD8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013AB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013ABC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013AD8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013B1C => &["d0", "d1", "d4", "d5", "d6", "a4", "a5", "a6"],
             0x013B56 => &["d0", "d4", "d5", "d6", "a4", "a5", "a6"],
             0x013BA0 => &["d4", "d5", "a4", "a5"],
-            0x013BB2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013BB2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013BC4 => &["d6", "x", "c"],
-            0x013BC8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013BC8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013BDC => &["d0", "d1", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
             0x013C4E => &["d0", "d1", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
-            0x013CB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013CB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013D00 => &["d0", "d1", "x", "c"],
-            0x013D20 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013D46 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013D20 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013D46 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013DB0 => &["d0", "d1", "d6", "a0", "a1", "a6", "x", "c"],
-            0x013E02 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013E1C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013E3E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013E6A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013E82 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013EAE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013ECE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013EF0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013E02 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013E1C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013E3E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013E6A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013E82 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013EAE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013ECE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013EF0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013F14 => &["d0", "d1", "d4", "d5", "a4", "a5", "x", "c"],
-            0x013F58 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013F58 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x013F98 => &["d0", "d1", "x", "c"],
-            0x013FA0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x013FC0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01401A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014054 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0140FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01412A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014142 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x013FA0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x013FC0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01401A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014054 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0140FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01412A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014142 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014188 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a6", "x"],
-            0x0142B2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014380 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0142B2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014380 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0143E2 => &["d0", "d1", "x", "c"],
-            0x0143FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0143FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014422 => &["d0", "d1", "d5", "d6", "a0", "a5", "a6"],
-            0x014436 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014436 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01445C => &["d0", "d1", "x", "c"],
-            0x014460 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01446E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01448A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0144D6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0144EE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01451A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014460 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01446E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01448A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0144D6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0144EE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01451A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014528 => &["d0", "d1", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "c"],
-            0x014622 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014638 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014622 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014638 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0146BE => &["d0", "x", "c"],
-            0x0146C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0146C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0146CE => &["d4", "d6", "a4", "a6", "x"],
-            0x0146F2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0146F2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01472A => &["d0", "d1", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
-            0x014782 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014782 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01479A => &["d0", "d5", "a5", "c"],
             0x0147B4 => &["d5", "d6", "a5"],
-            0x0147DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01481A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0147DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01481A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014842 => &["d6"],
             0x014886 => &["d0", "d1", "d4", "d5", "d6", "a0", "a6", "x"],
             0x014912 => &["d0", "d5", "a5"],
@@ -8220,263 +3292,88 @@ impl Game {
             0x0149CA => &["d0", "d1", "d2", "d4", "d5", "a4", "a5", "x", "c"],
             0x014B14 => &["d1", "d2"],
             0x014B46 => &["d0"],
-            0x014B80 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014BC4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014C5E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014CCC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014B80 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014BC4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014C5E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014CCC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014D18 => &["d0", "d2", "d5", "d6", "a4", "a5", "a6"],
-            0x014D88 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014DD4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014E0E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014E3A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014D88 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014DD4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014E0E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014E3A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014EA4 => &["d0", "d1", "d2"],
-            0x014ED2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x014F2C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014ED2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x014F2C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x014F3E => &["d0", "d1", "x", "c"],
             0x014F46 => &["d0", "d1", "d2", "d4", "d6", "a0", "a4", "a6", "x", "c"],
-            0x014FE6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015060 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015068 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0150DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015144 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x014FE6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015060 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015068 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0150DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015144 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0151B2 => &["d5", "d6", "a5", "a6", "x"],
-            0x0151D2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015216 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01523E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01525A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015298 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0151D2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015216 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01523E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01525A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015298 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01529C => &[],
             0x0152AE => &["d5", "d6", "a5", "a6", "x", "c"],
             0x0152D4 => &["d5", "d6", "a5", "a6", "x"],
-            0x0152FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015334 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01537A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015394 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0152FA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015334 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01537A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015394 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0153B4 => &[],
-            0x0153B6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0153B6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0153E0 => &["c"],
-            0x015406 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015412 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015406 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015412 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01541C => &["d0", "d1", "d2", "a0", "x", "c"],
             0x015432 => &["c"],
-            0x0154EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0154EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01551A => &["d4", "d5", "d6", "a4", "a5", "a6"],
-            0x015572 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0155F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01560E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01567E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015572 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0155F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01560E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01567E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0156B6 => &["d0", "d5", "d6", "a5", "a6"],
-            0x0156FA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015766 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0156FA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015766 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0157A0 => &["d0", "d1", "d2", "a0", "x", "c"],
-            0x0157A4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0157AC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0157BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0157DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01582C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015854 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015874 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0157A4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0157AC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0157BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0157DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01582C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015854 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015874 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015884 => &["d4", "d5"],
             0x0158CA => &["d5", "a5"],
-            0x0158F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0158F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015904 => &["d0", "d1", "d2", "d5", "a0", "a5", "x", "c"],
-            0x015948 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015948 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015986 => &["d0", "d1", "d2", "d5", "a0", "a5", "x", "c"],
-            0x015992 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0159A0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0159F4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015A20 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015A8C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015992 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0159A0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0159F4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015A20 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015A8C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015AAA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "a4", "a6", "x"],
-            0x015AB8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "a4", "a5", "a6", "x",
-            ],
-            0x015B16 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "a4", "a5", "a6", "x", "c",
-            ],
+            0x015AB8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
+            0x015B16 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "a4", "a5", "a6", "x", "c"],
             0x015B30 => &["d4", "d5", "a4", "a5", "c"],
-            0x015B42 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015B42 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015B56 => &["d0", "d1", "d2", "d4", "d5", "d6", "a4", "a5", "a6", "x"],
-            0x015BC6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015BC6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015BFC => &["d0", "x", "c"],
-            0x015C1C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015C52 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015DDE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015E6E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015E8E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015EAC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x015EB4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x015C1C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015C52 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015DDE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015E6E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015E8E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015EAC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x015EB4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x015ED0 => &["d0", "d1", "d2"],
             0x015F46 => &["c"],
             0x015F54 => &["d0", "a0", "n", "z"],
@@ -8499,82 +3396,34 @@ impl Game {
             0x016104 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x01611E => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x016130 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x01613C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0161C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01613C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0161C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016240 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x016256 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0162E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016256 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0162E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016312 => &["d0", "x", "n"],
             0x016340 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x016368 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016368 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016392 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x0163BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0163BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016430 => &[],
-            0x01643E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016454 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0164F0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01651A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01643E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016454 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0164F0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01651A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01653C => &["d0", "d1", "d2", "d5", "d6", "a5", "a6", "x", "c"],
-            0x0165B0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0165B0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0165BA => &["d6", "x", "c"],
-            0x0165BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0165EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0165BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0165EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01661E => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x01667A => &[],
-            0x016698 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016698 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0166D0 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x016702 => &[],
-            0x016704 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016704 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016726 => &["d0", "d1", "d5", "d6", "a0", "a5"],
-            0x0167A2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0167A2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0167C6 => &["d1", "d2", "d3", "d5", "a0", "a5"],
             0x016880 => &["d0", "d1", "d2", "d6", "a6", "x", "c"],
             0x0168BA => &["d0", "c"],
@@ -8582,1314 +3431,425 @@ impl Game {
             0x01691E => &["d0", "d1", "d2", "x"],
             0x0169A4 => &["d0", "x"],
             0x0169FE => &["d0", "c"],
-            0x016A16 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016A16 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016A66 => &[],
-            0x016A68 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016CC0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016CCA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016CD4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016CDE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016CE4 => &[
-                "d0", "d1", "d2", "d3", "d5", "d6", "a0", "a5", "a6", "x", "c",
-            ],
-            0x016D00 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016D2A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x016D56 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016A68 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016CC0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016CCA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016CD4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016CDE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016CE4 => &["d0", "d1", "d2", "d3", "d5", "d6", "a0", "a5", "a6", "x", "c"],
+            0x016D00 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016D2A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x016D56 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016D8A => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x016D90 => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x016DBA => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x016E3E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016E3E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016E7E => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
             0x016EC4 => &["d5", "d6", "a5", "a6"],
             0x016EFE => &["d0"],
             0x016F08 => &["d0"],
-            0x016F2E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016F2E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x016F66 => &["d0", "c"],
             0x016F74 => &[],
-            0x016FC2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01748E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x016FC2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01748E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0174BA => &["d0", "d1", "d2", "d3", "d5", "d6", "a5", "a6"],
-            0x0175A4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01768A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0175A4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01768A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01776C => &["d0", "x"],
             0x017770 => &["d0", "x"],
             0x01777C => &["d0"],
             0x017780 => &["d0"],
             0x01778A => &["d0"],
             0x017828 => &["x", "c"],
-            0x017870 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x017870 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0178CE => &["d0", "d1"],
             0x01793A => &["d6", "a6", "x", "c"],
             0x017952 => &["d0", "z"],
             0x01797A => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
             0x0179B0 => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
-            0x0179EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017A5C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0179EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017A5C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x017B46 => &["c"],
             0x017B50 => &["c"],
-            0x017B5A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
-            0x017B92 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017C2A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017CD6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017CE6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017D16 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x017B5A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
+            0x017B92 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017C2A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017CD6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017CE6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017D16 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x017D20 => &["d0", "d1", "d6", "a0", "a1", "a6", "x", "c"],
-            0x017D4C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017D62 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017D6C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017D88 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017DBE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017E12 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-            ],
-            0x017E58 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017E70 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017E8C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017EC8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017EDA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017EE4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017F1E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017F3A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017F70 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017FE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x017FF6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018008 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018078 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01808A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0180CA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0180DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018138 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018154 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01816C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01817E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0181BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018222 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01823A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0182AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0182DE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0182F0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018306 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018314 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01836C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0183A0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x017D4C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017D62 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017D6C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017D88 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017DBE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017E12 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5"],
+            0x017E58 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017E70 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017E8C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017EC8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017EDA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017EE4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017F1E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017F3A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017F70 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017FE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x017FF6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018008 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018078 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01808A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0180CA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0180DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018138 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018154 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01816C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01817E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0181BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018222 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01823A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0182AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0182DE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0182F0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018306 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018314 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01836C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0183A0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0183B8 => &["d0", "d1", "d5", "d6", "a5", "a6", "x", "c"],
             0x018418 => &[],
             0x01841A => &[],
             0x0184A8 => &["d0", "d6", "a6"],
-            0x0184DA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0184FE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018564 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0184DA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0184FE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018564 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01859A => &["d0", "d1"],
             0x0185CC => &[],
             0x0185EC => &["d2", "d5", "d6", "a1", "a5"],
             0x01865E => &["d5", "d6", "a5", "a6"],
-            0x01868A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01868A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0186B2 => &["d0", "d5", "d6", "a0", "a5", "a6"],
             0x0186E8 => &["d0", "d1", "d5", "d6", "a5", "a6", "x", "c"],
             0x018712 => &[],
-            0x018772 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x",
-            ],
+            0x018772 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x01884A => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
             0x018860 => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
-            0x018876 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018896 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0189DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x018876 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018896 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0189DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x018A0A => &["d0", "x", "c"],
-            0x018A30 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018AFA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x018A30 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018AFA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x018B0C => &["d0", "d1", "a1", "x", "c"],
-            0x018B24 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018B2C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x018B24 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018B2C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x018B3C => &["d1"],
             0x018B82 => &[],
             0x018B84 => &[],
-            0x018B8C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x018B8C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x018BF2 => &["d0", "d1", "x", "c"],
-            0x018C1A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018C24 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018CB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-            ],
-            0x018D1C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-            ],
-            0x018D22 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6",
-            ],
-            0x018D80 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018DCE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018DDC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018DF4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018E6E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018E9E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018EAE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018EEE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018F06 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018FA4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x018FD6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019004 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x018C1A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018C24 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018CB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5"],
+            0x018D1C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5"],
+            0x018D22 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
+            0x018D80 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018DCE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018DDC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018DF4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018E6E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018E9E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018EAE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018EEE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018F06 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018FA4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x018FD6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019004 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01900E => &["d5", "d6", "a5", "a6", "x"],
             0x01905E => &[],
-            0x019060 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01906E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01908A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0190C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0190EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01910A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01910E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019132 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019140 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019060 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01906E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01908A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0190C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0190EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01910A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01910E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019132 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019140 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01914A => &["d0", "a0"],
-            0x0191BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0191F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019200 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019214 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01922E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0191BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0191F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019200 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019214 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01922E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01924C => &[],
-            0x019262 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019298 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019312 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019366 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019390 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019262 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019298 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019312 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019366 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019390 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0193AA => &[],
-            0x0193AC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0193BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0193BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0193C6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019484 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0193AC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0193BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0193BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0193C6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019484 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0194A8 => &[],
-            0x0194AA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0194BC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0194DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0194FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01951C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01953C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01954E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01956A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0195A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0195C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x0194AA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0194BC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0194DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0194FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01951C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01953C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01954E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01956A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0195A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0195C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x0195FC => &["d0", "a0"],
             0x01960E => &["d0", "d1", "d5", "a5", "x", "c"],
-            0x01966A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0196DE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0197DC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "n", "z", "c",
-            ],
-            0x019824 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01982C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0198C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x0198E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019914 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01966A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0196DE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0197DC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x019824 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01982C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0198C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x0198E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019914 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019934 => &["d0", "d1", "x", "c"],
-            0x019938 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019988 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019A12 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019938 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019988 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019A12 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019A48 => &["d0", "x"],
-            0x019ACE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019B0C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019BB4 => &[
-                "d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c",
-            ],
-            0x019C50 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019ACE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019B0C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019BB4 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6", "x", "c"],
+            0x019C50 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019C8A => &["d0", "d1", "d2", "d5", "d6", "a0", "a5", "x", "c"],
-            0x019C9E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019C9E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019CAA => &[],
-            0x019E26 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019E46 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x019F0E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019E26 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019E46 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x019F0E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019F2A => &["d0", "d1", "d5", "d6", "a5", "x", "c"],
-            0x019F2E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019F2E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019F90 => &["d0", "d6", "x", "c"],
-            0x019F9A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x019F9A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x019FB6 => &["d0", "x"],
-            0x01A022 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A022 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A04C => &["d6", "a6", "x", "c"],
-            0x01A082 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A09A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A0BC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A082 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A09A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A0BC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A0FA => &[],
             0x01A0FC => &["d0", "d6", "a6", "x", "c"],
-            0x01A126 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A15C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A126 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A15C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A18C => &["d0", "x"],
-            0x01A202 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A20C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A228 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A29E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A30A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A314 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A202 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A20C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A228 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A29E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A30A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A314 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A31C => &[],
-            0x01A328 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A392 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A598 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A68C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A712 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A768 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A772 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A7BC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A328 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A392 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A598 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A68C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A712 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A768 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A772 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A7BC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A7D2 => &[],
             0x01A7D4 => &["d0", "c"],
-            0x01A7EC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A850 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A7EC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A850 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A85C => &[],
             0x01A85E => &["d6", "x", "c"],
-            0x01A864 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A8AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A864 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A8AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01A8CA => &["d6", "x", "c"],
-            0x01A8E2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01A97C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AA64 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AAAC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AAB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01A8E2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01A97C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AA64 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AAAC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AAB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01AAE4 => &[],
-            0x01AAE6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AB52 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AB7A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AC44 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01ACB6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01AAE6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AB52 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AB7A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AC44 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01ACB6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01AD54 => &[],
-            0x01AD56 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AD66 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AD76 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AD90 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01AD56 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AD66 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AD76 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AD90 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01ADAA => &[],
-            0x01ADAC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AEE0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AEE4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AEF0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AF30 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AF7A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01AF90 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B01E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B122 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B154 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B1BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B1F2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01ADAC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AEE0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AEE4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AEF0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AF30 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AF7A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01AF90 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B01E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B122 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B154 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B1BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B1F2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01B26E => &[],
-            0x01B270 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B294 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B2C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B318 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01B270 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B294 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B2C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B318 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01B3A4 => &[],
-            0x01B3A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B3CC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B3FE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B404 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B43C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B49A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B4BA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B4E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B5AE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B5C2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B5F8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B616 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B664 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01B3A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B3CC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B3FE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B404 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B43C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B49A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B4BA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B4E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B5AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B5C2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B5F8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B616 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B664 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01B684 => &["d0", "x", "c"],
             0x01B6B4 => &[],
             0x01B6B6 => &["d6", "a6", "x", "c"],
-            0x01B816 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B89A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B90E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01B816 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B89A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B90E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01B962 => &[],
-            0x01B964 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01B9C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01B964 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01B9C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01B9E0 => &[],
-            0x01B9E2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01B9E2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01BA10 => &[],
             0x01BA12 => &["d0", "d1", "d6", "a0", "a6", "x", "c"],
-            0x01BA36 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01BA36 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01BA3C => &["d0", "d3", "d5", "a0", "a5", "x", "c"],
             0x01BAF6 => &[],
             0x01BB2C => &["x"],
             0x01BB86 => &[],
             0x01BB9A => &["d0", "d3", "d5", "a0", "a5", "x", "c"],
-            0x01BD36 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01BFC2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01BD36 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01BFC2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C014 => &[],
-            0x01C016 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C016 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C024 => &["d0", "d3"],
-            0x01C06A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C06A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C082 => &["d0", "d6", "a0", "a1", "a6", "x"],
-            0x01C0D8 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C0F6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C106 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C15C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C0D8 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C0F6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C106 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C15C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C180 => &[],
-            0x01C182 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C1A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C1C0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C212 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C182 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C1A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C1C0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C212 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C23A => &[],
-            0x01C23C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C23C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C258 => &[],
-            0x01C28C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C294 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C366 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C380 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C28C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C294 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C366 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C380 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C41E => &[],
-            0x01C420 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C45A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C494 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C4C4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C514 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C420 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C45A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C494 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C4C4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C514 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C558 => &["d0", "d1", "d2", "d5", "a0", "a5", "c"],
-            0x01C592 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C620 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C592 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C620 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C638 => &["d0", "d1", "x", "c"],
-            0x01C63E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C64E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C6B4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C63E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C64E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C6B4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C716 => &["d4", "a0", "a4", "x", "c"],
-            0x01C75A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C780 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C75A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C780 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C7F8 => &[],
-            0x01C800 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C800 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01C89E => &["a0", "x", "c"],
-            0x01C8AC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C8EA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C908 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C91A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C982 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01C9A6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CA4E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01C8AC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C8EA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C908 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C91A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C982 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01C9A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CA4E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01CAD2 => &["a4"],
-            0x01CB74 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CB7C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CC22 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CCB2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CD5A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CDAA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CDDA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01CB74 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CB7C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CC22 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CCB2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CD5A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CDAA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CDDA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01CE6A => &["a0", "a1"],
-            0x01CECA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CEEE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CF14 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CF86 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CFCA => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01CFF6 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D028 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01CECA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CEEE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CF14 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CF86 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CFCA => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01CFF6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D028 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D090 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x01D180 => &["d0", "d1", "d2", "d4", "d5", "d6", "a0", "a4", "a5", "a6"],
             0x01D208 => &[],
-            0x01D20A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D20A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D30A => &["c"],
-            0x01D314 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D31C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D3BC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D3E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D314 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D31C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D3BC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D3E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D44E => &[],
             0x01D458 => &["d0", "d1", "d2", "d4", "d5", "a0", "a4", "a5", "x"],
-            0x01D4F4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D4F4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D57E => &[],
-            0x01D580 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D59E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D5E0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D580 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D59E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D5E0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D632 => &["d0", "d1", "d2", "d5", "a0", "a5", "x", "c"],
-            0x01D670 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D670 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D6A0 => &[],
-            0x01D6A2 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D722 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D740 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D806 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01D80E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D6A2 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D722 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D740 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D806 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01D80E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01D96E => &["d0", "d1", "d5", "d6", "a5"],
-            0x01D9BE => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DA30 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DA48 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DA7C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01D9BE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DA30 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DA48 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DA7C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DAAE => &["d4", "d5", "d6", "a4", "a5", "a6"],
             0x01DAE0 => &["d4", "d5", "a4", "a5"],
-            0x01DB0C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01DB0C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DB7E => &[],
-            0x01DBB0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01DBB0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DC12 => &["d0"],
-            0x01DC46 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DC60 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DC7C => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01DC46 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DC60 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DC7C => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DD58 => &["d0"],
             0x01DD9E => &[],
             0x01DE02 => &[],
             0x01DE14 => &["d0", "x", "c"],
             0x01DE36 => &["d0"],
             0x01DE4E => &["d0"],
-            0x01DE66 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01DE66 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DEC4 => &[],
-            0x01DEFC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01DF1E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01DEFC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01DF1E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01DFA4 => &["d0"],
             0x01DFC0 => &["d0"],
             0x01DFDC => &[],
@@ -9897,18 +3857,9 @@ impl Game {
             0x01E078 => &["d0", "c"],
             0x01E09A => &["d0", "c"],
             0x01E0BC => &["x"],
-            0x01E0FC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01E12A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01E16E => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01E0FC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01E12A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01E16E => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01E1AC => &["d0", "d1", "d4", "d5", "a4", "a5", "x", "c"],
             0x01E1CA => &["d0", "d1", "d4", "d5", "a4", "a5", "x", "c"],
             0x01E21C => &["d0", "d1", "d4", "d5", "a4", "a5", "x", "c"],
@@ -9920,35 +3871,17 @@ impl Game {
             0x01E428 => &["d0", "d1", "d2", "x"],
             0x01E478 => &["a0", "x"],
             0x01E484 => &[],
-            0x01E4B0 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01E4F4 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01E556 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
-            0x01E570 => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01E4B0 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01E4F4 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01E556 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
+            0x01E570 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01E596 => &[],
             0x01E5C2 => &["d0", "d1", "d5", "d6", "a5"],
-            0x01E60A => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01E60A => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01E648 => &["d0", "d1"],
             0x01E66E => &["d5", "d6", "a5", "a6", "x", "c"],
             0x01E6AC => &[],
-            0x01E6CC => &[
-                "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5",
-                "a6", "x", "c",
-            ],
+            0x01E6CC => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x01E716 => &["d0", "x", "c"],
             _ => &[],
         }

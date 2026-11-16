@@ -197,23 +197,13 @@ const FNV: u64 = 0xCBF2_9CE4_8422_2325;
 impl Timeline {
     #[must_use]
     pub fn new(out: Box<dyn std::io::Write + Send>, full: Option<u64>) -> Self {
-        Timeline {
-            out,
-            full,
-            frame: 0,
-            count: 0,
-            hash: FNV,
-        }
+        Timeline { out, full, frame: 0, count: 0, hash: FNV }
     }
 
     /// The frame is over: its line, and the file up to date (the
     /// frontend may end the run now).
     pub fn end_frame(&mut self) {
-        let _ = writeln!(
-            self.out,
-            "FRAME {} {} {:016X}",
-            self.frame, self.count, self.hash
-        );
+        let _ = writeln!(self.out, "FRAME {} {} {:016X}", self.frame, self.count, self.hash);
         let _ = self.out.flush();
         self.frame += 1;
         self.count = 0;
@@ -281,10 +271,7 @@ impl Game {
     /// The game as it is between two steps.
     #[must_use]
     pub fn save(&self) -> Snapshot {
-        Snapshot {
-            state: self.state.clone(),
-            hw: self.hw.save(),
-        }
+        Snapshot { state: self.state.clone(), hw: self.hw.save() }
     }
 
     /// The game back as it was.
@@ -394,11 +381,10 @@ impl Game {
                 }
                 self.seg = 0;
             }
-            self.seg_end = self.frame_base
-                + match self.seg {
-                    0 => self.hw.vint_clock(),
-                    s => (s as u64) * LINE,
-                };
+            self.seg_end = self.frame_base + match self.seg {
+                0 => self.hw.vint_clock(),
+                s => (s as u64) * LINE,
+            };
             self.hw.set_time(start, 0);
             match self.seg {
                 0 => self.hw.frame_start(),
@@ -504,4 +490,5 @@ impl Game {
             }
         }
     }
+
 }

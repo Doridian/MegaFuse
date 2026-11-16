@@ -72,9 +72,7 @@ impl<A: App> Runner<A> {
     #[cfg(target_arch = "wasm32")]
     fn take_display(&mut self, event_loop: &ActiveEventLoop) {
         let Some(slot) = &self.pending else { return };
-        let Some(result) = slot.borrow_mut().take() else {
-            return;
-        };
+        let Some(result) = slot.borrow_mut().take() else { return };
         self.pending = None;
         match result {
             Ok(d) => self.display = Some(d),
@@ -98,11 +96,7 @@ impl<A: App> ApplicationHandler for Runner<A> {
             use winit::platform::web::WindowAttributesExtWebSys;
             let canvas = web::canvas();
             let append = canvas.is_none();
-            attrs
-                .with_canvas(canvas)
-                .with_append(append)
-                .with_prevent_default(true)
-                .with_focusable(true)
+            attrs.with_canvas(canvas).with_append(append).with_prevent_default(true).with_focusable(true)
         };
         let window = match event_loop.create_window(attrs) {
             Ok(w) => Arc::new(w),
@@ -134,9 +128,7 @@ impl<A: App> ApplicationHandler for Runner<A> {
             WindowEvent::KeyboardInput { event, .. } => {
                 // a key press lets the browser's sound start
                 audio::resume();
-                let PhysicalKey::Code(code) = event.physical_key else {
-                    return;
-                };
+                let PhysicalKey::Code(code) = event.physical_key else { return };
                 let down = event.state == ElementState::Pressed;
                 if down
                     && !event.repeat
@@ -144,11 +136,7 @@ impl<A: App> ApplicationHandler for Runner<A> {
                     && let Some(w) = &self.window
                 {
                     let full = w.fullscreen().is_some();
-                    w.set_fullscreen(if full {
-                        None
-                    } else {
-                        Some(Fullscreen::Borderless(None))
-                    });
+                    w.set_fullscreen(if full { None } else { Some(Fullscreen::Borderless(None)) });
                 }
                 if !event.repeat {
                     self.app.key(code, down);
@@ -157,9 +145,7 @@ impl<A: App> ApplicationHandler for Runner<A> {
             WindowEvent::Focused(false) => self.app.unfocused(),
             WindowEvent::RedrawRequested => {
                 let Some(d) = &mut self.display else { return };
-                let Some((p, serial)) = self.app.picture() else {
-                    return;
-                };
+                let Some((p, serial)) = self.app.picture() else { return };
                 self.shown = Some(serial);
                 if let Err(e) = d.draw(p.rgba, p.width, p.height) {
                     self.fail(event_loop, e);
@@ -214,9 +200,7 @@ pub fn run<A: App + 'static>(title: &str, size: (u32, u32), app: A) -> Result<()
     #[cfg(not(target_arch = "wasm32"))]
     {
         let mut runner = runner;
-        event_loop
-            .run_app(&mut runner)
-            .map_err(|e| Error::Window(e.to_string()))?;
+        event_loop.run_app(&mut runner).map_err(|e| Error::Window(e.to_string()))?;
         runner.error.map_or(Ok(()), Err)
     }
 }

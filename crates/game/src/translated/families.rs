@@ -1185,9 +1185,7 @@ impl Game {
     fn call_family_other(&mut self, target: u32, regs: &mut Regs, from: &str) {
         static WARNED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
         if !WARNED.swap(true, std::sync::atomic::Ordering::Relaxed) {
-            eprintln!(
-                "warning: a call from {from} to {target:#08X}, which no trace saw from there (tools/recomp/families.py)"
-            );
+            eprintln!("warning: a call from {from} to {target:#08X}, which no trace saw from there (tools/recomp/families.py)");
         }
         match target & 0xFF_FFFF {
             0x016048 => self.r_016048(regs),

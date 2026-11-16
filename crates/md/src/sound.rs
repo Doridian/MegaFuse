@@ -173,9 +173,7 @@ impl z80::Bus for ZBus {
             0x0000..=0x3FFF => self.ram[usize::from(addr & 0x1FFF)] = value,
             0x4000..=0x5FFF => self.ym_write(addr, value, self.now),
             // a bit at a time, into the top of nine
-            0x6000..=0x60FF => {
-                self.bank = ((self.bank >> 1) | (u32::from(value & 1) << 23)) & 0xFF_8000
-            }
+            0x6000..=0x60FF => self.bank = ((self.bank >> 1) | (u32::from(value & 1) << 23)) & 0xFF_8000,
             0x7F00..=0x7FFF => {
                 self.bus_wait();
                 if matches!(addr, 0x7F11 | 0x7F13 | 0x7F15 | 0x7F17) {
@@ -296,9 +294,7 @@ impl Sound {
                     }
                 }
                 if let Some(tl) = &self.timeline {
-                    tl.lock()
-                        .unwrap_or_else(std::sync::PoisonError::into_inner)
-                        .record(u32::from(self.z80.pc), self.z80_clock);
+                    tl.lock().unwrap_or_else(std::sync::PoisonError::into_inner).record(u32::from(self.z80.pc), self.z80_clock);
                 }
                 let base = self.z80.base_cycles(&mut Peek(&self.bus.ram));
                 let start = self.z80_clock;
