@@ -375,7 +375,10 @@ into it, and the scripts that run the code around it), and functions run
 in part. It is the list to hunt down.
 `tools/trace_all.sh <v>` runs them all (about half a
 minute) into `build/<v>/trace/` and regenerates `code.<v>.txt`,
-`data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`; `tools/coverage.py`
+`data.<v>.txt` and `longs.<v>.txt` with `tools/coverage.py --write`, and
+`zcode.<v>.txt` (where the Z80 ran instructions: mdtrace `--zcover`,
+`tools/z80.py --write`; the sound driver's translation reads it,
+docs/PORT.md "Sound"); `tools/coverage.py`
 alone reports how a trace and the disassembly disagree.
 `tools/sheet.py` tiles screenshots into one picture.
 

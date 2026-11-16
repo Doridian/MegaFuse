@@ -121,6 +121,7 @@ test:
 # the game in Rust (docs/PORT.md): generated, like asm/
 port:
 	$(PYTHON) tools/recomp/translate.py
+	$(PYTHON) tools/zrecomp.py
 
 # the exact build, which the checks against the original run
 # (target/exact/release/megafuse: docs/PORT.md, "Rewriting")

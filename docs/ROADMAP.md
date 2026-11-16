@@ -100,7 +100,7 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   differential tests stay as the arbiter, and the TAS (if one syncs) is
   the end-to-end test.
 - No asm in the port: the 68000 code is all translated, and so is the
-  Z80 sound driver (or it runs on a small Z80 interpreter until it is).
+  Z80 sound driver (done: tools/zrecomp.py).
 
 ## Phase 5: the port
 
@@ -122,10 +122,11 @@ as earlier screens left them (menus, other arenas), so a wider picture
 needs the game to draw more and keep the sprites it now leaves out: it
 waits for the rewrite of the stage drawing and the objects' sprites.
 
-The sound comes last: the Z80 driver runs on its interpreter and the
-YM2612 and SN76489 models are close enough to the original's
-(tools/sound_check.py) that it sounds right; a pass over them (the
-driver translated, the chips checked by ear and by the numbers) waits
+The sound: the Z80 driver is translated (tools/zrecomp.py, docs/PORT.md
+"Sound"), held to the original's Z80 timeline; the interpreter stays
+for where a slice of the Z80's time ends inside a block. The YM2612 and
+SN76489 models are close enough to the original's (tools/sound_check.py)
+that it sounds right; checking them by ear and by the numbers waits
 until the rest of the port is done.
 
 ## Phase 6: online multiplayer

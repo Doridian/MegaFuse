@@ -30,6 +30,8 @@
  *                        picture (RGB, its width by its height)
  *     --ztimeline FILE   the same for the Z80 (its PC, the master clock;
  *                        in full, the YM2612's timer B counter too)
+ *     --zcover FILE      the Z80's coverage: 8 KB, one byte per address of
+ *                        its RAM, 1 where an instruction started
  *     --ram PREFIX       work RAM (64 KB, big-endian) as PREFIX<frame>.bin,
  *                        same frames, and PREFIX<frame>.sp: the stack
  *                        pointer and the lowest it has been, in hex
@@ -370,9 +372,14 @@ static void cycles_step(unsigned pc)
     cyc_refresh = rf;
 }
 
+/* --zcover */
+static uint8_t zcover[0x2000];
+
 static void hook(int type, int width, unsigned address, unsigned value)
 {
     if (type & (HOOK_Z80_E | HOOK_Z80_R | HOOK_Z80_W)) {
+        if (type == HOOK_Z80_E)
+            zcover[address & 0x1FFF] = 1;
         if (type == HOOK_Z80_E && zl_file)
             ztimeline_step(address & 0xFFFF);
         return;
@@ -905,7 +912,8 @@ int main(int argc, char **argv)
     const char *rom_path = NULL, *input = NULL, *cover_path = NULL;
     const char *shot = NULL, *ram = NULL, *log_path = NULL, *wav_path = NULL,
                *cycles_path = NULL, *timeline_path = NULL,
-               *ztimeline_path = NULL, *hashes_path = NULL;
+               *ztimeline_path = NULL, *hashes_path = NULL,
+               *zcover_path = NULL;
     const char *edges_path = NULL;
     long frames = 3600, every = 600, frame;
     struct retro_game_info info;
@@ -927,6 +935,7 @@ int main(int argc, char **argv)
         else if (ARG("--timeline")) timeline_path = argv[++i];
         else if (ARG("--timeline-at")) tl_at = strtol(argv[++i], NULL, 0);
         else if (ARG("--ztimeline")) ztimeline_path = argv[++i];
+        else if (ARG("--zcover")) zcover_path = argv[++i];
         else if (ARG("--hashes")) hashes_path = argv[++i];
         else if (ARG("--vram")) vram_prefix = argv[++i];
         else if (ARG("--shot-every")) every = strtol(argv[++i], NULL, 0);
@@ -1134,6 +1143,14 @@ int main(int argc, char **argv)
         fclose(tl_file);
     if (zl_file)
         fclose(zl_file);
+    if (zcover_path) {
+        FILE *f = fopen(zcover_path, "wb");
+        if (!f || fwrite(zcover, 1, sizeof zcover, f) != sizeof zcover) {
+            perror(zcover_path);
+            return 1;
+        }
+        fclose(f);
+    }
     if (hash_file)
         fclose(hash_file);
     if (cycles_path) {

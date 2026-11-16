@@ -213,6 +213,25 @@ pub struct Sound {
     /// The Z80's time, instruction by instruction (`--ztimeline`; one
     /// for every copy of the state).
     pub timeline: Option<std::sync::Arc<std::sync::Mutex<game::Timeline>>>,
+    /// The Z80's RAM holds the driver `driver.rs` is the translation of
+    /// (checked as the Z80 starts), and the translation is to run it.
+    driver: bool,
+    /// Off: the interpreter runs the driver too (`MEGAFUSE_Z80=interp`).
+    pub translated: bool,
+    /// The time the translated driver runs to, and the instruction under
+    /// way's start and its accesses' (`zin`).
+    limit: u64,
+    start: u64,
+    accesses: u64,
+}
+
+/// Where the translated driver goes on (driver.rs).
+pub(crate) enum Flow {
+    /// A routine returned, to this address (popped off the Z80's stack).
+    Ret(u16),
+    /// The Z80's PC says: the interpreter goes on from there (out of
+    /// time, `jp (hl)`, an instruction left to it).
+    Elsewhere,
 }
 
 impl Sound {
@@ -240,7 +259,50 @@ impl Sound {
             irq: false,
             z80_clock: 0,
             timeline: None,
+            driver: false,
+            translated: std::env::var("MEGAFUSE_Z80").map_or(true, |v| v != "interp"),
+            limit: 0,
+            start: 0,
+            accesses: 0,
         }
+    }
+
+    /// Before an instruction of the translated driver at `pc` (`base`:
+    /// its time before its accesses, z80.rs): false if the Z80 is to
+    /// stop there, out of time or for an interrupt, its PC left at it.
+    /// As `run_until` does for the interpreter: the timeline, R, the
+    /// bus's time for the accesses.
+    #[inline]
+    pub(crate) fn zin(&mut self, pc: u16, base: u32) -> bool {
+        if self.z80_clock >= self.limit || (self.irq && self.z80.takes_interrupt()) {
+            self.z80.pc = pc;
+            return false;
+        }
+        if let Some(tl) = &self.timeline {
+            tl.lock().unwrap_or_else(std::sync::PoisonError::into_inner).record(u32::from(pc), self.z80_clock);
+        }
+        self.z80.refresh();
+        self.start = self.z80_clock;
+        self.bus.now = self.start + u64::from(base) * MASTER_PER_Z80;
+        self.accesses = self.bus.now;
+        true
+    }
+
+    /// The instruction took `n` cycles (and whatever its accesses to the
+    /// 68000's bus waited).
+    #[inline]
+    pub(crate) fn zout(&mut self, n: u32) {
+        self.z80_clock = self.start + u64::from(n) * MASTER_PER_Z80 + (self.bus.now - self.accesses);
+    }
+
+    /// Is the Z80's RAM the driver driver.rs translates?
+    fn is_driver(&self) -> bool {
+        let (len, hash) = crate::driver::DRIVER;
+        let mut h: u64 = 0xCBF2_9CE4_8422_2325;
+        for &b in &self.bus.ram[..len] {
+            h = (h ^ u64::from(b)).wrapping_mul(0x0100_0000_01B3);
+        }
+        h == hash
     }
 
     /// Running: out of reset, its bus not taken.
@@ -278,6 +340,7 @@ impl Sound {
             }
             self.z80.reset();
             self.bus.ym_reset(t);
+            self.driver = self.translated && self.is_driver();
         }
         self.reset = held;
     }
@@ -285,7 +348,22 @@ impl Sound {
     /// The Z80 up to `t` (a segment's end); the YM2612's samples too.
     pub fn run_until(&mut self, t: u64) {
         if self.running() {
+            self.limit = t;
             while self.z80_clock < t {
+                // the translation where it has the routine
+                if self.driver && !(self.irq && self.z80.takes_interrupt()) {
+                    let pc = self.z80.pc;
+                    match self.driver_at(pc) {
+                        Some(Flow::Ret(a)) => {
+                            self.z80.pc = a;
+                            continue;
+                        }
+                        // on elsewhere (or out of time); still here: the
+                        // interpreter takes this instruction
+                        Some(Flow::Elsewhere) if self.z80.pc != pc || self.z80_clock >= t => continue,
+                        Some(Flow::Elsewhere) | None => {}
+                    }
+                }
                 if self.irq && self.z80.takes_interrupt() {
                     let n = self.z80.interrupt(&mut self.bus);
                     self.z80_clock += u64::from(n) * MASTER_PER_Z80;

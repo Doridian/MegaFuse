@@ -261,10 +261,34 @@ else (both turn up the same way: the first instruction that differs).
 
 The game uploads a Z80 sound driver and leaves the music and effects to
 it; the 68000 only resets the Z80, holds its bus and writes its RAM.
-Until the driver is translated too (docs/ROADMAP.md, phase 4), it runs on
-an interpreter, `crates/md/src/z80.rs`, with the YM2612 (`ym2612.rs`)
-and the PSG (`psg.rs`) on its bus and the 68000's ROM through its bank
-window (`sound.rs`). They keep the console's time too ("Time"), as
+The driver is translated too: `tools/zrecomp.py` (with `tools/z80.py`,
+a Z80 decoder) turns it into `crates/md/src/driver.rs` (`make port`
+writes it with the 68000's, and it is committed the same way), one
+function per routine on `Sound`, structured as tools/recomp structures
+the 68000's. The routines are cut where the code is called, and where
+`jp (hl)` went in the traces (`zcode.us.txt`, from mdtrace `--zcover`
+in `tools/trace_all.sh`). The driver never writes its own code (checked
+on the interpreter over the scripts), so its code can be translated
+from the ROM's copy; it starts as uploaded (`Sound::is_driver` checks
+the Z80's RAM as it leaves reset, else the interpreter runs it). A
+translated instruction keeps the interpreter's time
+(`Sound::zin`/`zout`: its accesses after its base time, R, the
+timeline) and its arithmetic (the helpers in `z80.rs` both use), so
+`tools/timeline_check.py --z` holds it to the original as it did the
+interpreter. A call is a Rust call, its return address pushed to the
+Z80's stack; the callee's `ret` hands back what it popped.
+
+The Z80 runs in slices up to the 68000's time, and a slice can end at
+any instruction: there the translation stops (`Flow::Elsewhere`, the
+PC set) and `Sound::run_until` goes on with the interpreter,
+`crates/md/src/z80.rs`, as far as the next place the translation can
+take up: a routine's entry, or one of its basic blocks, each of which
+is a function too (to the block's end, where the runner takes the
+next). Some 90% of the Z80's instructions run translated, the rest are
+the ends of blocks a slice ended in. `MEGAFUSE_Z80=interp` runs the
+interpreter alone. The YM2612 (`ym2612.rs`) and the PSG (`psg.rs`) are
+on the Z80's bus, and the 68000's ROM through its bank window
+(`sound.rs`). They keep the console's time too ("Time"), as
 Genesis Plus GX runs them: the Z80 runs up to the 68000's time where
 the two meet (each segment's end, a bus request, a reset) and goes on
 from it when let go; its accesses happen after an instruction's base

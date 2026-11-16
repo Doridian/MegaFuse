@@ -1,5 +1,6 @@
 //! A Z80, for the sound driver the game uploads (docs/PORT.md, "Sound"):
-//! an interpreter, until the driver is translated as the 68000 code was.
+//! an interpreter, and the arithmetic the translated driver
+//! (`driver.rs`) shares with it.
 //! The documented instructions and the undocumented ones Z80 sound
 //! drivers use (IXH/IXL/IYH/IYL, SLL); cycle counts from the Z80's
 //! tables.
@@ -159,31 +160,31 @@ impl Z80 {
         self.f = 0xFF;
     }
 
-    fn bc(&self) -> u16 {
+    pub(crate) fn bc(&self) -> u16 {
         u16::from(self.b) << 8 | u16::from(self.c)
     }
-    fn de(&self) -> u16 {
+    pub(crate) fn de(&self) -> u16 {
         u16::from(self.d) << 8 | u16::from(self.e)
     }
-    fn hl(&self) -> u16 {
+    pub(crate) fn hl(&self) -> u16 {
         u16::from(self.h) << 8 | u16::from(self.l)
     }
-    fn set_bc(&mut self, v: u16) {
+    pub(crate) fn set_bc(&mut self, v: u16) {
         self.b = (v >> 8) as u8;
         self.c = v as u8;
     }
-    fn set_de(&mut self, v: u16) {
+    pub(crate) fn set_de(&mut self, v: u16) {
         self.d = (v >> 8) as u8;
         self.e = v as u8;
     }
-    fn set_hl(&mut self, v: u16) {
+    pub(crate) fn set_hl(&mut self, v: u16) {
         self.h = (v >> 8) as u8;
         self.l = v as u8;
     }
-    fn af(&self) -> u16 {
+    pub(crate) fn af(&self) -> u16 {
         u16::from(self.a) << 8 | u16::from(self.f)
     }
-    fn set_af(&mut self, v: u16) {
+    pub(crate) fn set_af(&mut self, v: u16) {
         self.a = (v >> 8) as u8;
         self.f = v as u8;
     }
@@ -213,18 +214,18 @@ impl Z80 {
         let hi = self.fetch(bus);
         u16::from(hi) << 8 | u16::from(lo)
     }
-    fn read16(bus: &mut dyn Bus, a: u16) -> u16 {
+    pub(crate) fn read16(bus: &mut dyn Bus, a: u16) -> u16 {
         u16::from(bus.read(a)) | u16::from(bus.read(a.wrapping_add(1))) << 8
     }
-    fn write16(bus: &mut dyn Bus, a: u16, v: u16) {
+    pub(crate) fn write16(bus: &mut dyn Bus, a: u16, v: u16) {
         bus.write(a, v as u8);
         bus.write(a.wrapping_add(1), (v >> 8) as u8);
     }
-    fn push(&mut self, bus: &mut dyn Bus, v: u16) {
+    pub(crate) fn push(&mut self, bus: &mut dyn Bus, v: u16) {
         self.sp = self.sp.wrapping_sub(2);
         Self::write16(bus, self.sp, v);
     }
-    fn pop(&mut self, bus: &mut dyn Bus) -> u16 {
+    pub(crate) fn pop(&mut self, bus: &mut dyn Bus) -> u16 {
         let v = Self::read16(bus, self.sp);
         self.sp = self.sp.wrapping_add(2);
         v
@@ -323,7 +324,7 @@ impl Z80 {
         }
     }
 
-    fn cond(&self, n: u8) -> bool {
+    pub(crate) fn cond(&self, n: u8) -> bool {
         match n {
             0 => self.f & Z == 0,
             1 => self.f & Z != 0,
@@ -338,7 +339,7 @@ impl Z80 {
 
     // --- the ALU -------------------------------------------------------------
 
-    fn add8(&mut self, v: u8, carry: bool) {
+    pub(crate) fn add8(&mut self, v: u8, carry: bool) {
         let c = u16::from(carry && self.f & C != 0);
         let a = self.a;
         let r = u16::from(a) + u16::from(v) + c;
@@ -360,7 +361,7 @@ impl Z80 {
         self.f = f;
     }
 
-    fn sub8(&mut self, v: u8, carry: bool, store: bool) {
+    pub(crate) fn sub8(&mut self, v: u8, carry: bool, store: bool) {
         let c = u16::from(carry && self.f & C != 0);
         let a = self.a;
         let r = u16::from(a).wrapping_sub(u16::from(v)).wrapping_sub(c);
@@ -387,7 +388,7 @@ impl Z80 {
         self.f = f;
     }
 
-    fn alu(&mut self, op: u8, v: u8) {
+    pub(crate) fn alu(&mut self, op: u8, v: u8) {
         match op {
             0 => self.add8(v, false),
             1 => self.add8(v, true),
@@ -409,7 +410,7 @@ impl Z80 {
         }
     }
 
-    fn inc8(&mut self, v: u8) -> u8 {
+    pub(crate) fn inc8(&mut self, v: u8) -> u8 {
         let r = v.wrapping_add(1);
         let mut f = (self.f & C) | (r & (S | X5 | X3));
         if r == 0 {
@@ -425,7 +426,7 @@ impl Z80 {
         r
     }
 
-    fn dec8(&mut self, v: u8) -> u8 {
+    pub(crate) fn dec8(&mut self, v: u8) -> u8 {
         let r = v.wrapping_sub(1);
         let mut f = (self.f & C) | N | (r & (S | X5 | X3));
         if r == 0 {
@@ -441,7 +442,7 @@ impl Z80 {
         r
     }
 
-    fn add16(&mut self, a: u16, b: u16) -> u16 {
+    pub(crate) fn add16(&mut self, a: u16, b: u16) -> u16 {
         let r = u32::from(a) + u32::from(b);
         let mut f = self.f & (S | Z | PV);
         if r > 0xFFFF {
@@ -455,7 +456,7 @@ impl Z80 {
         r as u16
     }
 
-    fn adc16(&mut self, a: u16, b: u16) -> u16 {
+    pub(crate) fn adc16(&mut self, a: u16, b: u16) -> u16 {
         let c = u32::from(self.f & C);
         let r = u32::from(a) + u32::from(b) + c;
         let rw = r as u16;
@@ -476,7 +477,7 @@ impl Z80 {
         rw
     }
 
-    fn sbc16(&mut self, a: u16, b: u16) -> u16 {
+    pub(crate) fn sbc16(&mut self, a: u16, b: u16) -> u16 {
         let c = u32::from(self.f & C);
         let r = u32::from(a).wrapping_sub(u32::from(b)).wrapping_sub(c);
         let rw = r as u16;
@@ -497,7 +498,7 @@ impl Z80 {
         rw
     }
 
-    fn rot(&mut self, op: u8, v: u8) -> u8 {
+    pub(crate) fn rot(&mut self, op: u8, v: u8) -> u8 {
         let c = self.f & C != 0;
         let (r, out) = match op {
             0 => (v.rotate_left(1), v & 0x80 != 0),
@@ -513,7 +514,7 @@ impl Z80 {
         r
     }
 
-    fn daa(&mut self) {
+    pub(crate) fn daa(&mut self) {
         let a = self.a;
         let mut corr = 0u8;
         let mut carry = self.f & C != 0;
@@ -532,6 +533,124 @@ impl Z80 {
         };
         self.a = r;
         self.f = szp(r) | (self.f & N) | u8::from(carry) | if h { H } else { 0 };
+    }
+
+    // --- what the translated driver shares with the interpreter -----------
+
+    /// RLCA RRCA RLA RRA (y 0-3): A rotated, S Z P/V kept.
+    pub(crate) fn rot_a(&mut self, y: u8) {
+        let keep = self.f & (S | Z | PV);
+        let r = self.rot(y, self.a);
+        self.a = r;
+        self.f = keep | (self.f & C) | (r & (X5 | X3));
+    }
+
+    pub(crate) fn cpl(&mut self) {
+        self.a = !self.a;
+        self.f = (self.f & (S | Z | PV | C)) | H | N | (self.a & (X5 | X3));
+    }
+
+    pub(crate) fn scf(&mut self) {
+        self.f = (self.f & (S | Z | PV)) | C | (self.a & (X5 | X3));
+    }
+
+    pub(crate) fn ccf(&mut self) {
+        let c = self.f & C;
+        self.f = (self.f & (S | Z | PV)) | (self.a & (X5 | X3)) | if c != 0 { H } else { C };
+    }
+
+    pub(crate) fn ex_af(&mut self) {
+        let af = self.af();
+        let alt = u16::from(self.alt[6]) << 8 | u16::from(self.alt[7]);
+        self.set_af(alt);
+        self.alt[6] = (af >> 8) as u8;
+        self.alt[7] = af as u8;
+    }
+
+    pub(crate) fn exx(&mut self) {
+        for k in 0..6 {
+            let v = [self.b, self.c, self.d, self.e, self.h, self.l][k];
+            let w = self.alt[k];
+            self.alt[k] = v;
+            match k {
+                0 => self.b = w,
+                1 => self.c = w,
+                2 => self.d = w,
+                3 => self.e = w,
+                4 => self.h = w,
+                _ => self.l = w,
+            }
+        }
+    }
+
+    pub(crate) fn ex_de_hl(&mut self) {
+        let de = self.de();
+        let hl = self.hl();
+        self.set_de(hl);
+        self.set_hl(de);
+    }
+
+    /// BIT y of v: the flags.
+    pub(crate) fn bit(&mut self, y: u8, v: u8) {
+        let bit = v & (1 << y) != 0;
+        let mut f = (self.f & C) | H;
+        if !bit {
+            f |= Z | PV;
+        }
+        if y == 7 && bit {
+            f |= S;
+        }
+        f |= v & (X5 | X3);
+        self.f = f;
+    }
+
+    pub(crate) fn neg(&mut self) {
+        let v = self.a;
+        self.a = 0;
+        self.sub8(v, false, true);
+    }
+
+    pub(crate) fn di(&mut self) {
+        self.iff1 = false;
+        self.iff2 = false;
+    }
+
+    pub(crate) fn set_im(&mut self, im: u8) {
+        self.im = im;
+    }
+
+    /// LDI or LDD (`down`) once: a byte from (HL) to (DE), BC counted
+    /// down; whether BC is still not 0 (LDIR and LDDR go round again).
+    pub(crate) fn ld_block(&mut self, bus: &mut dyn Bus, down: bool) -> bool {
+        let v = bus.read(self.hl());
+        bus.write(self.de(), v);
+        let step: u16 = if down { 0xFFFF } else { 1 };
+        self.set_hl(self.hl().wrapping_add(step));
+        self.set_de(self.de().wrapping_add(step));
+        self.set_bc(self.bc().wrapping_sub(1));
+        let n = v.wrapping_add(self.a);
+        self.f = (self.f & (S | Z | C)) | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
+        self.bc() != 0
+    }
+
+    /// CPI or CPD once; whether CPIR and CPDR go round again (BC not 0,
+    /// no match).
+    pub(crate) fn cp_block(&mut self, bus: &mut dyn Bus, down: bool) -> bool {
+        let v = bus.read(self.hl());
+        let c = self.f & C;
+        let r = self.a.wrapping_sub(v);
+        let step: u16 = if down { 0xFFFF } else { 1 };
+        self.set_hl(self.hl().wrapping_add(step));
+        self.set_bc(self.bc().wrapping_sub(1));
+        let h = (self.a ^ v ^ r) & H;
+        let n = r.wrapping_sub(u8::from(h != 0));
+        self.f = N | c | h | (r & S) | if r == 0 { Z } else { 0 } | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
+        self.bc() != 0 && r != 0
+    }
+
+    /// Bumps R, as each instruction does.
+    pub(crate) fn refresh(&mut self) {
+        self.r = (self.r & 0x80) | (self.r.wrapping_add(1) & 0x7F);
     }
 
     // --- execution -------------------------------------------------------------
@@ -576,7 +695,7 @@ impl Z80 {
         if self.halted {
             return 4;
         }
-        self.r = (self.r & 0x80) | (self.r.wrapping_add(1) & 0x7F);
+        self.refresh();
         let op = self.fetch(bus);
         match op {
             0xCB => self.cb(bus, Idx::Hl, 0),
@@ -732,10 +851,7 @@ impl Z80 {
                 if y == 6 { if x == Idx::Hl { 10 } else { 15 } } else { 7 }
             }
             0x07 | 0x0F | 0x17 | 0x1F => {
-                let keep = self.f & (S | Z | PV);
-                let r = self.rot(y, self.a);
-                self.a = r;
-                self.f = keep | (self.f & C) | (r & (X5 | X3));
+                self.rot_a(y);
                 4
             }
             0x27 => {
@@ -743,25 +859,19 @@ impl Z80 {
                 4
             }
             0x2F => {
-                self.a = !self.a;
-                self.f = (self.f & (S | Z | PV | C)) | H | N | (self.a & (X5 | X3));
+                self.cpl();
                 4
             }
             0x37 => {
-                self.f = (self.f & (S | Z | PV)) | C | (self.a & (X5 | X3));
+                self.scf();
                 4
             }
             0x3F => {
-                let c = self.f & C;
-                self.f = (self.f & (S | Z | PV)) | (self.a & (X5 | X3)) | if c != 0 { H } else { C };
+                self.ccf();
                 4
             }
             0x08 => {
-                let af = self.af();
-                let alt = u16::from(self.alt[6]) << 8 | u16::from(self.alt[7]);
-                self.set_af(alt);
-                self.alt[6] = (af >> 8) as u8;
-                self.alt[7] = af as u8;
+                self.ex_af();
                 4
             }
             0x10 => {
@@ -854,19 +964,7 @@ impl Z80 {
                 11
             }
             0xD9 => {
-                for k in 0..6 {
-                    let v = [self.b, self.c, self.d, self.e, self.h, self.l][k];
-                    let w = self.alt[k];
-                    self.alt[k] = v;
-                    match k {
-                        0 => self.b = w,
-                        1 => self.c = w,
-                        2 => self.d = w,
-                        3 => self.e = w,
-                        4 => self.h = w,
-                        _ => self.l = w,
-                    }
-                }
+                self.exx();
                 4
             }
             0xE3 => {
@@ -880,10 +978,7 @@ impl Z80 {
                 4
             }
             0xEB => {
-                let de = self.de();
-                let hl = self.hl();
-                self.set_de(hl);
-                self.set_hl(de);
+                self.ex_de_hl();
                 4
             }
             0xF9 => {
@@ -900,8 +995,7 @@ impl Z80 {
                 11
             }
             0xF3 => {
-                self.iff1 = false;
-                self.iff2 = false;
+                self.di();
                 4
             }
             0xFB => {
@@ -932,16 +1026,7 @@ impl Z80 {
                 if mem { 15 } else { 8 }
             }
             1 => {
-                let bit = v & (1 << y) != 0;
-                let mut f = (self.f & C) | H;
-                if !bit {
-                    f |= Z | PV;
-                }
-                if y == 7 && bit {
-                    f |= S;
-                }
-                f |= v & (X5 | X3);
-                self.f = f;
+                self.bit(y, v);
                 if mem { 12 } else { 8 }
             }
             2 => {
@@ -993,9 +1078,7 @@ impl Z80 {
                 20
             }
             0x44 | 0x4C | 0x54 | 0x5C | 0x64 | 0x6C | 0x74 | 0x7C => {
-                let v = self.a;
-                self.a = 0;
-                self.sub8(v, false, true);
+                self.neg();
                 8
             }
             0x45 | 0x55 | 0x5D | 0x65 | 0x6D | 0x75 | 0x7D | 0x4D => {
@@ -1008,7 +1091,7 @@ impl Z80 {
                 8
             }
             0x56 | 0x76 => {
-                self.im = 1;
+                self.set_im(1);
                 8
             }
             0x5E | 0x7E => {
@@ -1046,15 +1129,7 @@ impl Z80 {
             }
             0xA0 | 0xA8 | 0xB0 | 0xB8 => {
                 // LDI LDD LDIR LDDR
-                let v = bus.read(self.hl());
-                bus.write(self.de(), v);
-                let step: u16 = if op & 0x08 != 0 { 0xFFFF } else { 1 };
-                self.set_hl(self.hl().wrapping_add(step));
-                self.set_de(self.de().wrapping_add(step));
-                self.set_bc(self.bc().wrapping_sub(1));
-                let n = v.wrapping_add(self.a);
-                self.f = (self.f & (S | Z | C)) | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
-                if op & 0x10 != 0 && self.bc() != 0 {
+                if self.ld_block(bus, op & 0x08 != 0) && op & 0x10 != 0 {
                     self.pc = self.pc.wrapping_sub(2);
                     21
                 } else {
@@ -1063,16 +1138,7 @@ impl Z80 {
             }
             0xA1 | 0xA9 | 0xB1 | 0xB9 => {
                 // CPI CPD CPIR CPDR
-                let v = bus.read(self.hl());
-                let c = self.f & C;
-                let r = self.a.wrapping_sub(v);
-                let step: u16 = if op & 0x08 != 0 { 0xFFFF } else { 1 };
-                self.set_hl(self.hl().wrapping_add(step));
-                self.set_bc(self.bc().wrapping_sub(1));
-                let h = (self.a ^ v ^ r) & H;
-                let n = r.wrapping_sub(u8::from(h != 0));
-                self.f = N | c | h | (r & S) | if r == 0 { Z } else { 0 } | (n & X3) | ((n << 4) & X5) | if self.bc() != 0 { PV } else { 0 };
-                if op & 0x10 != 0 && self.bc() != 0 && r != 0 {
+                if self.cp_block(bus, op & 0x08 != 0) && op & 0x10 != 0 {
                     self.pc = self.pc.wrapping_sub(2);
                     21
                 } else {

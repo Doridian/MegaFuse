@@ -2,6 +2,7 @@
 //! the pads, the Z80 and the sound chips; the 68000 is the translated
 //! code itself.
 
+mod driver;
 pub mod psg;
 pub mod sound;
 pub mod vdp;

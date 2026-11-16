@@ -31,7 +31,7 @@ tools/port_check.py [SCRIPT] # the port against the original: RAM and screens
 tools/sound_check.py [SCRIPT] # the same for the sound (uv, numpy)
 tools/timeline_check.py [SCRIPT] # the port's time against the original's, to the instruction
 tools/timing_check.py        # tools/recomp/timing.py against mdtrace --cycles
-make port                    # tools/recomp/translate.py: crates/game/src/translated
+make port                    # tools/recomp/translate.py: crates/game/src/translated; tools/zrecomp.py: crates/md/src/driver.rs
 make exact                   # the exact build the checks run (docs/PORT.md, "Rewriting")
 tools/routine_check.py ADDR --script FILE   # a (rewritten) routine against the original, call by call
 cargo run --release -p megafuse -- baserom.us.bin   # play (docs/PORT.md)
@@ -66,7 +66,7 @@ directory.
 - **Don't guess names.** Labels are `func_`/`loc_`/`D_`/`jtbl_` plus the
   address (us's addresses in both versions, once there is a us↔eu map).
 - **Traces are evidence, speculation is a guess.** `code.<v>.txt`,
-  `data.<v>.txt` and `longs.<v>.txt` come from `tools/trace_all.sh <v>` (never hand-edited);
+  `data.<v>.txt`, `longs.<v>.txt` and `zcode.<v>.txt` come from `tools/trace_all.sh <v>` (never hand-edited);
   rerun it after changing `tools/inputs/` (`tools/gen_inputs.py`) and
   commit the lists. Genesis Plus GX (`tools/get_gpgx.sh`) is a dev tool
   only: nothing of it goes into the repo or the port.
@@ -74,9 +74,10 @@ directory.
   disassembly keeps the shifted build running like the original. The
   port doesn't reproduce the game's bugs, but the shifted build must
   (READS_PAST, BIASED in tools/disasm.py).
-- **The translation is committed** (`crates/game/src/translated/`, so CI
-  builds the real game): after changing tools/recomp or a rewrite, rerun
-  `make port` and commit what it writes. Never the ROM's data: the port
+- **The translation is committed** (`crates/game/src/translated/` and
+  `crates/md/src/driver.rs`, so CI builds the real game): after changing
+  tools/recomp, tools/zrecomp.py or a rewrite, rerun `make port` and
+  commit what it writes. Never the ROM's data: the port
   reads it from the ROM at run time, and no package carries it.
 - **Netplay stays working**: before a commit that touches the port,
   `megafuse ROM --loopback 4 --input tools/inputs/battle4.txt --frames
