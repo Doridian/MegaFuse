@@ -15,7 +15,9 @@ from the code:
   goes with the family most traced routines stored the same way belong
   to: pushed as an argument to func_001222, func_00053E or func_0003E8
   (a task's routine), written to (0x2,an) or 0xFF80D0 (an object's), to
-  0xFF80E0 (the scene)...
+  0xFF80E0 (the scene)...; stored at an address no traced routine is
+  but next to one (within 0x20: a slot of the same table), with that
+  one's family.
 
 What is left over (no trace, no telling store) forms one family of its
 own.
@@ -133,11 +135,29 @@ def families(d, routines, version, taken, step=()):
             if t in routines and t not in known:
                 members[root].add(t)
                 known.add(t)
+    # absolute stores by address, for the neighbours' vote below
+    near = collections.defaultdict(collections.Counter)
+    for p, c in vote.items():
+        f = p.split()
+        if len(f) == 2 and f[0] != 'arg' and not f[1].startswith('('):
+            near[(f[0], int(f[1], 16))].update(c)
     left = set()
     for t in sorted(taken - known):
         best = collections.Counter()
-        for p in store_patterns(d, ks, t):
+        pats = store_patterns(d, ks, t)
+        for p in pats:
             best.update(vote.get(p, {}))
+        if not best:
+            # stored where no traced routine is, but next to where some
+            # are: a slot of the same table of pointers (func_0054AE at
+            # 0xA9AA, between func_0093B8's and func_00C886's)
+            for p in pats:
+                f = p.split()
+                if len(f) == 2 and f[0] != 'arg' and not f[1].startswith('('):
+                    a = int(f[1], 16)
+                    for (mn, b), c in near.items():
+                        if mn == f[0] and b != a and abs(b - a) <= 0x20:
+                            best.update(c)
         if best:
             members[best.most_common(1)[0][0]].add(t)
         else:

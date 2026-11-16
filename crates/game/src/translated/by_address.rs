@@ -739,7 +739,7 @@ impl Game {
             0x00AB78 => { self.r_00ab78(regs.d1); }
             0x00ABA6 => { (regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x) = self.r_00aba6(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x00ABE0 => { (regs.d0, regs.d1, regs.x) = self.r_00abe0(regs.d0, regs.d1, regs.x); }
-            0x00AC64 => { regs.d0 = self.r_00ac64(regs.d0); }
+            0x00AC64 => { (regs.d0, regs.x) = self.r_00ac64(regs.d0); }
             0x00ACA4 => { (regs.d0, regs.d1, regs.d5, regs.d6, regs.a0, regs.a1, regs.a5, regs.a6, regs.x) = self.r_00aca4(regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7, regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, regs.x); }
             0x00AD66 => { (regs.d0, regs.x) = self.r_00ad66(regs.d0); }
             0x00ADC0 => { (regs.d0, regs.x) = self.r_00adc0(regs.d0); }
@@ -2304,7 +2304,7 @@ impl Game {
             0x005378 => &["d1", "d6", "a6", "x"],
             0x0053A6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6"],
             0x0053EC => &["a6"],
-            0x0054AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "n", "z", "c"],
+            0x0054AE => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005506 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x", "c"],
             0x005516 => &["x", "c"],
             0x00555E => &["x"],
@@ -2681,7 +2681,7 @@ impl Game {
             0x00AB78 => &[],
             0x00ABA6 => &["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "x"],
             0x00ABE0 => &["d0", "d1", "x"],
-            0x00AC64 => &["d0"],
+            0x00AC64 => &["d0", "x"],
             0x00ACA4 => &["d0", "d1", "d5", "d6", "a0", "a1", "a5", "a6", "x"],
             0x00AD66 => &["d0", "x"],
             0x00ADC0 => &["d0", "x"],

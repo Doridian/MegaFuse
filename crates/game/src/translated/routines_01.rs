@@ -10198,7 +10198,7 @@ impl Game {
             let t17: u8 = self.read8(0x3918_u32.wrapping_add(((d0 as u16) as i16 as i32 as u32)));
             d0 = (d0 & 0xFFFF_FF00) | u32::from(t17);
             self.insn(0x0038D2, 20);
-            d0 = self.r_00ac64(d0);
+            (d0, x) = self.r_00ac64(d0);
             self.insn(0x0038D8, 8);
             c = ((d1 as u8) < 0xD_u8);
             self.insn(0x0038DC, 10);

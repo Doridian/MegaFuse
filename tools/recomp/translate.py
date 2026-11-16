@@ -106,12 +106,32 @@ def main():
                     continue
                 f.write('            0x%06X => self.%s(regs),\n' % (
                     m, emit.fname(m)))
-            f.write('            _ => panic!("no routine at {target:#08X} '
-                    'among those called from %s"),\n        }\n    }\n' % (
-                        ', '.join('%06X' % s for s in sorted(sites))))
-        f.write('    pub fn call_family_any(&mut self, target: u32, _regs: '
-                '&mut Regs) {\n        panic!("a call through a pointer no '
-                'trace saw: {target:#08X}");\n    }\n')
+            f.write('            _ => self.call_family_other(target, regs, '
+                    '"%s"),\n        }\n    }\n' % (
+                        ', '.join('%06X' % s for s in sorted(sites)) or '-'))
+        # a target no trace saw from the site, and its stores didn't put
+        # in the family (tools/recomp/families.py): the routine all the
+        # same, with a warning (its family's signature may leave out a
+        # register this caller reads), rather than a stop
+        f.write('    #[cold]\n    fn call_family_other(&mut self, target: u32, '
+                'regs: &mut Regs, from: &str) {\n'
+                '        static WARNED: std::sync::atomic::AtomicBool = '
+                'std::sync::atomic::AtomicBool::new(false);\n'
+                '        if !WARNED.swap(true, std::sync::atomic::Ordering::Relaxed) {\n'
+                '            eprintln!("warning: a call from {from} to {target:#08X}, '
+                'which no trace saw from there (tools/recomp/families.py)");\n'
+                '        }\n'
+                '        match target & 0xFF_FFFF {\n')
+        for sites, members in flow.fams:
+            for m in sorted(members):
+                if m in roots or not em.is_family(m):
+                    continue
+                f.write('            0x%06X => self.%s(regs),\n' % (m, emit.fname(m)))
+        f.write('            _ => panic!("no routine at {target:#08X}, called '
+                'through a pointer from {from}"),\n        }\n    }\n')
+        f.write('    pub fn call_family_any(&mut self, target: u32, regs: '
+                '&mut Regs) {\n        self.call_family_other(target, regs, '
+                '"a site no trace saw");\n    }\n')
         f.write('}\n')
     # every routine callable by its address, for tests against the
     # original (tools/routine_check.py)

@@ -7244,7 +7244,7 @@ impl Game {
         let mut n: bool = false;
         let mut z: bool = false;
         let mut v: bool = false;
-        let mut c: bool = false;
+        let mut c: bool = regs.c;
         let mut unw: bool = false;
         let mut s12_l: u32 = 0;
         let mut s16_l: u32 = 0;
@@ -7261,7 +7261,6 @@ impl Game {
             self.extra(56);
             self.skip_refresh();
             self.insn(0x0054B2, 12);
-            n = (self.read8(0xFFFFA93F_u32) as i8) < 0;
             z = self.read8(0xFFFFA93F_u32) == 0;
             c = false;
             self.insn(0x0054B6, 10);
@@ -7281,8 +7280,6 @@ impl Game {
                 s34_b = 0xC2_u8;
                 self.insn(0x0054D0, 12);
                 s36_b = 0x10_u8;
-                n = (0x10_u8 as i8) < 0;
-                z = 0x10_u8 == 0;
                 self.insn(0x0054D4, 18);
                 (d5, d6, a5, a6, x, c) = self.r_001222(d0, d1, d2, d3, d4, d5, d6, d7, a1, a2, a3, a4, a5, s36_b, s34_b, s32_l);
                 self.insn(0x0054D8, 8);
@@ -7300,11 +7297,9 @@ impl Game {
                     self.insn(0x0054F0, 4);
                     d0 = 5_u32;
                     self.insn(0x0054F2, 20);
-                    d0 = self.r_00ac64(d0);
+                    (d0, x) = self.r_00ac64(d0);
                     self.insn(0x0054F8, 8);
                     d0 = (d0 & 0xFFFF_FF00) | u32::from(0x45_u8);
-                    n = (0x45_u8 as i8) < 0;
-                    z = 0x45_u8 == 0;
                     c = false;
                     self.insn(0x0054FC, 18);
                     self.r_0034b6(d0);
@@ -7332,8 +7327,6 @@ impl Game {
         regs.a5 = a5;
         regs.a6 = a6;
         regs.x = x;
-        regs.n = n;
-        regs.z = z;
         regs.c = c;
         regs.unwound = unw;
         return;

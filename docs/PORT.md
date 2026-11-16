@@ -165,6 +165,17 @@ Z80's command queue (`func_00349E`, `func_0034B6`, `func_0034CE`,
    is live before), and is then solved again from what the callers read
    until it holds. `dataflow.DEAD_IN` names what a routine reads that bit
    by bit never reaches its results (the random numbers' X).
+
+   Calls through a pointer go to families (`families.py`): the sites the
+   traces saw reach the same routine share one family, and the routines
+   no trace reached through a pointer join one by how the code stores
+   their address (pushed for `func_001222`, written to `(2,an)`, to the
+   same absolute address as a traced one, or to the slot beside one in a
+   table: `func_0054AE` at 0xA9AA, between `func_0093B8`'s and
+   `func_00C886`'s). A target still outside the site's family (a path no
+   script plays) calls the routine all the same, with a warning, rather
+   than stopping the game: its family's signature may leave out a
+   register this caller reads, so the warning is a lead for a script.
 5. **Emission**: Rust for each instruction on those locals; memory
    through accessors (work RAM, the ROM, the hardware), which become typed
    state as each part of the game is understood.
