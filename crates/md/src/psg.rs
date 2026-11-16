@@ -38,7 +38,15 @@ impl Default for Psg {
 impl Psg {
     #[must_use]
     pub fn new() -> Self {
-        Psg { period: [0; 4], att: [15; 4], count: [0; 4], level: [false; 3], lfsr: 0x8000, noise_edge: false, latch: 0 }
+        Psg {
+            period: [0; 4],
+            att: [15; 4],
+            count: [0; 4],
+            level: [false; 3],
+            lfsr: 0x8000,
+            noise_edge: false,
+            latch: 0,
+        }
     }
 
     pub fn write(&mut self, v: u8) {
@@ -115,9 +123,17 @@ impl Psg {
             for c in 0..3 {
                 // a period of 0 or 1 holds the output high (the sample trick)
                 let high = self.level[c] || self.period[c] <= 1;
-                sum += if high { VOLUME[usize::from(self.att[c])] } else { -VOLUME[usize::from(self.att[c])] };
+                sum += if high {
+                    VOLUME[usize::from(self.att[c])]
+                } else {
+                    -VOLUME[usize::from(self.att[c])]
+                };
             }
-            sum += if self.lfsr & 1 != 0 { VOLUME[usize::from(self.att[3])] } else { -VOLUME[usize::from(self.att[3])] };
+            sum += if self.lfsr & 1 != 0 {
+                VOLUME[usize::from(self.att[3])]
+            } else {
+                -VOLUME[usize::from(self.att[3])]
+            };
         }
         if steps == 0 { 0.0 } else { sum / steps as f32 }
     }

@@ -124,7 +124,8 @@ until the rest of the port is done.
 
 ## Phase 6: online multiplayer
 
-docs/NETPLAY.md.
+docs/NETPLAY.md: rollback over WebRTC, native and in the browser, with players coming in
+under way, works (its "Where it is").
 
 ## Last: assets
 

@@ -74,7 +74,10 @@ impl Audio {
                 let stream = Arc::new(stream);
                 #[cfg(target_arch = "wasm32")]
                 STREAMS.with(|s| s.borrow_mut().push(Arc::downgrade(&stream)));
-                return Audio { queue: Some(queue), _stream: Some(stream) };
+                return Audio {
+                    queue: Some(queue),
+                    _stream: Some(stream),
+                };
             }
             Err(e) => eprintln!("no sound: {e}"),
         }
@@ -102,7 +105,9 @@ fn open(rate: u32) -> Result<(Arc<Mutex<Queue>>, cpal::Stream), String> {
     use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
     let host = cpal::default_host();
-    let device = host.default_output_device().ok_or("no audio output device")?;
+    let device = host
+        .default_output_device()
+        .ok_or("no audio output device")?;
     let supported = device.default_output_config().map_err(|e| e.to_string())?;
     let config = supported.config();
     let channels = usize::from(config.channels);
@@ -128,7 +133,12 @@ fn open(rate: u32) -> Result<(Arc<Mutex<Queue>>, cpal::Stream), String> {
     };
     let stream = match supported.sample_format() {
         cpal::SampleFormat::F32 => device
-            .build_output_stream(config, move |out: &mut [f32], _: &cpal::OutputCallbackInfo| fill(out), err, None)
+            .build_output_stream(
+                config,
+                move |out: &mut [f32], _: &cpal::OutputCallbackInfo| fill(out),
+                err,
+                None,
+            )
             .map_err(|e| e.to_string())?,
         cpal::SampleFormat::I16 => {
             let mut buf = Vec::new();

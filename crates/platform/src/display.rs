@@ -37,8 +37,13 @@ impl View {
     /// 1:1 doesn't fit.
     #[allow(clippy::cast_precision_loss)]
     fn new(window: PhysicalSize<u32>, width: u32, height: u32) -> Self {
-        let fit = (window.width as f32 / width.max(1) as f32).min(window.height as f32 / height.max(1) as f32);
-        let scale = if fit >= 1.0 { fit.floor() } else { fit.max(f32::EPSILON) };
+        let fit = (window.width as f32 / width.max(1) as f32)
+            .min(window.height as f32 / height.max(1) as f32);
+        let scale = if fit >= 1.0 {
+            fit.floor()
+        } else {
+            fit.max(f32::EPSILON)
+        };
         let offset = [
             ((window.width as f32 - width as f32 * scale) / 2.0).floor(),
             ((window.height as f32 - height as f32 * scale) / 2.0).floor(),
@@ -48,7 +53,10 @@ impl View {
 
     fn bytes(self) -> [u8; 16] {
         let mut b = [0; 16];
-        for (i, v) in [self.offset[0], self.offset[1], self.scale, 0.0].into_iter().enumerate() {
+        for (i, v) in [self.offset[0], self.offset[1], self.scale, 0.0]
+            .into_iter()
+            .enumerate()
+        {
             b[4 * i..4 * i + 4].copy_from_slice(&v.to_le_bytes());
         }
         b
@@ -83,7 +91,9 @@ fn gpu(e: impl fmt::Display) -> Error {
 pub(crate) type Pending = std::rc::Rc<std::cell::RefCell<Option<Result<Display, Error>>>>;
 
 fn descriptor(event_loop: &ActiveEventLoop) -> wgpu::InstanceDescriptor {
-    wgpu::InstanceDescriptor::new_with_display_handle_from_env(Box::new(event_loop.owned_display_handle()))
+    wgpu::InstanceDescriptor::new_with_display_handle_from_env(Box::new(
+        event_loop.owned_display_handle(),
+    ))
 }
 
 impl Display {
@@ -122,7 +132,8 @@ impl Display {
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
                 label: Some("megafuse"),
-                required_limits: wgpu::Limits::downlevel_webgl2_defaults().using_resolution(adapter.limits()),
+                required_limits: wgpu::Limits::downlevel_webgl2_defaults()
+                    .using_resolution(adapter.limits()),
                 ..Default::default()
             })
             .await
@@ -194,7 +205,17 @@ impl Display {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
-        Ok(Display { window, surface, device, queue, config, pipeline, layout, view, picture: None })
+        Ok(Display {
+            window,
+            surface,
+            device,
+            queue,
+            config,
+            pipeline,
+            layout,
+            view,
+            picture: None,
+        })
     }
 
     pub fn resize(&mut self, size: PhysicalSize<u32>) {
@@ -206,12 +227,20 @@ impl Display {
     }
 
     fn ensure_picture(&mut self, width: u32, height: u32) {
-        if self.picture.as_ref().is_some_and(|p| (p.width, p.height) == (width, height)) {
+        if self
+            .picture
+            .as_ref()
+            .is_some_and(|p| (p.width, p.height) == (width, height))
+        {
             return;
         }
         let texture = self.device.create_texture(&wgpu::TextureDescriptor {
             label: None,
-            size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
+            size: wgpu::Extent3d {
+                width,
+                height,
+                depth_or_array_layers: 1,
+            },
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
@@ -229,25 +258,39 @@ impl Display {
                         &texture.create_view(&wgpu::TextureViewDescriptor::default()),
                     ),
                 },
-                wgpu::BindGroupEntry { binding: 1, resource: self.view.as_entire_binding() },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: self.view.as_entire_binding(),
+                },
             ],
         });
-        self.picture = Some(Picture { width, height, texture, bind_group });
+        self.picture = Some(Picture {
+            width,
+            height,
+            texture,
+            bind_group,
+        });
     }
 
     /// Draws `rgba` (`width` x `height`).
     pub fn draw(&mut self, rgba: &[u8], width: u32, height: u32) -> Result<(), Error> {
         let output = match self.surface.get_current_texture() {
-            wgpu::CurrentSurfaceTexture::Success(t) | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
+            wgpu::CurrentSurfaceTexture::Success(t)
+            | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
             wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost => {
                 self.surface.configure(&self.device, &self.config);
                 return Ok(());
             }
-            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => return Ok(()),
-            other @ wgpu::CurrentSurfaceTexture::Validation => return Err(gpu(format!("{other:?}"))),
+            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
+                return Ok(());
+            }
+            other @ wgpu::CurrentSurfaceTexture::Validation => {
+                return Err(gpu(format!("{other:?}")));
+            }
         };
         let size = PhysicalSize::new(self.config.width, self.config.height);
-        self.queue.write_buffer(&self.view, 0, &View::new(size, width, height).bytes());
+        self.queue
+            .write_buffer(&self.view, 0, &View::new(size, width, height).bytes());
         self.ensure_picture(width, height);
         let Some(picture) = &self.picture else {
             return Ok(());
@@ -266,11 +309,19 @@ impl Display {
                     bytes_per_row: Some(width * 4),
                     rows_per_image: Some(height),
                 },
-                wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
+                wgpu::Extent3d {
+                    width,
+                    height,
+                    depth_or_array_layers: 1,
+                },
             );
         }
-        let target = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
+        let target = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
         {
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: None,

@@ -81,3 +81,34 @@ pub trait Transport {
     /// Closes the connection to every peer.
     fn close(&mut self);
 }
+
+/// A transport chosen at run time (WebRTC, or the in-memory one).
+impl<T: Transport + ?Sized> Transport for Box<T> {
+    fn connect(&mut self, room: &str, role: Role) -> Result<(), String> {
+        (**self).connect(room, role)
+    }
+
+    fn poll(&mut self) -> Vec<TransportEvent> {
+        (**self).poll()
+    }
+
+    fn send(&mut self, peer: PeerId, data: &[u8]) {
+        (**self).send(peer, data);
+    }
+
+    fn peers(&self) -> Vec<PeerId> {
+        (**self).peers()
+    }
+
+    fn broadcast(&mut self, data: &[u8]) {
+        (**self).broadcast(data);
+    }
+
+    fn max_message(&self) -> usize {
+        (**self).max_message()
+    }
+
+    fn close(&mut self) {
+        (**self).close();
+    }
+}

@@ -14,9 +14,9 @@ exact = ["game/exact"]
 game = { path = "../game" }
 md = { path = "../md" }
 platform = { path = "../platform" }
+net = { path = "../net" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-net = { path = "../net" }
 # The file dialog that asks for the ROM when it isn't given (rom.rs):
 # natively only, the browser's page asks for it itself.
 rfd = "0.18"

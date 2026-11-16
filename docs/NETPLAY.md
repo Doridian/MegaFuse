@@ -14,7 +14,7 @@ Here the port is Rust, so the model isn't imitated, it is used:
 | --- | --- |
 | signaling | matchbox's protocol; `matchbox_server` as the lobby server |
 | transport | `matchbox_socket` (native and wasm), unreliable and unordered channels |
-| session | lockstep first, then rollback (GGRS, or a session layer of our own as in VacationDestination's `crates/net`) |
+| session | rollback, a session layer of our own (`crates/net/src/session.rs`) |
 | game | the translated game, one frame per step, with the four pads as input |
 
 VacationDestination's `crates/net` (a transport trait, the matchbox transport, an
@@ -64,29 +64,74 @@ From B64's list, adapted:
 
 ## Where it is
 
-Lockstep works (`crates/net`, `crates/server`, `megafuse --host` and
-`--join`): the transport, the matchbox transport and the signalling
-server are VacationDestination's; the session is this port's own. Each
-peer sends its pad `delay` frames ahead (3 by default) to the host, the
-star's middle, which sends each frame's four pads to everyone, itself
-included; a frame runs on a peer only with them, so the games are the
-same everywhere. Every 60 frames the clients' RAM hashes go to the host,
-which compares them with its own. With three or four players every peer
-has the Team Player plugged in.
+Rollback over WebRTC works, natively and in the browser, and they play
+together (`crates/net`, `crates/server`, `megafuse --host`/`--join`, the
+page's "Online" box). The transport, the matchbox transport and the
+signalling server are VacationDestination's; the session
+(`crates/net/src/session.rs`) and the driver (`crates/megafuse/src/
+netplay.rs`) are this port's own.
+
+- **The session.** The host is the star's middle. Each peer sends its
+  pad `delay` frames ahead (2 by default) to the host, which passes
+  every pad on to everyone at once, its own and the empty seats' (0)
+  included. Nothing waits: a frame's pads not in yet are guessed (the
+  seat's last pad), and a pad that comes in unlike its guess means a
+  rollback from that frame. The frames whose pads are all in are
+  *confirmed*; the game runs at most `AHEAD` (8) frames past them, and
+  waits there. The first `QUIET` (240) frames have every pad 0: the
+  boot, which runs at once, and a little more.
+- **The driver.** It owns the game: a snapshot (`Game::save`) after every
+  step, the frames' pads from the session in the frontend's callback,
+  and on a wrong guess the snapshot before it restored and the frames
+  since run again silently (the window has shown them). Snapshots older
+  than the last confirmed one go.
+- **Coming and going.** The host starts at once, its other seats empty.
+  A client coming in, at any time, is kept a seat and sent every pad so
+  far (`History`, as runs); it runs the game from the boot on them,
+  silently and as fast as it can ("catching up"), then says `Ready`, and
+  the seat is its own from the next frame the host hasn't played yet
+  (`Seat`). A client that leaves frees its seat (the host plays it, as
+  0, from the frame after its last pad); someone else can take it. If
+  the host leaves, the game ends.
+- **The check.** Every 60 frames each client sends the host its RAM's
+  hash after a frame no guess went into; the host compares it with its
+  own, and a difference ends the game for everyone (a desync). A native
+  and a browser peer agree: a page joined a native host 23,000 frames in,
+  caught up in some 35 s and played on.
 
     megafuse-server [--listen=0.0.0.0:3536]
     megafuse ROM --host ROOM [--players N] [--delay D] [--signal ws://HOST:3536]
     megafuse ROM --join ROOM [--signal ws://HOST:3536]
+        [--stun stun:HOST:PORT]... [--turn turn:HOST:PORT --turn-user U --turn-password P]
 
-`megafuse ROM --loopback N --input SCRIPT --frames F` is the loopback
-harness: N peers in one process over the in-memory transport, each
-playing its pad of the script: 4 peers (Team Player) agree through 20000
-frames of battle4, 2 through 30000 of battle. With `--frames` and
-`--input`, `--host`/`--join` run headless too (two peers over WebRTC on
-one machine agree).
+The page takes the same: the room, the players, the signalling server
+and a STUN server, and `?room=...&signal=...&stun=...` fills them in.
 
-Not yet: rollback (the snapshots are there, `Game::save`), joining a game
-under way, the browser build.
+**STUN.** Without a STUN (or TURN) server the peers only offer their own
+addresses: fine for native peers on one network, but the browser hides
+its own behind mDNS names (`....local`), which the native peers can't
+resolve, so a page and a native peer need a STUN server even on one
+machine (any: `scratch/stun.py`-like test servers do). Across the
+internet every peer needs one (and TURN behind a strict NAT). None is
+contacted unless named.
+
+`megafuse ROM --loopback N --input SCRIPT --frames F [--latency MS]
+[--late MS] [--speed X]` is the harness: N peers in one process over the
+in-memory transport, each message `--latency` late, each peer playing
+its pad of the script at X times the console's pace (8 by default), the
+last one coming in `--late` ms after the start. Every peer has to end
+with the same RAM: 4 peers through 20000 frames of battle4 with 30 ms
+(some 1,200 rollbacks each, 15,000 frames run again), 3 with the third
+coming in 5 s late (seated at frame 4148). `cargo test -p net` runs the
+session without a game (guesses, a latecomer, a seat freed and taken
+again, a refused ROM). With `--frames` and `--input`, `--host`/`--join`
+run headless too. `MEGAFUSE_NETDEBUG=1` prints each headless peer's
+frame, confirmed frame and seat every second; `MEGAFUSE_NETSHOT=N`
+writes each peer's picture at frame N.
+
+Not yet: spectators, a lobby (the menus are played through the
+session), rollback of the sound (rerun frames are silent; the frames
+shown keep their sound).
 
 ## Phases
 
@@ -95,10 +140,10 @@ under way, the browser build.
 2. **Loopback harness.** Two to four instances in one process over a
    simulated lossy, delayed link, comparing hashes every frame. A desync
    fails CI.
-3. **Lockstep over WebRTC**, with a fixed input delay. It is always
-   correct, so it stays as the fallback.
+3. **Lockstep over WebRTC**, with a fixed input delay (done; replaced by
+   4, which is lockstep when the guesses are never needed).
 4. **Rollback.** Predict missing inputs (repeat the last), simulate ahead,
-   restore and re-simulate on a misprediction.
+   restore and re-simulate on a misprediction (done).
 5. **Lobby.** Room codes over the signaling server, peers mapped to
    battle-mode player numbers, spectators, and a dropped player handed to
    the game's own CPU player if battle mode allows it.

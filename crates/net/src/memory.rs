@@ -3,11 +3,14 @@
 //! its own, as each game is). Like the WebRTC transport's
 //! signaling, a room is a star: the host and each client are connected,
 //! the clients not with each other. Messages arrive in order, on the
-//! next [`Transport::poll`]. A test can cut a peer off
-//! ([`Hub::disconnect`]) as a dropped connection would.
+//! next [`Transport::poll`], or a while later ([`Hub::with_latency`]:
+//! the network's delay, which a rollback session has to ride out). A
+//! test can cut a peer off ([`Hub::disconnect`]) as a dropped connection
+//! would.
 
 use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
+use std::time::{Duration, Instant};
 
 use crate::transport::{PeerId, Role, Transport, TransportEvent};
 
@@ -17,8 +20,10 @@ struct Rooms {
     next: u128,
     /// The peers in each room: the host, and the clients.
     by_name: BTreeMap<String, (Option<PeerId>, Vec<PeerId>)>,
-    /// What each peer will get on its next poll.
-    queues: BTreeMap<PeerId, VecDeque<TransportEvent>>,
+    /// What each peer will get, and from when.
+    queues: BTreeMap<PeerId, VecDeque<(Instant, TransportEvent)>>,
+    /// How long a message takes.
+    latency: Duration,
     /// Each peer's room and role.
     members: BTreeMap<PeerId, (String, Role)>,
     /// Pairs that are connected: (host, client).
@@ -27,7 +32,8 @@ struct Rooms {
 
 impl Rooms {
     fn push(&mut self, to: PeerId, event: TransportEvent) {
-        self.queues.entry(to).or_default().push_back(event);
+        let at = Instant::now() + self.latency;
+        self.queues.entry(to).or_default().push_back((at, event));
     }
 
     fn link(&mut self, host: PeerId, client: PeerId) {
@@ -37,12 +43,17 @@ impl Rooms {
     }
 
     fn linked(&self, a: PeerId, b: PeerId) -> bool {
-        self.links.iter().any(|&(h, c)| (h, c) == (a, b) || (h, c) == (b, a))
+        self.links
+            .iter()
+            .any(|&(h, c)| (h, c) == (a, b) || (h, c) == (b, a))
     }
 
     /// `peer` is gone: its links drop, and it leaves its room.
     fn drop_peer(&mut self, peer: PeerId) {
-        let (gone, kept): (Vec<_>, Vec<_>) = self.links.iter().partition(|&&(h, c)| h == peer || c == peer);
+        let (gone, kept): (Vec<_>, Vec<_>) = self
+            .links
+            .iter()
+            .partition(|&&(h, c)| h == peer || c == peer);
         self.links = kept;
         for (h, c) in gone {
             let other = if h == peer { c } else { h };
@@ -71,6 +82,13 @@ impl Hub {
 
     fn rooms(&self) -> MutexGuard<'_, Rooms> {
         self.0.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    /// Messages (and comings and goings) take `latency` to arrive.
+    #[must_use]
+    pub fn with_latency(self, latency: Duration) -> Hub {
+        self.rooms().latency = latency;
+        self
     }
 
     /// A new peer, not in any room yet.
@@ -152,12 +170,13 @@ impl Transport for MemoryTransport {
     }
 
     fn poll(&mut self) -> Vec<TransportEvent> {
-        self.hub
-            .rooms()
-            .queues
-            .get_mut(&self.id)
-            .map(|q| q.drain(..).collect())
-            .unwrap_or_default()
+        let now = Instant::now();
+        let mut r = self.hub.rooms();
+        let Some(q) = r.queues.get_mut(&self.id) else {
+            return Vec::new();
+        };
+        let due = q.iter().take_while(|(at, _)| *at <= now).count();
+        q.drain(..due).map(|(_, e)| e).collect()
     }
 
     fn send(&mut self, peer: PeerId, data: &[u8]) {

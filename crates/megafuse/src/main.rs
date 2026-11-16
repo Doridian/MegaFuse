@@ -19,7 +19,6 @@
 
 #![cfg_attr(target_arch = "wasm32", allow(dead_code, unused_imports))]
 
-#[cfg(not(target_arch = "wasm32"))]
 mod netplay;
 mod png;
 mod rom;
@@ -38,17 +37,27 @@ struct Script {
 }
 
 fn parse_script(text: &str) -> Script {
-    let mut s = Script { pads: BTreeMap::new(), pokes: BTreeMap::new() };
+    let mut s = Script {
+        pads: BTreeMap::new(),
+        pokes: BTreeMap::new(),
+    };
     for line in text.lines() {
         let line = line.split('#').next().unwrap_or("").trim();
         let mut it = line.split_whitespace();
-        let (Some(frame), Some(what)) = (it.next(), it.next()) else { continue };
-        let Ok(frame) = frame.parse::<u64>() else { continue };
+        let (Some(frame), Some(what)) = (it.next(), it.next()) else {
+            continue;
+        };
+        let Ok(frame) = frame.parse::<u64>() else {
+            continue;
+        };
         if let Some(addr) = what.strip_prefix('=') {
             let value = it.next().unwrap_or("0");
             let a = u32::from_str_radix(addr, 16).unwrap_or(0);
             let v = u32::from_str_radix(value, 16).unwrap_or(0);
-            s.pokes.entry(frame).or_default().push((a, v, value.len() / 2));
+            s.pokes
+                .entry(frame)
+                .or_default()
+                .push((a, v, value.len() / 2));
             continue;
         }
         let (pad, buttons) = match what.split_once(':') {
@@ -69,7 +78,10 @@ fn parse_script(text: &str) -> Script {
                 _ => 0,
             };
         }
-        s.pads.entry(frame).or_default().push((pad.saturating_sub(1), m));
+        s.pads
+            .entry(frame)
+            .or_default()
+            .push((pad.saturating_sub(1), m));
     }
     s
 }
@@ -122,7 +134,15 @@ impl Headless {
 }
 
 impl Frontend for Headless {
-    fn frame(&mut self, frame: u64, picture: &[u32], width: usize, height: usize, ram: &mut [u8; 0x10000], pads: &mut [u16; 4]) {
+    fn frame(
+        &mut self,
+        frame: u64,
+        picture: &[u32],
+        width: usize,
+        height: usize,
+        ram: &mut [u8; 0x10000],
+        pads: &mut [u16; 4],
+    ) {
         // the frame that just ended is self.frame + 1 (mdtrace counts
         // frames run)
         self.frame = frame;
@@ -136,7 +156,13 @@ impl Frontend for Headless {
                     rgb.extend_from_slice(&[(p >> 16) as u8, (p >> 8) as u8, p as u8]);
                 }
             }
-            let _ = writeln!(out, "{} {:08X} {:08X}", f - 1, png::crc32(&ram[..0xFE00]), png::crc32(&rgb));
+            let _ = writeln!(
+                out,
+                "{} {:08X} {:08X}",
+                f - 1,
+                png::crc32(&ram[..0xFE00]),
+                png::crc32(&rgb)
+            );
             let _ = out.flush();
         }
         if self.every > 0 && (f.is_multiple_of(self.every) || f == self.frames) {
@@ -144,7 +170,13 @@ impl Frontend for Headless {
                 let _ = std::fs::write(format!("{p}{f:06}.bin"), &ram[..]);
             }
             if let Some(p) = &self.shot_prefix {
-                let _ = png::write(&format!("{p}{f:06}.png"), width, md::vdp::WIDTH, height, picture);
+                let _ = png::write(
+                    &format!("{p}{f:06}.png"),
+                    width,
+                    md::vdp::WIDTH,
+                    height,
+                    picture,
+                );
             }
         }
         if f >= self.frames {
@@ -165,7 +197,13 @@ impl Frontend for Headless {
             && (f.is_multiple_of(self.every) || f == self.frames)
         {
             let _ = std::fs::write(format!("{p}{f:06}.vram"), &vdp.vram[..]);
-            let vs: Vec<u8> = vdp.vsram.iter().flat_map(|w| w.to_be_bytes()).chain(std::iter::repeat(0)).take(0x80).collect();
+            let vs: Vec<u8> = vdp
+                .vsram
+                .iter()
+                .flat_map(|w| w.to_be_bytes())
+                .chain(std::iter::repeat(0))
+                .take(0x80)
+                .collect();
             let _ = std::fs::write(format!("{p}{f:06}.vsram"), vs);
             let _ = std::fs::write(format!("{p}{f:06}.sat"), &vdp.sat[..]);
             let mut regs = vdp.regs.to_vec();
@@ -176,7 +214,11 @@ impl Frontend for Headless {
 
     fn audio(&mut self, samples: &[f32]) {
         if let Some((_, out)) = &mut self.wav {
-            out.extend(samples.iter().map(|&v| (v.clamp(-1.0, 1.0) * 32767.0) as i16));
+            out.extend(
+                samples
+                    .iter()
+                    .map(|&v| (v.clamp(-1.0, 1.0) * 32767.0) as i16),
+            );
         }
     }
 }
@@ -207,7 +249,16 @@ fn write_wav(path: &str, samples: &[i16]) -> std::io::Result<()> {
 struct Silent;
 
 impl Frontend for Silent {
-    fn frame(&mut self, _: u64, _: &[u32], _: usize, _: usize, _: &mut [u8; 0x10000], _: &mut [u16; 4]) {}
+    fn frame(
+        &mut self,
+        _: u64,
+        _: &[u32],
+        _: usize,
+        _: usize,
+        _: &mut [u8; 0x10000],
+        _: &mut [u16; 4],
+    ) {
+    }
 }
 
 /// `megafuse --routine ROM ENTRY IN OUT`: one routine from a state of the
@@ -238,7 +289,9 @@ fn routines(args: &[String]) {
         if f.len() != 3 {
             continue;
         }
-        let Ok(entry) = u32::from_str_radix(f[0], 16) else { continue };
+        let Ok(entry) = u32::from_str_radix(f[0], 16) else {
+            continue;
+        };
         let r = std::panic::catch_unwind(|| run_routine(&rom, entry, f[1], f[2]));
         match r {
             Ok(Ok(outs)) => println!("{} {} ok {outs}", f[0], f[2]),
@@ -262,10 +315,30 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
     if snap.len() < 72 + 0x10000 {
         return Err(format!("{inp}: short"));
     }
-    let reg = |k: usize| u32::from_be_bytes([snap[4 * k], snap[4 * k + 1], snap[4 * k + 2], snap[4 * k + 3]]);
+    let reg = |k: usize| {
+        u32::from_be_bytes([
+            snap[4 * k],
+            snap[4 * k + 1],
+            snap[4 * k + 2],
+            snap[4 * k + 3],
+        ])
+    };
     let mut regs = game::Regs {
-        d0: reg(0), d1: reg(1), d2: reg(2), d3: reg(3), d4: reg(4), d5: reg(5), d6: reg(6), d7: reg(7),
-        a0: reg(8), a1: reg(9), a2: reg(10), a3: reg(11), a4: reg(12), a5: reg(13), a6: reg(14),
+        d0: reg(0),
+        d1: reg(1),
+        d2: reg(2),
+        d3: reg(3),
+        d4: reg(4),
+        d5: reg(5),
+        d6: reg(6),
+        d7: reg(7),
+        a0: reg(8),
+        a1: reg(9),
+        a2: reg(10),
+        a3: reg(11),
+        a4: reg(12),
+        a5: reg(13),
+        a6: reg(14),
         ..game::Regs::default()
     };
     let sr = reg(17);
@@ -274,7 +347,10 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
     regs.z = sr & 4 != 0;
     regs.n = sr & 8 != 0;
     regs.x = sr & 16 != 0;
-    let mut game = game::Game::new(rom.to_vec(), Box::new(Md::new(rom.to_vec(), Box::new(Silent))));
+    let mut game = game::Game::new(
+        rom.to_vec(),
+        Box::new(Md::new(rom.to_vec(), Box::new(Silent))),
+    );
     game.ram.copy_from_slice(&snap[72..72 + 0x10000]);
     game.mask_interrupts();
     // the Z80 out of reset, as the game has it from boot on (a wait for
@@ -286,10 +362,30 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
         return Err(format!("{entry:06X}: not callable on its own"));
     }
     let mut out = Vec::new();
-    for v in [regs.d0, regs.d1, regs.d2, regs.d3, regs.d4, regs.d5, regs.d6, regs.d7,
-              regs.a0, regs.a1, regs.a2, regs.a3, regs.a4, regs.a5, regs.a6, 0, 0,
-              u32::from(regs.c) | u32::from(regs.v) << 1 | u32::from(regs.z) << 2
-                  | u32::from(regs.n) << 3 | u32::from(regs.x) << 4] {
+    for v in [
+        regs.d0,
+        regs.d1,
+        regs.d2,
+        regs.d3,
+        regs.d4,
+        regs.d5,
+        regs.d6,
+        regs.d7,
+        regs.a0,
+        regs.a1,
+        regs.a2,
+        regs.a3,
+        regs.a4,
+        regs.a5,
+        regs.a6,
+        0,
+        0,
+        u32::from(regs.c)
+            | u32::from(regs.v) << 1
+            | u32::from(regs.z) << 2
+            | u32::from(regs.n) << 3
+            | u32::from(regs.x) << 4,
+    ] {
         out.extend_from_slice(&v.to_be_bytes());
     }
     out.extend_from_slice(&game.ram[..]);
@@ -298,8 +394,9 @@ fn run_routine(rom: &[u8], entry: u32, inp: &str, out_path: &str) -> Result<Stri
 }
 
 const USAGE: &str = "usage: megafuse [ROM] [--host ROOM | --join ROOM] [--players N] [--delay N] [--signal URL]
+                [--stun URL]... [--turn URL]... [--turn-user NAME] [--turn-password PASSWORD]
        megafuse ROM --frames N [--input FILE] [--every N] [--ram PREFIX] [--shot PREFIX] [--wav FILE]
-       megafuse ROM --loopback N --input FILE --frames N
+       megafuse ROM --loopback N --input FILE --frames N [--latency MS] [--late MS] [--speed X]
 Without a ROM, a file dialog asks for Mega Bomberman's (the US version).";
 
 /// In the browser: the page calls `start` with the ROM (web.rs).
@@ -330,9 +427,16 @@ fn main() {
     let mut players = 2;
     let mut delay = netplay::DELAY;
     let mut signal = "ws://localhost:3536".to_owned();
+    let mut ice = net::matchbox::IceServers::default();
     let mut loopback = None;
+    let mut latency = 0;
+    let mut late = 0;
+    let mut speed = 8;
     let mut h = Headless {
-        script: Script { pads: BTreeMap::new(), pokes: BTreeMap::new() },
+        script: Script {
+            pads: BTreeMap::new(),
+            pokes: BTreeMap::new(),
+        },
         frames: 3600,
         every: 600,
         ram_prefix: None,
@@ -368,12 +472,26 @@ fn main() {
             "--restore-check" => restore_check = true,
             "--host" | "--join" => {
                 let host = a == "--host";
-                join = Some(netplay::Join { room: next(&mut i), host, players: 2, delay: 0, signal: String::new() });
+                join = Some(netplay::Join {
+                    room: next(&mut i),
+                    host,
+                    players: 2,
+                    delay: 0,
+                    signal: String::new(),
+                    ice: net::matchbox::IceServers::default(),
+                });
             }
             "--players" => players = next(&mut i).parse().unwrap_or(2),
             "--delay" => delay = next(&mut i).parse().unwrap_or(netplay::DELAY),
             "--signal" => signal = next(&mut i),
+            "--stun" => ice.stun.push(next(&mut i)),
+            "--turn" => ice.turn.push(next(&mut i)),
+            "--turn-user" => ice.username = Some(next(&mut i)),
+            "--turn-password" => ice.credential = Some(next(&mut i)),
             "--loopback" => loopback = next(&mut i).parse::<usize>().ok(),
+            "--latency" => latency = next(&mut i).parse().unwrap_or(0),
+            "--late" => late = next(&mut i).parse().unwrap_or(0),
+            "--speed" => speed = next(&mut i).parse().unwrap_or(8),
             "--hashes" => {
                 let p = next(&mut i);
                 let f = std::fs::File::create(&p).unwrap_or_else(|e| {
@@ -413,16 +531,31 @@ fn main() {
         j.players = players;
         j.delay = delay;
         j.signal.clone_from(&signal);
+        j.ice = ice.clone();
     }
     if let Some(n) = loopback {
-        let text = input.as_ref().and_then(|p| std::fs::read_to_string(p).ok()).unwrap_or_default();
-        netplay::loopback(rom, parse_script(&text).pads, n.clamp(2, 4), h.frames);
+        let text = input
+            .as_ref()
+            .and_then(|p| std::fs::read_to_string(p).ok())
+            .unwrap_or_default();
+        netplay::loopback(
+            rom,
+            parse_script(&text).pads,
+            n.clamp(2, 4),
+            h.frames,
+            latency,
+            late,
+            speed,
+        );
     }
     if !headless {
         window::play(rom, join);
     }
     if let Some(j) = &join {
-        let text = input.as_ref().and_then(|p| std::fs::read_to_string(p).ok()).unwrap_or_default();
+        let text = input
+            .as_ref()
+            .and_then(|p| std::fs::read_to_string(p).ok())
+            .unwrap_or_default();
         netplay::headless(rom, j, parse_script(&text).pads, h.frames);
     }
     if let Some(p) = input {
@@ -453,10 +586,9 @@ fn main() {
             eprintln!("{p}: {e}");
             std::process::exit(1)
         });
-        md.sound.timeline = Some(std::sync::Arc::new(std::sync::Mutex::new(game::Timeline::new(
-            Box::new(std::io::BufWriter::new(f)),
-            timeline_at,
-        ))));
+        md.sound.timeline = Some(std::sync::Arc::new(std::sync::Mutex::new(
+            game::Timeline::new(Box::new(std::io::BufWriter::new(f)), timeline_at),
+        )));
     }
     let h_frames = frames_wanted;
     let mut game = game::Game::new(rom, Box::new(md));
@@ -465,7 +597,10 @@ fn main() {
             eprintln!("{p}: {e}");
             std::process::exit(1)
         });
-        game.timeline = Some(game::Timeline::new(Box::new(std::io::BufWriter::new(f)), timeline_at));
+        game.timeline = Some(game::Timeline::new(
+            Box::new(std::io::BufWriter::new(f)),
+            timeline_at,
+        ));
     }
     if restore_check {
         let frames = h_frames;

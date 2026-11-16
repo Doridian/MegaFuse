@@ -62,11 +62,16 @@ impl Game {
     fn trap(&self, a: u32, n: u32, value: u32) {
         static TRAP: std::sync::OnceLock<Option<u32>> = std::sync::OnceLock::new();
         let t = TRAP.get_or_init(|| {
-            std::env::var("MEGAFUSE_TRAP").ok().and_then(|v| u32::from_str_radix(&v, 16).ok())
+            std::env::var("MEGAFUSE_TRAP")
+                .ok()
+                .and_then(|v| u32::from_str_radix(&v, 16).ok())
         });
         static AFTER: std::sync::OnceLock<u64> = std::sync::OnceLock::new();
         let after = *AFTER.get_or_init(|| {
-            std::env::var("MEGAFUSE_TRAP_AFTER").ok().and_then(|v| v.parse().ok()).unwrap_or(0)
+            std::env::var("MEGAFUSE_TRAP_AFTER")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(0)
         });
         if let Some(t) = *t
             && self.clock >= after
@@ -198,7 +203,11 @@ impl Game {
         }
         let q = dividend / u32::from(divisor);
         let r = dividend % u32::from(divisor);
-        if q > 0xFFFF { (dividend, true) } else { (r << 16 | q, false) }
+        if q > 0xFFFF {
+            (dividend, true)
+        } else {
+            (r << 16 | q, false)
+        }
     }
 }
 
@@ -286,5 +295,9 @@ macro_rules! shifts {
 }
 
 shifts!(u8, asl8, asr8, lsl8, lsr8, rol8, ror8, roxl8, roxr8);
-shifts!(u16, asl16, asr16, lsl16, lsr16, rol16, ror16, roxl16, roxr16);
-shifts!(u32, asl32, asr32, lsl32, lsr32, rol32, ror32, roxl32, roxr32);
+shifts!(
+    u16, asl16, asr16, lsl16, lsr16, rol16, ror16, roxl16, roxr16
+);
+shifts!(
+    u32, asl32, asr32, lsl32, lsr32, rol32, ror32, roxl32, roxr32
+);

@@ -58,7 +58,10 @@ impl Game {
         self.write16(CONTROL, reg1 | DMA_ON);
         // the length (registers 20 and 19), then the fill mode (23)
         let length = length as u16;
-        self.write32(CONTROL, 0x9400_9300 | u32::from(length >> 8) << 16 | u32::from(length & 0xFF));
+        self.write32(
+            CONTROL,
+            0x9400_9300 | u32::from(length >> 8) << 16 | u32::from(length & 0xFF),
+        );
         self.write16(CONTROL, 0x9780);
         self.write32(CONTROL, command | 0x4000_0080);
         // the byte starts it
@@ -89,7 +92,11 @@ impl Game {
         let ipl = self.ipl();
         self.set_ipl(7);
         self.write32(CONTROL, 0xC000_0000);
-        let colour = if colour & 0x8000 != 0 { self.read16(BACKDROP_DEFAULT) } else { colour };
+        let colour = if colour & 0x8000 != 0 {
+            self.read16(BACKDROP_DEFAULT)
+        } else {
+            colour
+        };
         self.write16(DATA, colour);
         self.set_ipl(ipl);
         false

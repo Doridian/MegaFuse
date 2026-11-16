@@ -20,6 +20,11 @@
   #setup h1 { margin: 0 0 .5em; font-size: 1.6em; }
   #setup label { display: block; margin: 1em 0 .3em; font-weight: 600; }
   #setup .note { color: #bcd; font-size: .9em; }
+  #setup fieldset { margin: 1em 0 0; border: 1px solid #456; border-radius: 6px; }
+  #setup fieldset label { display: inline; font-weight: normal; margin: 0 1em 0 0; }
+  #setup .net { margin-top: .6em; }
+  #setup .net[hidden] { display: none; }
+  #setup input[type=text] { width: 14em; }
   #start { margin-top: 1.3em; padding: .5em 2em; font-size: 1.1em; }
   #status { position: fixed; left: 0; right: 0; bottom: 0; padding: .4em 1em; background: #000c;
     white-space: pre-wrap; }
@@ -37,12 +42,37 @@
     <input type="file" id="rom" accept=".bin,.md,.gen">
     <p class="note">The ROM stays in this browser and isn't sent anywhere.
       Keys: arrows, Z X C (A B C), Enter (Start); W A S D, F G H, Tab for pad 2.</p>
+    <fieldset>
+      <legend>Online</legend>
+      <label><input type="radio" name="mode" value="local" checked> Play here</label>
+      <label><input type="radio" name="mode" value="host"> Host a room</label>
+      <label><input type="radio" name="mode" value="join"> Join a room</label>
+      <div class="net" id="net" hidden>
+        <p><label for="room">Room</label> <input type="text" id="room" maxlength="40" autocomplete="off">
+          <span id="players-box"><label for="players">Players</label>
+          <select id="players"><option>2</option><option>3</option><option>4</option></select></span></p>
+        <p><label for="signal">Signalling server</label> <input type="text" id="signal"></p>
+        <p><label for="stun">STUN server</label> <input type="text" id="stun" placeholder="stun:host:3478 (optional)"></p>
+        <p class="note">The host starts at once; the others can come in any time, and a
+          seat whose player leaves is free again. Run <code>megafuse-server</code> somewhere
+          everyone reaches (docs/NETPLAY.md). Native players can join the same room.</p>
+      </div>
+    </fieldset>
     <button id="start" type="submit" disabled>Start</button>
   </form>
 </div>
 <div id="status" style="display:none"></div>
 <script type="module">
-  import init, { start } from "./megafuse.js";
+  import init, { start, start_net } from "./megafuse.js";
+
+  // the page's query can name the signalling server and the room
+  const query = new URLSearchParams(location.search);
+  function remembered(key, dflt) {
+    try { return localStorage.getItem(key) || dflt; } catch (e) { return dflt; }
+  }
+  function remember(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
 
   // the ROM, kept in IndexedDB
   function db() {
@@ -88,6 +118,24 @@
       button.disabled = false;
     }
     input.onchange = () => { button.disabled = !input.files.length && !old; };
+    const room = document.getElementById("room");
+    const signal = document.getElementById("signal");
+    const players = document.getElementById("players");
+    room.value = query.get("room") || "";
+    signal.value = query.get("signal") || remembered("megafuse-signal", "ws://localhost:3536");
+    const stun = document.getElementById("stun");
+    stun.value = query.get("stun") || remembered("megafuse-stun", "");
+    const mode = () => document.querySelector("input[name=mode]:checked").value;
+    for (const r of document.querySelectorAll("input[name=mode]")) {
+      r.onchange = () => {
+        document.getElementById("net").hidden = mode() === "local";
+        document.getElementById("players-box").hidden = mode() !== "host";
+      };
+    }
+    if (query.get("room")) {
+      document.querySelector("input[value=join]").checked = true;
+      document.querySelector("input[value=join]").onchange();
+    }
     setup.hidden = false;
     document.getElementById("form").onsubmit = async (ev) => {
       ev.preventDefault();
@@ -97,9 +145,17 @@
         bytes = new Uint8Array(await f.arrayBuffer());
         await keep(f.name, bytes);
       }
+      const m = mode();
+      if (m !== "local" && !room.value.trim()) { fail("A room's name, please."); return; }
       setup.hidden = true;
       document.getElementById("megafuse").focus();
-      start(bytes);
+      if (m === "local") {
+        start(bytes);
+      } else {
+        remember("megafuse-signal", signal.value.trim());
+        remember("megafuse-stun", stun.value.trim());
+        start_net(bytes, signal.value.trim(), room.value.trim(), m === "host", Number(players.value), stun.value.trim());
+      }
     };
   }).catch(fail);
 </script>
