@@ -85,14 +85,6 @@ source with `.if`s, using us's names (docs/LAYOUT.md, "US and EU").
   places). Comparing the versions through the map also tells numbers
   from pointers both ways (docs/LAYOUT.md, "US and EU").
 
-## Phase 3: assets
-
-The data from `0x40000` on: compressed tiles (Hudson's compression,
-to be identified), tilemaps and stage layouts, palettes, sprite mappings,
-text, the Z80 sound driver and the music and sound effect data. Each gets
-an extractor to editable files (PNG, YAML, ...) that must rebuild to the
-same bytes, as `tools/assets.py` does in B64 and Blast Corps.
-
 ## Phase 4: the game in Rust
 
 - `tools/recomp/`: a mechanical 68000 → Rust translator, one Rust
@@ -133,3 +125,15 @@ until the rest of the port is done.
 ## Phase 6: online multiplayer
 
 docs/NETPLAY.md.
+
+## Last: assets
+
+The data from `0x40000` on: compressed tiles (Hudson's compression,
+to be identified), tilemaps and stage layouts, palettes, sprite mappings,
+text, the Z80 sound driver and the music and sound effect data. Each gets
+an extractor to editable files (PNG, YAML, ...) that must rebuild to the
+same bytes, as `tools/assets.py` does in B64 and Blast Corps.
+
+Moved to the end (it was phase 3): the port reads the data from the ROM
+as it is, so nothing else waits on the formats. Phases 4-6 keep their
+numbers.
