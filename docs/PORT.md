@@ -135,7 +135,12 @@ map is read through (`decode.rs`: LZ and runs; 0xCBA-0xE3E), the
 map's cells to plane A (`map.rs`), a velocity toward a point
 (`math.rs`), the memory clear, the VRAM commands (0x268-0x295) and
 `func_001222`, a task with a sprite record, and the objects'
-animations (`anim.rs`, 0x12A0-0x157A).  A routine that takes
+animations (`anim.rs`, 0x12A0-0x157A); and 0x157A-0x2000: the map's
+cells (`a_cells.rs`), positions and velocities (`a_motion.rs`), the
+object records and their loop (`a_objects.rs`), the random numbers
+(`a_random.rs`, whose state shares its byte 0xFFA3FE with the tasks'
+count of tasks made).  Routines no script calls are reviewed by
+reading.  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.
