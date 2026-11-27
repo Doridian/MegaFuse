@@ -68,3 +68,8 @@ mod k_vdp;
 mod k_z80;
 mod k_stage;
 mod k_tasks;
+mod m_mover;
+mod m_stage_a;
+mod m_stage_b;
+mod m_corners;
+mod m_drop;
