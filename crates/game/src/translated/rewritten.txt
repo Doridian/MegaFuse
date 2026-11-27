@@ -154,6 +154,875 @@
     }
 
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000372(&mut self, d2: u32, d3: u32, d4: u32, d5: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32) -> (u32, u32, u32, u32, u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = d2;
+        let mut d3: u32 = d3;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = d7;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = a1;
+        let mut a2: u32 = a2;
+        let mut a3: u32 = a3;
+        let mut a4: u32 = a4;
+        let mut a5: u32 = a5;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000372, 12);
+        d0 = 0x258_u32;
+        self.insn(0x000378, 8);
+        a0 = 0xFFFF80F0_u32;
+        self.insn(0x00037C, 4);
+        d1 = 0_u32;
+        'l00037e: loop {
+            self.insn(0x00037E, 12);
+            let t1: u32 = a0;
+            a0 = a0.wrapping_add(4_u32);
+            self.write32(t1, d1);
+            self.insn(0x000380, 10);
+            let t2: u16 = (d0 as u16).wrapping_sub(1);
+            d0 = (d0 & 0xFFFF_0000) | u32::from(t2);
+            self.extra(if t2 == 0xFFFF { 4 } else { 0 });
+            if t2 != 0xFFFF {
+                continue 'l00037e;
+            } else {
+                self.insn(0x000384, 4);
+                self.insn(0x000386, 8);
+                a6 = 0xFFFF80F2_u32;
+                self.insn(0x00038A, 4);
+                d0 = 1_u32;
+                self.insn(0x00038C, 12);
+                self.write8(a6.wrapping_add(2_u32), (d0 as u8));
+                self.insn(0x000390, 12);
+                self.write8(a6.wrapping_add(0_u32), (d0 as u8));
+                self.insn(0x000394, 24);
+                self.write32(a6.wrapping_add(8_u32), 0xFFFF8122_u32);
+                self.insn(0x00039C, 16);
+                self.write8(a6.wrapping_add(1_u32), 0_u8);
+                self.insn(0x0003A0, 4);
+                self.insn(0x0003A2, 8);
+                a6 = 0xFFFF8122_u32;
+                self.insn(0x0003A6, 8);
+                d0 = (d0 & 0xFFFF_FF00) | u32::from(0xFF_u8);
+                self.insn(0x0003AA, 12);
+                self.write8(a6.wrapping_add(2_u32), (d0 as u8));
+                self.insn(0x0003AE, 12);
+                self.write8(a6.wrapping_add(0_u32), (d0 as u8));
+                self.insn(0x0003B2, 24);
+                self.write32(a6.wrapping_add(8_u32), 0_u32);
+                self.insn(0x0003B6, 16);
+                self.write8(a6.wrapping_add(1_u32), 0_u8);
+                self.insn(0x0003BA, 12);
+                a0 = 0x3D8_u32;
+                self.insn(0x0003C0, 4);
+                d6 = 0_u32;
+                self.insn(0x0003C2, 20);
+                (d6, x) = self.r_0006f6(d6, a0);
+                self.insn(0x0003C8, 4);
+                let t5: u8 = (d6 as u8);
+                let t6: u8 = t5.wrapping_add(1_u8);
+                d6 = (d6 & 0xFFFF_FF00) | u32::from(t6);
+                self.insn(0x0003CA, 20);
+                (d6, x) = self.r_0006f6(d6, a0);
+                self.insn(0x0003D0, 16);
+                self.write8(0xFFFF80F0_u32, 0_u8);
+                self.insn(0x0003D4, 18);
+                c = self.r_001c3a();
+                {
+                    let mut unwound = false;
+                    {
+                        let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
+                        self.r_0003d8(&mut regs);
+                        d0 = regs.d0;
+                        d1 = regs.d1;
+                        d2 = regs.d2;
+                        d3 = regs.d3;
+                        d4 = regs.d4;
+                        d5 = regs.d5;
+                        d6 = regs.d6;
+                        d7 = regs.d7;
+                        a0 = regs.a0;
+                        a1 = regs.a1;
+                        a2 = regs.a2;
+                        a3 = regs.a3;
+                        a4 = regs.a4;
+                        a5 = regs.a5;
+                        a6 = regs.a6;
+                        x = regs.x;
+                        c = regs.c;
+                        unwound = regs.unwound;
+                    }
+                    return (d0, d1, d6, a0, a6);
+                }
+            }
+        }
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_0003da(&mut self, d2: u32, d3: u32, d4: u32, d5: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32) -> (u32, u32, u32, u32, u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = d2;
+        let mut d3: u32 = d3;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = d7;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = a1;
+        let mut a2: u32 = a2;
+        let mut a3: u32 = a3;
+        let mut a4: u32 = a4;
+        let mut a5: u32 = a5;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        self.insn(0x0003DA, 24);
+        let t1: u32 = self.read32(0xFFFF80F6_u32);
+        s4_l = t1;
+        self.insn(0x0003DE, 18);
+        (d0, d1, d6, a0, a6) = self.r_000372(d2, d3, d4, d5, d7, a1, a2, a3, a4, a5);
+        self.insn(0x0003E2, 24);
+        let t2: u32 = s4_l;
+        self.write32(0xFFFF80F6_u32, t2);
+        self.insn(0x0003E6, 16);
+        return (d0, d1, d6, a0, a6);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_0003e8(&mut self, d4: u32, d5: u32, d6: u32, arg0: u8, arg2: u32) -> (u32, u32, bool, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s12_l: u32 = 0;
+        let mut s4_l: u32 = 0;
+        let mut s8_l: u32 = 0;
+        self.insn(0x0003E8, 8);
+        self.extra(24);
+        self.skip_refresh();
+        self.insn(0x0003EC, 4);
+        self.insn(0x0003EE, 12);
+        self.insn(0x0003F2, 16);
+        a0 = arg2;
+        self.insn(0x0003F6, 8);
+        d0 = (d0 & 0xFFFF_FF00) | u32::from(arg0);
+        self.insn(0x0003F8, 20);
+        (d6, a6, x, c) = self.r_000404(d0, d4, d5, d6, a0);
+        self.insn(0x0003FE, 12);
+        self.extra(24);
+        self.skip_refresh();
+        self.insn(0x000402, 16);
+        return (d6, a6, x, c);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000404(&mut self, d0: u32, d4: u32, d5: u32, d6: u32, a0: u32) -> (u32, u32, bool, bool) {
+        let mut d0: u32 = d0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = a0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s12_l: u32 = 0;
+        let mut s16_l: u32 = 0;
+        let mut s20_l: u32 = 0;
+        let mut s24_l: u32 = 0;
+        let mut s28_l: u32 = 0;
+        let mut s30_b: u8 = 0;
+        let mut s32_l: u32 = 0;
+        let mut s34_l: u32 = 0;
+        let mut s36_l: u32 = 0;
+        let mut s4_l: u32 = 0;
+        let mut s8_l: u32 = 0;
+        'l0004ec: {
+            'l000472: {
+                'l000434: {
+                    self.insn(0x000404, 8);
+                    self.extra(56);
+                    self.skip_refresh();
+                    self.insn(0x000408, 16);
+                    let t1: u8 = self.read8(0xFFFFA3FE_u32);
+                    let t2: u8 = t1.wrapping_add(1_u8);
+                    self.write8(0xFFFFA3FE_u32, t2);
+                    self.insn(0x00040C, 12);
+                    self.write8(0xFFFF80EF_u32, (d0 as u8));
+                    self.insn(0x000410, 16);
+                    n = (self.read8(0xFFFF80F0_u32).wrapping_sub(0x32_u8) as i8) < 0;
+                    v = (((self.read8(0xFFFF80F0_u32) ^ 0x32_u8) & (self.read8(0xFFFF80F0_u32) ^ self.read8(0xFFFF80F0_u32).wrapping_sub(0x32_u8))) as i8) < 0;
+                    self.insn(0x000416, 10);
+                    self.extra(if n == v { 0 } else { 2 });
+                    if n == v {
+                        break 'l000434;
+                    } else {
+                        self.insn(0x00041A, 4);
+                        d1 = 0x2F_u32;
+                        self.insn(0x00041C, 8);
+                        d6 = (d6 & 0xFFFF_FF00) | u32::from(2_u8);
+                        'l000420: loop {
+                            self.insn(0x000420, 20);
+                            (d6, a6, x) = self.r_0005f8(d6);
+                            self.insn(0x000426, 12);
+                            let t3: u8 = self.read8(a6.wrapping_add(2_u32));
+                            z = t3 == 0;
+                            self.insn(0x00042A, 10);
+                            self.extra(if z { 0 } else { 2 });
+                            if z {
+                                break 'l000472;
+                            } else {
+                                self.insn(0x00042E, 4);
+                                let t4: u16 = (d6 as u16);
+                                let t5: u16 = t4.wrapping_add(1_u16);
+                                d6 = (d6 & 0xFFFF_0000) | u32::from(t5);
+                                self.insn(0x000430, 10);
+                                let t6: u16 = (d1 as u16).wrapping_sub(1);
+                                d1 = (d1 & 0xFFFF_0000) | u32::from(t6);
+                                self.extra(if t6 == 0xFFFF { 4 } else { 0 });
+                                if t6 != 0xFFFF {
+                                    continue 'l000420;
+                                } else {
+                                    break 'l000434;
+                                }
+                            }
+                        }
+                    }
+                }
+                self.insn(0x000434, 12);
+                d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF8123_u32));
+                'l000438: loop {
+                    self.insn(0x000438, 20);
+                    (d6, a6, x) = self.r_0005f8(d6);
+                    self.insn(0x00043E, 12);
+                    let t7: u8 = self.read8(a6.wrapping_add(2_u32));
+                    n = (t7 as i8) < 0;
+                    self.insn(0x000442, 10);
+                    self.extra(if n { 0 } else { 2 });
+                    if n {
+                        'l00046c: {
+                            self.insn(0x000450, 12);
+                            let t9: u8 = self.read8(a6.wrapping_add(3_u32));
+                            d0 = (d0 & 0xFFFF_FF00) | u32::from(t9);
+                            n = (t9 as i8) < 0;
+                            self.insn(0x000454, 10);
+                            self.extra(if n { 0 } else { 2 });
+                            if n {
+                                break 'l00046c;
+                            } else {
+                                self.insn(0x000458, 16);
+                                let t10: u8 = self.read8(0xFFFF8A57_u32);
+                                s30_b = t10;
+                                self.insn(0x00045C, 24);
+                                let t11: u32 = self.read32(0xFFFF8A5A_u32);
+                                s34_l = t11;
+                                self.insn(0x000460, 18);
+                                x = self.r_000870(d0, d5);
+                                self.insn(0x000464, 24);
+                                let t12: u32 = s34_l;
+                                self.write32(0xFFFF8A5A_u32, t12);
+                                self.insn(0x000468, 16);
+                                let t13: u8 = s30_b;
+                                self.write8(0xFFFF8A57_u32, t13);
+                                break 'l00046c;
+                            }
+                        }
+                        self.insn(0x00046C, 20);
+                        (x, c) = self.r_000564(d5, d6, x);
+                        break 'l000472;
+                    } else {
+                        self.insn(0x000446, 12);
+                        let t8: u8 = self.read8(a6.wrapping_add(1_u32));
+                        d6 = (d6 & 0xFFFF_FF00) | u32::from(t8);
+                        z = t8 == 0;
+                        self.insn(0x00044A, 8);
+                        self.extra(if !z { 2 } else { 0 });
+                        if !z {
+                            continue 'l000438;
+                        } else {
+                            self.insn(0x00044C, 10);
+                            self.insn(0x0004F2, 12);
+                            d6 = 0xFF_u32;
+                            self.insn(0x0004F8, 20);
+                            c = true;
+                            self.insn(0x0004FC, 10);
+                            break 'l0004ec;
+                        }
+                    }
+                }
+            }
+            self.insn(0x000472, 8);
+            s32_l = a6;
+            s36_l = d6;
+            self.extra(16);
+            self.skip_refresh();
+            self.insn(0x000476, 12);
+            d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF80F2_u32));
+            self.insn(0x00047A, 16);
+            a6 = self.read32(0xFFFF80FA_u32);
+            'l00047e: loop {
+                'l0004a0: {
+                    self.insn(0x00047E, 12);
+                    let t14: u8 = self.read8(a6.wrapping_add(2_u32));
+                    d1 = (d1 & 0xFFFF_FF00) | u32::from(t14);
+                    self.insn(0x000482, 8);
+                    z = (d1 as u8) == 0xFF_u8;
+                    self.insn(0x000486, 10);
+                    self.extra(if z { 0 } else { 2 });
+                    if z {
+                        break 'l0004a0;
+                    } else {
+                        self.insn(0x00048A, 8);
+                        let t15: u8 = (d1 as u8);
+                        let t16: u8 = (t15 & 0x7F_u8);
+                        d1 = (d1 & 0xFFFF_FF00) | u32::from(t16);
+                        self.insn(0x00048E, 12);
+                        c = ((d1 as u8) < self.read8(0xFFFF80EF_u32));
+                        self.insn(0x000492, 10);
+                        self.extra(if !c { 0 } else { 2 });
+                        if !c {
+                            break 'l0004a0;
+                        } else {
+                            self.insn(0x000496, 12);
+                            let t17: u8 = self.read8(a6.wrapping_add(0_u32));
+                            d6 = (d6 & 0xFFFF_FF00) | u32::from(t17);
+                            self.insn(0x00049A, 16);
+                            let t18: u32 = self.read32(a6.wrapping_add(8_u32));
+                            a6 = t18;
+                            self.insn(0x00049E, 10);
+                            continue 'l00047e;
+                        }
+                    }
+                }
+                self.insn(0x0004A0, 4);
+                d5 = d6;
+                self.insn(0x0004A2, 4);
+                a5 = a6;
+                self.insn(0x0004A4, 12);
+                d6 = s36_l;
+                a6 = s32_l;
+                self.extra(16);
+                self.skip_refresh();
+                self.insn(0x0004A8, 12);
+                self.write8(a6.wrapping_add(0_u32), (d5 as u8));
+                self.insn(0x0004AC, 16);
+                self.write32(a6.wrapping_add(8_u32), a5);
+                self.insn(0x0004B0, 12);
+                let t19: u8 = self.read8(a5.wrapping_add(1_u32));
+                d4 = (d4 & 0xFFFF_FF00) | u32::from(t19);
+                self.insn(0x0004B4, 20);
+                (d4, a4) = self.r_00061c(d4);
+                self.insn(0x0004BA, 12);
+                self.write8(a4.wrapping_add(0_u32), (d6 as u8));
+                self.insn(0x0004BE, 16);
+                self.write32(a4.wrapping_add(8_u32), a6);
+                self.insn(0x0004C2, 12);
+                self.write8(a6.wrapping_add(1_u32), (d4 as u8));
+                self.insn(0x0004C6, 12);
+                self.write8(a5.wrapping_add(1_u32), (d6 as u8));
+                self.insn(0x0004CA, 20);
+                let t20: u8 = self.read8(0xFFFF80EF_u32);
+                self.write8(a6.wrapping_add(2_u32), t20);
+                self.insn(0x0004D0, 16);
+                self.write32(a6.wrapping_add(4_u32), a0);
+                self.insn(0x0004D4, 8);
+                d0 = (d0 & 0xFFFF_FF00) | u32::from(0xFF_u8);
+                self.insn(0x0004D8, 12);
+                self.write8(a6.wrapping_add(3_u32), (d0 as u8));
+                self.insn(0x0004DC, 16);
+                self.write8(a6.wrapping_add(0x1B_u32), 0_u8);
+                self.insn(0x0004E0, 16);
+                let t21: u8 = self.read8(0xFFFF80F0_u32);
+                let t22: u8 = t21.wrapping_add(1_u8);
+                self.write8(0xFFFF80F0_u32, t22);
+                c = (t22 < t21);
+                x = c;
+                self.insn(0x0004E4, 12);
+                self.write8(0xFFFF80EF_u32, (d6 as u8));
+                self.insn(0x0004E8, 20);
+                c = false;
+                break 'l0004ec;
+            }
+        }
+        self.insn(0x0004EC, 12);
+        self.extra(56);
+        self.skip_refresh();
+        self.insn(0x0004F0, 16);
+        return (d6, a6, x, c);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_0004fe(&mut self, a0: u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = a0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        self.insn(0x0004FE, 8);
+        self.extra(8);
+        self.skip_refresh();
+        self.insn(0x000502, 4);
+        d6 = 0_u32;
+        self.insn(0x000504, 20);
+        (d6, x) = self.r_0006f6(d6, a0);
+        self.insn(0x00050A, 12);
+        self.extra(8);
+        self.skip_refresh();
+        self.insn(0x00050E, 16);
+        return;
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000510(&mut self, a0: u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = a0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        self.insn(0x000510, 8);
+        self.extra(8);
+        self.skip_refresh();
+        self.insn(0x000514, 4);
+        d6 = 1_u32;
+        self.insn(0x000516, 20);
+        (d6, x) = self.r_0006f6(d6, a0);
+        self.insn(0x00051C, 12);
+        self.extra(8);
+        self.skip_refresh();
+        self.insn(0x000520, 16);
+        return;
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000522(&mut self, d6: u32, ret: u32) -> (bool, bool, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        let mut s8_l: u32 = 0;
+        self.insn(0x000522, 8);
+        self.extra(16);
+        self.skip_refresh();
+        self.insn(0x000526, 12);
+        d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF80EE_u32));
+        self.insn(0x00052A, 20);
+        (d6, a6, x) = self.r_0005f8(d6);
+        self.insn(0x000530, 28);
+        let t1: u32 = ret;
+        self.write32(a6.wrapping_add(4_u32), t1);
+        c = false;
+        self.insn(0x000536, 12);
+        self.extra(16);
+        self.skip_refresh();
+        self.insn(0x00053A, 8);
+        unw = true;
+        self.insn(0x00053C, 16);
+        return (x, c, unw);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_00053e(&mut self, d6: u32, arg0: u32) -> (bool, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        let mut s8_l: u32 = 0;
+        self.insn(0x00053E, 8);
+        self.extra(16);
+        self.skip_refresh();
+        self.insn(0x000542, 12);
+        d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF80EE_u32));
+        self.insn(0x000546, 20);
+        (d6, a6, x) = self.r_0005f8(d6);
+        self.insn(0x00054C, 28);
+        let t1: u32 = arg0;
+        self.write32(a6.wrapping_add(4_u32), t1);
+        c = false;
+        self.insn(0x000552, 12);
+        self.extra(16);
+        self.skip_refresh();
+        self.insn(0x000556, 16);
+        return (x, c);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000558(&mut self, a6: u32) -> bool {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = a6;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000558, 28);
+        let t1: u32 = self.read32(a6.wrapping_add(0x1C_u32));
+        let t2: u32 = t1;
+        self.write32(a6.wrapping_add(4_u32), t2);
+        c = false;
+        self.insn(0x00055E, 16);
+        return c;
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000560(&mut self, d5: u32, d6: u32, x: bool) -> (u32, bool, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = x;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000560, 12);
+        d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF80EE_u32));
+        c = false;
+        {
+            let mut unwound = false;
+            (x, c) = self.r_000564(d5, d6, x);
+            return (d6, x, c);
+        }
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000564(&mut self, d5: u32, d6: u32, x: bool) -> (bool, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = x;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s12_l: u32 = 0;
+        let mut s16_l: u32 = 0;
+        let mut s20_l: u32 = 0;
+        let mut s24_l: u32 = 0;
+        let mut s28_l: u32 = 0;
+        let mut s4_l: u32 = 0;
+        let mut s8_l: u32 = 0;
+        'l0005ba: {
+            self.insn(0x000564, 8);
+            self.extra(56);
+            self.skip_refresh();
+            self.insn(0x000568, 4);
+            n = ((d6 as u8) as i8) < 0;
+            c = false;
+            self.insn(0x00056A, 10);
+            self.extra(if n { 0 } else { 2 });
+            if n {
+                break 'l0005ba;
+            } else {
+                'l0005a2: {
+                    self.insn(0x00056E, 20);
+                    (d6, a6, x) = self.r_0005f8(d6);
+                    self.insn(0x000574, 16);
+                    self.write8(a6.wrapping_add(0x1B_u32), 0_u8);
+                    self.insn(0x000578, 12);
+                    let t1: u8 = self.read8(a6.wrapping_add(1_u32));
+                    d5 = (d5 & 0xFFFF_FF00) | u32::from(t1);
+                    self.insn(0x00057C, 20);
+                    (d5, a5) = self.r_00060a(d5);
+                    self.insn(0x000582, 12);
+                    let t2: u8 = self.read8(a6.wrapping_add(0_u32));
+                    d4 = (d4 & 0xFFFF_FF00) | u32::from(t2);
+                    self.insn(0x000586, 16);
+                    let t3: u32 = self.read32(a6.wrapping_add(8_u32));
+                    a4 = t3;
+                    self.insn(0x00058A, 12);
+                    self.write8(a5.wrapping_add(0_u32), (d4 as u8));
+                    self.insn(0x00058E, 16);
+                    self.write32(a5.wrapping_add(8_u32), a4);
+                    self.insn(0x000592, 12);
+                    self.write8(a4.wrapping_add(1_u32), (d5 as u8));
+                    self.insn(0x000596, 12);
+                    z = (d6 as u8) == self.read8(0xFFFF80EE_u32);
+                    self.insn(0x00059A, 10);
+                    self.extra(if !z { 0 } else { 2 });
+                    if !z {
+                        break 'l0005a2;
+                    } else {
+                        self.insn(0x00059E, 12);
+                        self.write8(0xFFFF80EE_u32, (d5 as u8));
+                        break 'l0005a2;
+                    }
+                }
+                self.insn(0x0005A2, 16);
+                let t4: u8 = self.read8(0xFFFF80F0_u32);
+                let t5: u8 = t4.wrapping_sub(1_u8);
+                self.write8(0xFFFF80F0_u32, t5);
+                c = (t4 < 1_u8);
+                x = c;
+                self.insn(0x0005A6, 16);
+                self.write8(a6.wrapping_add(2_u32), 0_u8);
+                self.insn(0x0005AA, 24);
+                self.write32(a6.wrapping_add(4_u32), 0_u32);
+                self.insn(0x0005AE, 16);
+                self.write8(a6.wrapping_add(1_u32), 0_u8);
+                self.insn(0x0005B2, 16);
+                self.write8(a6.wrapping_add(0_u32), 0_u8);
+                self.insn(0x0005B6, 24);
+                self.write32(a6.wrapping_add(8_u32), 0_u32);
+                c = false;
+                break 'l0005ba;
+            }
+        }
+        self.insn(0x0005BA, 12);
+        self.extra(56);
+        self.skip_refresh();
+        self.insn(0x0005BE, 16);
+        return (x, c);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_0005c0(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = d1;
+        let mut d2: u32 = d2;
+        let mut d3: u32 = d3;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = d7;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = a1;
+        let mut a2: u32 = a2;
+        let mut a3: u32 = a3;
+        let mut a4: u32 = a4;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x0005C0, 4);
+        d6 = 0_u32;
+        'l0005c2: loop {
+            self.insn(0x0005C2, 12);
+            self.write8(0xFFFF80EE_u32, (d6 as u8));
+            self.insn(0x0005C6, 20);
+            (d6, a6, x) = self.r_0005f8(d6);
+            self.insn(0x0005CC, 16);
+            let t1: u32 = self.read32(a6.wrapping_add(4_u32));
+            a0 = t1;
+            self.insn(0x0005D0, 4);
+            d5 = 0_u32;
+            self.insn(0x0005D2, 12);
+            let t2: u8 = self.read8(a6.wrapping_add(3_u32));
+            d5 = (d5 & 0xFFFF_FF00) | u32::from(t2);
+            self.insn(0x0005D6, 18);
+            (d5, a5, x) = self.r_000b5a(d5);
+            self.insn(0x0005DA, 12);
+            self.write8(0xFFFF8A57_u32, (d5 as u8));
+            self.insn(0x0005DE, 16);
+            self.write32(0xFFFF8A5A_u32, a5);
+            self.insn(0x0005E2, 4);
+            d0 = 0_u32;
+            c = false;
+            self.insn(0x0005E4, 16);
+            let mut unwound = false;
+            {
+                let mut regs = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, n, z, v, c, unwound: false };
+                self.call_family_16(a0, &mut regs);
+                d0 = regs.d0;
+                d1 = regs.d1;
+                d2 = regs.d2;
+                d3 = regs.d3;
+                d4 = regs.d4;
+                d5 = regs.d5;
+                d6 = regs.d6;
+                d7 = regs.d7;
+                a0 = regs.a0;
+                a1 = regs.a1;
+                a2 = regs.a2;
+                a3 = regs.a3;
+                a4 = regs.a4;
+                a5 = regs.a5;
+                a6 = regs.a6;
+                x = regs.x;
+                c = regs.c;
+                unwound = regs.unwound;
+            }
+            if unwound {
+                return (d0, d1, d2, d3, d4, d6, d7, a3, a4, a6);
+            }
+            if self.restarted.is_some() {
+                return (d0, d1, d2, d3, d4, d6, d7, a3, a4, a6);
+            }
+            self.insn(0x0005E6, 12);
+            d6 = (d6 & 0xFFFF_FF00) | u32::from(self.read8(0xFFFF80EE_u32));
+            self.insn(0x0005EA, 20);
+            (d6, a6, x) = self.r_0005f8(d6);
+            self.insn(0x0005F0, 12);
+            let t3: u8 = self.read8(a6.wrapping_add(0_u32));
+            d6 = (d6 & 0xFFFF_FF00) | u32::from(t3);
+            n = (t3 as i8) < 0;
+            self.insn(0x0005F4, 8);
+            self.extra(if !n { 2 } else { 0 });
+            if !n {
+                continue 'l0005c2;
+            } else {
+                self.insn(0x0005F6, 16);
+                return (d0, d1, d2, d3, d4, d6, d7, a3, a4, a6);
+            }
+        }
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_0005f8(&mut self, d6: u32) -> (u32, u32, bool) {
         let mut d0: u32 = 0;
         let mut d1: u32 = 0;
@@ -200,6 +1069,134 @@
         d6 = (d6 & 0xFFFF_0000) | u32::from(s2_w);
         self.insn(0x000608, 16);
         return (d6, a6, x);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_00060a(&mut self, d5: u32) -> (u32, u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = d5;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s2_w: u16 = 0;
+        self.insn(0x00060A, 8);
+        s2_w = (d5 as u16);
+        self.insn(0x00060C, 8);
+        let t1: u16 = (d5 as u16);
+        let t2: u16 = (t1 & 0xFF_u16);
+        d5 = (d5 & 0xFFFF_0000) | u32::from(t2);
+        self.insn(0x000610, 4);
+        let t3: u16 = (d5 as u16);
+        let t4: u16 = t3.wrapping_add((d5 as u16));
+        d5 = (d5 & 0xFFFF_0000) | u32::from(t4);
+        self.insn(0x000612, 4);
+        let t5: u16 = (d5 as u16);
+        let t6: u16 = t5.wrapping_add((d5 as u16));
+        d5 = (d5 & 0xFFFF_0000) | u32::from(t6);
+        self.insn(0x000614, 18);
+        let t7: u32 = self.read32(0x62E_u32.wrapping_add(((d5 as u16) as i16 as i32 as u32)));
+        a5 = t7;
+        self.insn(0x000618, 8);
+        d5 = (d5 & 0xFFFF_0000) | u32::from(s2_w);
+        self.insn(0x00061A, 16);
+        return (d5, a5);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_00061c(&mut self, d4: u32) -> (u32, u32) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = d4;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s2_w: u16 = 0;
+        self.insn(0x00061C, 8);
+        s2_w = (d4 as u16);
+        self.insn(0x00061E, 8);
+        let t1: u16 = (d4 as u16);
+        let t2: u16 = (t1 & 0xFF_u16);
+        d4 = (d4 & 0xFFFF_0000) | u32::from(t2);
+        self.insn(0x000622, 4);
+        let t3: u16 = (d4 as u16);
+        let t4: u16 = t3.wrapping_add((d4 as u16));
+        d4 = (d4 & 0xFFFF_0000) | u32::from(t4);
+        self.insn(0x000624, 4);
+        let t5: u16 = (d4 as u16);
+        let t6: u16 = t5.wrapping_add((d4 as u16));
+        d4 = (d4 & 0xFFFF_0000) | u32::from(t6);
+        self.insn(0x000626, 18);
+        let t7: u32 = self.read32(0x62E_u32.wrapping_add(((d4 as u16) as i16 as i32 as u32)));
+        a4 = t7;
+        self.insn(0x00062A, 8);
+        d4 = (d4 & 0xFFFF_0000) | u32::from(s2_w);
+        self.insn(0x00062C, 16);
+        return (d4, a4);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_0006f6(&mut self, d6: u32, a0: u32) -> (u32, bool) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = d6;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = a0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        let mut s4_l: u32 = 0;
+        self.insn(0x0006F6, 12);
+        self.insn(0x0006F8, 18);
+        (d6, a6, x) = self.r_0005f8(d6);
+        self.insn(0x0006FC, 16);
+        self.write32(a6.wrapping_add(4_u32), a0);
+        self.insn(0x000700, 12);
+        self.insn(0x000702, 16);
+        return (d6, x);
     }
 
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]

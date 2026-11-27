@@ -212,11 +212,19 @@ static void snap_step(unsigned pc)
 {
     unsigned sp = p_get_reg(REG_A7) & 0xFFFFFF;
     int which = -1, n;
-    while (snap_open_n && pc == snap_open[snap_open_n - 1].ret &&
-           sp == snap_open[snap_open_n - 1].sp + 4) {
-        snap_open_n--;
-        snap_write(snap_open[snap_open_n].which, snap_open[snap_open_n].n,
-                   "out");
+    while (snap_open_n) {
+        unsigned top_sp = snap_open[snap_open_n - 1].sp;
+        if (pc == snap_open[snap_open_n - 1].ret && sp == top_sp + 4) {
+            snap_open_n--;
+            snap_write(snap_open[snap_open_n].which,
+                       snap_open[snap_open_n].n, "out");
+        } else if (sp > top_sp + 4) {
+            /* its frame went without its return (a yield, a return
+               from the caller, sp reloaded): the call never ends, and
+               the ones below it may */
+            snap_open_n--;
+        } else
+            break;
     }
     if (pc == snap_addr) {
         if (snap_n >= snap_limit)

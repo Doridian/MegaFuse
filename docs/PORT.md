@@ -82,7 +82,9 @@ A rewrite is checked against the original call by call:
 `tools/rewrite_check.py [ADDR...]` (every rewritten routine by default)
 runs the original over the pad scripts (tools/mdtrace --snaps: the
 registers and work RAM where each routine is entered and where it
-returns, up to `--calls` a script) and the port's routine from each
+returns, up to `--calls` a script; a call whose frame goes without a
+return, as the yield's does, never ends, and the calls below it still
+do) and the port's routine from each
 entry state (`megafuse --routines`): the same work RAM (but the stack,
 and what an interrupt during the call changes) and the same registers
 and flags the callers read. `tools/routine_check.py ADDR --script ...`
@@ -122,9 +124,11 @@ one pointer) share a signature.
 
 Rewritten so far: the look-ups `func_001CFA` and `func_0005F8`, the
 frame wait `func_007DFA`, the VDP helpers (`func_000296`, `func_0002E0`,
-`func_0002E6`, `func_00855A`, `func_008560`, `func_00BAA8`) and the
+`func_0002E6`, `func_00855A`, `func_008560`, `func_00BAA8`), the
 Z80's command queue (`func_00349E`, `func_0034B6`, `func_0034CE`,
-`func_00B84C`, `func_00B84E`, `func_00B89E`).
+`func_00B84C`, `func_00B84E`, `func_00B89E`) and the tasks
+(`task.rs`: the list, making and ending tasks, the yield, the
+scheduler `func_0005C0`; 0x372-0x704).
 
 ## Translation
 
