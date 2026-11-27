@@ -334,4 +334,47 @@ impl Game {
         self.write32(record + ROUTINE, routine);
         (d6, LOOKUP_X)
     }
+    /// `func_00121A`: the running task ends (`func_000560`) and its
+    /// sprite record is freed (`func_000890`).  Gives back d6, X and C.
+    pub fn r_00121a(&mut self, d5: u32, d6: u32, x: bool) -> (u32, bool, bool) {
+        let (d6, x, _) = self.r_000560(d5, d6, x);
+        let c = self.r_000890();
+        (d6, x, c)
+    }
+
+    /// `func_001212` (a task's routine): unless `func_001BB4` says to
+    /// stop here, the task's kept routine is its routine again
+    /// (`loc_000558`).  Gives back C.
+    pub fn r_001212(&mut self, regs: &mut Regs) {
+        let (c, stop) = self.r_001bb4();
+        regs.c = if stop { c } else { self.r_000558(regs.a6) };
+    }
+
+    /// `func_001222`: a task running `routine` at `priority`
+    /// (`func_000404`) with a sprite record at `depth` (`func_000796`),
+    /// its frame 0, the task's byte 3 its index; C set if either can't
+    /// be had (the task ended again).  Gives back d5 and a5 (the
+    /// sprite's index and record), d6 and a6 (the task's), X and C.
+    #[allow(clippy::too_many_arguments)]
+    pub fn r_001222(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, depth: u8, priority: u8, routine: u32) -> (u32, u32, u32, u32, bool, bool) {
+        /// The sprite record's frame, and the long written at its y.
+        const FRAME: u32 = 0x04;
+        const Y: u32 = 0x0A;
+        let (d6, task, x, failed) = self.r_000404((d0 & !0xFF) | u32::from(priority), d4, d5, d6, routine);
+        if failed {
+            return (d5, d6, a5, task, x, true);
+        }
+        let (d5, sprite, x, failed) = self.r_000796((d0 & !0xFF) | u32::from(depth), d1, d2, d3, d4, d5, d6, d7, routine, a1, a2, a3, a4, a5, x);
+        if failed {
+            let (x, _) = self.r_000564(d5, d6, x);
+            return (d5, d6, sprite, task, x, true);
+        }
+        self.write8(task + SLOT, d5 as u8);
+        self.write8(sprite + FRAME, 0);
+        // y 0, and 0x100 in the word after it
+        self.write32(sprite + Y, 0x100);
+        self.write8(task + 0x12, 0);
+        self.write8(task + 0x13, 0);
+        (d5, d6, sprite, task, x, false)
+    }
 }

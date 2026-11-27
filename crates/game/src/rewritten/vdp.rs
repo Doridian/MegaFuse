@@ -95,3 +95,32 @@ impl Game {
         false
     }
 }
+
+/// A VRAM address as the control port's long has it: bits 0-13 in the
+/// high word, bits 14-15 in the low word's bits 0-1.
+fn vram_split(addr: u16) -> (u16, u16) {
+    (addr & 0x3FFF, addr >> 14)
+}
+
+impl Game {
+    /// `func_000268`: VRAM address `d0` (its low word) split: d0 = bits
+    /// 14-15 in the high word, bits 0-13 in the low word.
+    pub fn r_000268(&mut self, d0: u32) -> u32 {
+        let (low, high) = vram_split(d0 as u16);
+        u32::from(high) << 16 | u32::from(low)
+    }
+
+    /// `func_000282`: the VRAM write command for address `d0` (its low
+    /// word).  Gives back C (clear).
+    pub fn r_000282(&mut self, d0: u32) -> (u32, bool) {
+        let (low, high) = vram_split(d0 as u16);
+        (u32::from(low | 0x4000) << 16 | u32::from(high), false)
+    }
+
+    /// `func_00028E`: the VRAM read command for address `d0` (its low
+    /// word).
+    pub fn r_00028e(&mut self, d0: u32) -> u32 {
+        let (low, high) = vram_split(d0 as u16);
+        u32::from(low) << 16 | u32::from(high)
+    }
+}

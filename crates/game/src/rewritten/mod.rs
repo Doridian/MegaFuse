@@ -10,5 +10,8 @@ mod frame;
 mod vdp;
 mod z80;
 mod lookup;
+mod map;
+mod math;
+mod memory;
 mod sprite;
 mod task;
