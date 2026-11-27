@@ -139,8 +139,9 @@ animations (`anim.rs`, 0x12A0-0x157A); and 0x157A-0x2000: the map's
 cells (`a_cells.rs`), positions and velocities (`a_motion.rs`), the
 object records and their loop (`a_objects.rs`), the random numbers
 (`a_random.rs`, whose state shares its byte 0xFFA3FE with the tasks'
-count of tasks made).  Routines no script calls are reviewed by
-reading.  A routine that takes
+count of tasks made); 0x2000-0x3000: an object walking on the map
+(`b_walk.rs`), its requests and speeds (`b_control.rs`) and states
+(`b_state.rs`).  Routines no script calls are reviewed by reading.  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.
