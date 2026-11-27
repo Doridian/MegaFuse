@@ -130,7 +130,8 @@ Z80's command queue (`func_00349E`, `func_0034B6`, `func_0034CE`,
 (`task.rs`: the list, making and ending tasks, the yield, the
 scheduler `func_0005C0`; 0x372-0x704) and the sprites (`sprite.rs`:
 the list of records by depth and the sprite table made from it each
-frame, `func_0008B2`; 0x704-0xCBA).
+frame, `func_0008B2`; 0x704-0xCBA) and the two decoders the stage's
+map is read through (`decode.rs`: LZ and runs; 0xCBA-0xE3E).
 
 ## Translation
 

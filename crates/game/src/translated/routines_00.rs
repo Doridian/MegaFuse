@@ -3301,6 +3301,7 @@ impl Game {
         return (d6, a6);
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000cba(&mut self) {
         let mut d0: u32 = 0;
@@ -3375,6 +3376,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000cf4(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -3490,6 +3492,7 @@ impl Game {
         return;
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000d4c(&mut self, d0: u32, d1: u32) -> (u32, u32) {
         let mut d0: u32 = d0;
@@ -3567,6 +3570,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000d7a(&mut self) {
         let mut d0: u32 = 0;
@@ -3602,6 +3606,7 @@ impl Game {
         return;
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000d8e(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -3779,6 +3784,7 @@ impl Game {
         return;
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000e26(&mut self, d0: u32, d1: u32) -> (u32, u32) {
         let mut d0: u32 = d0;
