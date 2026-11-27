@@ -147,7 +147,12 @@ the made object with its pair (`d_*.rs`), cells and the tasks put on
 them (`e_*.rs`), cell marks, records and kinds (`f_*.rs`).  Routines
 no script calls are reviewed by reading.  Two differ in the check
 the way their translation does too, from an interrupt during the call
-in the original (`func_0053EC`, `func_00644A`).  A routine that takes
+in the original (`func_0053EC`, `func_00644A`); 0x7000-0x9000: the
+objects' routines and the pads (`g_*.rs`), the Team Player, the VDP's
+set-up, palette and scroll tables, and the search for an object's way
+(`h_*.rs`); `func_008508` and `func_00846C` give back a VDP status
+word whose bit 11 Genesis Plus GX takes from the open bus (and whose
+HBlank bit depends on the time), which the port's VDP doesn't.  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.
