@@ -11,6 +11,7 @@ mod a_objects;
 mod a_random;
 mod anim;
 mod b_control;
+mod b_state;
 mod b_walk;
 mod decode;
 mod frame;
