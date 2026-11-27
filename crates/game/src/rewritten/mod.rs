@@ -5,6 +5,10 @@
 //! `translated/rewritten.txt`), and is checked against the original call
 //! by call (tools/routine_check.py).
 
+mod a_cells;
+mod a_motion;
+mod a_objects;
+mod a_random;
 mod anim;
 mod decode;
 mod frame;
