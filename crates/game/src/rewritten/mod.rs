@@ -14,6 +14,7 @@ mod b_control;
 mod b_state;
 mod b_walk;
 mod c_chase;
+mod c_object;
 mod c_spawn;
 mod decode;
 mod frame;
