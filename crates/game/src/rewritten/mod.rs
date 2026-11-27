@@ -32,6 +32,8 @@ mod f_objects;
 mod f_records;
 mod f_spread;
 mod frame;
+mod g_objects;
+mod g_pads;
 mod vdp;
 mod z80;
 mod lookup;
