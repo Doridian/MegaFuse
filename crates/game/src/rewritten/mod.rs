@@ -13,6 +13,7 @@ mod anim;
 mod b_control;
 mod b_state;
 mod b_walk;
+mod c_chase;
 mod decode;
 mod frame;
 mod vdp;
