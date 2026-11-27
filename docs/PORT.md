@@ -128,7 +128,9 @@ frame wait `func_007DFA`, the VDP helpers (`func_000296`, `func_0002E0`,
 Z80's command queue (`func_00349E`, `func_0034B6`, `func_0034CE`,
 `func_00B84C`, `func_00B84E`, `func_00B89E`) and the tasks
 (`task.rs`: the list, making and ending tasks, the yield, the
-scheduler `func_0005C0`; 0x372-0x704).
+scheduler `func_0005C0`; 0x372-0x704) and the sprites (`sprite.rs`:
+the list of records by depth and the sprite table made from it each
+frame, `func_0008B2`; 0x704-0xCBA).
 
 ## Translation
 
