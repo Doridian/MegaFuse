@@ -134,7 +134,8 @@ frame, `func_0008B2`; 0x704-0xCBA) and the two decoders the stage's
 map is read through (`decode.rs`: LZ and runs; 0xCBA-0xE3E), the
 map's cells to plane A (`map.rs`), a velocity toward a point
 (`math.rs`), the memory clear, the VRAM commands (0x268-0x295) and
-`func_001222`, a task with a sprite record.  A routine that takes
+`func_001222`, a task with a sprite record, and the objects'
+animations (`anim.rs`, 0x12A0-0x157A).  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.

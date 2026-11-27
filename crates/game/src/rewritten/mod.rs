@@ -5,6 +5,7 @@
 //! `translated/rewritten.txt`), and is checked against the original call
 //! by call (tools/routine_check.py).
 
+mod anim;
 mod decode;
 mod frame;
 mod vdp;
