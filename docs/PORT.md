@@ -141,7 +141,13 @@ object records and their loop (`a_objects.rs`), the random numbers
 (`a_random.rs`, whose state shares its byte 0xFFA3FE with the tasks'
 count of tasks made); 0x2000-0x3000: an object walking on the map
 (`b_walk.rs`), its requests and speeds (`b_control.rs`) and states
-(`b_state.rs`).  Routines no script calls are reviewed by reading.  A routine that takes
+(`b_state.rs`); 0x3000-0x7000: objects that go by object 0's cell
+and the stage's starting objects (`c_*.rs`), angles, random picks and
+the made object with its pair (`d_*.rs`), cells and the tasks put on
+them (`e_*.rs`), cell marks, records and kinds (`f_*.rs`).  Routines
+no script calls are reviewed by reading.  Two differ in the check
+the way their translation does too, from an interrupt during the call
+in the original (`func_0053EC`, `func_00644A`).  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.

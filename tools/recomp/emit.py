@@ -287,7 +287,10 @@ class Emitter:
         for x in ORDER:
             if x in pnames:
                 body.append('let mut %s: %s = %s;' % (x, RTY[x], x))
-            elif self.family and x in self.f.fam_in[self.f.fam_of[e]]:
+            elif self.family and (x in self.f.fam_in[self.f.fam_of[e]] or
+                                  x in self.f.fam_out[self.f.fam_of[e]]):
+                # a family's result a member leaves alone is the
+                # caller's register as it was
                 body.append('let mut %s: %s = regs.%s;' % (x, RTY[x], x))
             else:
                 body.append('let mut %s: %s = %s;' % (
