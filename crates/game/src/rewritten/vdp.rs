@@ -96,6 +96,59 @@ impl Game {
     }
 }
 
+/// `func_00B9D0`'s DMA as `func_000302` sets it: the source (a long),
+/// the VRAM address (a word) and the length in words (a word).
+const DMA_FROM: u32 = 0xFFFF_A94E;
+const DMA_TO: u32 = 0xFFFF_A952;
+const DMA_LENGTH: u32 = 0xFFFF_A954;
+/// What `func_000302` copies to each line of plane A: 0x40 words in the
+/// ROM (`D_008776`).
+const BLANK_LINE: u32 = 0x008776;
+/// Plane A's first line in VRAM, a line's size and how many
+/// `func_000302` blanks.
+const PLANE_A: u16 = 0xE000;
+const LINE: u16 = 0x80;
+const PLANE_LINES: u16 = 0x38;
+
+impl Game {
+    /// `func_0002DA`: the picture on (`func_008552`).
+    pub fn r_0002da(&mut self) {
+        self.r_008552();
+    }
+
+    /// `func_000302`: plane A blanked: each of its `PLANE_LINES` lines
+    /// (from `PLANE_A`, `LINE` bytes apart) a DMA (`func_00B9D0`) of
+    /// 0x3F words of `BLANK_LINE`; then `func_000356`.  Gives back a0
+    /// (the last DMA's source) and X (the carry of the last line's
+    /// address step).
+    pub fn r_000302(&mut self) -> (u32, bool) {
+        self.write16(DMA_TO, PLANE_A);
+        let mut a0 = 0;
+        let mut x = false;
+        for _ in 0..PLANE_LINES {
+            self.write32(DMA_FROM, BLANK_LINE);
+            self.write16(DMA_LENGTH, 0x3F);
+            a0 = self.r_00b9d0();
+            let to = self.read16(DMA_TO);
+            let (next, carry) = to.overflowing_add(LINE);
+            self.write16(DMA_TO, next);
+            x = carry;
+        }
+        self.r_000356();
+        (a0, x)
+    }
+
+    /// `func_00033A`: VRAM 0x0000 on filled with 0 (a length of 0x1F).
+    pub fn r_00033a(&mut self) {
+        self.r_00baa8(0x4000_0000, 0x1F, 0);
+    }
+
+    /// `func_000356`: VRAM 0xFDE0 on filled with 0 (a length of 0x1F).
+    pub fn r_000356(&mut self) {
+        self.r_00baa8(0x7DE0_0003, 0x1F, 0);
+    }
+}
+
 /// A VRAM address as the control port's long has it: bits 0-13 in the
 /// high word, bits 14-15 in the low word's bits 0-1.
 fn vram_split(addr: u16) -> (u16, u16) {

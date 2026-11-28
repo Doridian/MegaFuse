@@ -94,6 +94,10 @@ impl Game {
         (0xFF, 0, 1, NOTHING, TAIL)
     }
 
+    /// `func_0003D8` (the `rts` that ends `func_000372`): the routine of
+    /// the list's head and tail; it does nothing.
+    pub fn r_0003d8(&mut self, _regs: &mut Regs) {}
+
     /// `func_0003DA`: `func_000372`, the head's routine kept.
     #[allow(clippy::too_many_arguments)]
     pub fn r_0003da(&mut self, d2: u32, d3: u32, d4: u32, d5: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32) -> (u32, u32, u32, u32, u32) {

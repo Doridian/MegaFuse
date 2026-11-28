@@ -56,6 +56,8 @@ mod p_choice;
 mod p_marks;
 mod p_screens;
 mod p_slide;
+mod lo_map;
+mod lo_object;
 mod lookup;
 mod map;
 mod q_actors;

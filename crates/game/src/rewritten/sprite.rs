@@ -14,7 +14,7 @@
 //! a table of frames, each a list of pieces (a 16x16 or 32x16 sprite
 //! each, at an offset from the record's position).
 
-use crate::Game;
+use crate::{Game, Regs};
 
 /// The records' addresses by index (`D_000B7E`, in the ROM; `D_000B86`
 /// is its third entry).
@@ -211,6 +211,55 @@ impl Game {
     #[allow(clippy::too_many_arguments)]
     pub fn r_0007f4(&mut self, _d0: u32, _d1: u32, _d2: u32, _d3: u32, _d4: u32, d5: u32, _d6: u32, _d7: u32, _a0: u32, _a1: u32, _a2: u32, _a3: u32, _a4: u32, a5: u32, _x: bool) -> (u32, bool) {
         (self.link_sprite(d5, a5), false)
+    }
+
+    /// `func_000800` (the loop in `func_0007F4`, an entry of its own
+    /// because `func_000810` is): record `d5` (its low byte) at a5
+    /// linked in at depth `d4` (its low byte), the search for the first
+    /// record deeper starting at a6 (index `d6`).  Gives back d5 (the
+    /// index), N, Z (as the index's) and C (clear).
+    #[allow(clippy::too_many_arguments)]
+    pub fn r_000800(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, bool, bool, bool) {
+        let mut r = Regs { d0, d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5, a6, x, ..Regs::default() };
+        self.lo_link_from(&mut r);
+        (r.d5, r.n, r.z, r.c)
+    }
+
+    /// `func_000810` (the `bra` back to `func_000800`'s loop, an entry
+    /// because the number 0x810 at 0xE4C looks like its address):
+    /// `func_000800`.  Gives back d4, d5, d6, a4, a6, N, Z and C as the
+    /// loop and the link leave them.
+    pub fn r_000810(&mut self, regs: &mut Regs) {
+        self.lo_link_from(regs);
+    }
+
+    /// `func_000800`'s loop and link on `r`: d4 the depth, d5 the
+    /// index, a5 the record, d6 and a6 where the search starts.
+    fn lo_link_from(&mut self, r: &mut Regs) {
+        let depth = r.d4 as u8;
+        let index = r.d5 as u8;
+        let record = r.a5;
+        while depth >= self.read8(r.a6 + DEPTH_FIELD) {
+            let next = self.read8(r.a6 + NEXT);
+            r.d6 = (r.d6 & !0xFF) | u32::from(next);
+            r.a6 = self.read32(r.a6 + NEXT_ADDR);
+        }
+        let next_record = r.a6;
+        self.write8(record + DEPTH_FIELD, depth);
+        self.write8(record + NEXT, r.d6 as u8);
+        self.write32(record + NEXT_ADDR, next_record);
+        let prev = self.read8(next_record + PREV);
+        r.d4 = (r.d4 & !0xFF) | u32::from(prev);
+        r.a4 = self.read32(next_record + PREV_ADDR);
+        self.write8(r.a4 + NEXT, index);
+        self.write32(r.a4 + NEXT_ADDR, record);
+        self.write8(record + PREV, prev);
+        self.write32(record + PREV_ADDR, r.a4);
+        self.write8(next_record + PREV, index);
+        self.write32(next_record + PREV_ADDR, record);
+        self.write8(DEPTH, index);
+        r.d5 = u32::from(index);
+        (r.n, r.z, r.c) = (false, index == 0, false);
     }
 
     /// Record `index` (its low byte), at `record`, linked in before the
