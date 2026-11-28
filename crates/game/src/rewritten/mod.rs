@@ -118,3 +118,5 @@ mod v_wave;
 mod v_sparks;
 mod v_dissolve;
 mod v_select;
+mod w_ring;
+mod w_choice;
