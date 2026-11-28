@@ -231,7 +231,7 @@ impl Game {
     /// `func_0107E0`, page 3's setup: the pointer (`func_0108CA`, page
     /// 3), `LINE` 1, `func_011CCA`, and the text by `COUNT`
     /// (`LINES_TEXTS`).
-    /// No script calls it: reviewed by reading.
+    /// Reached only in longer runs (`--frames 100000`).
     pub fn r_0107e0(&mut self, regs: &mut Regs) {
         let r = &mut *regs;
         r.unwound = false;
@@ -282,7 +282,7 @@ impl Game {
     }
 
     /// `func_0108AE`: the text at `OTHER_TEXT` drawn.
-    /// No script calls it: reviewed by reading.
+    /// Reached only in longer runs (`--frames 100000`).
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn r_0108ae(&mut self, d0: u32, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32, u32) {
         self.write32(TEXT, OTHER_TEXT);
@@ -355,7 +355,7 @@ impl Game {
     /// `func_010B74`: the first five objects' `OBJ_FLAGS` bits 0-3
     /// cleared.  Gives back d0 (0x10B8A), d4-d6 and a4-a6 as they were,
     /// X clear.
-    /// No script calls it: reviewed by reading.
+    /// Reached only in longer runs (`--frames 100000`).
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn r_010b74(&mut self, d0: u32, d4: u32, d5: u32, d6: u32, a4: u32, a5: u32, a6: u32) -> (u32, u32, u32, u32, u32, u32, u32, bool) {
         self.o_each_object(d0, d4, d5, d6, a4, a5, a6, 0x010B8A, |flags| flags & 0xF0)

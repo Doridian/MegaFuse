@@ -337,6 +337,7 @@ impl Game {
     }
 
     /// `func_00F0B4`: `func_0071A0`, then a puff when it says so.
+    /// Only `func_00F082` calls it; checked through it.
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn r_00f0b4(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a0: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32) -> (u32, u32, u32, u32, u32, u32, u32, u32, bool, bool) {
         let (d0, d1, d2, a0, x, c) = self.r_0071a0(d1, d2, d3, d4, d5, d6, d7, a0, a1, a2, a3, a4, a5);

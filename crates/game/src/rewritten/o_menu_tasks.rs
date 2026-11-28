@@ -653,7 +653,7 @@ impl Game {
     /// line's object's flags kept.  Back (`BACK`): page 2
     /// (`func_010C04`, `func_011A6E`).  On (`ON`): the next page
     /// (`loc_01109A`) if `func_0110CA` lets it, else `NO_SOUND`.
-    /// No script calls it: reviewed by reading.
+    /// Reached only in longer runs (`--frames 100000`).
     pub fn r_010fee(&mut self, regs: &mut Regs) {
         let r = &mut *regs;
         r.unwound = false;
