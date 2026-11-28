@@ -169,7 +169,14 @@ on, to frame 462.  0xD000-0xF000: a stage's tasks and makers, the
 push, objects' routines (`m_*.rs`, `n_*.rs`); 0x11000-0x13000: the
 screens of choices, their marks and slide (`p_*.rs`), the steps of
 0xFF80E0's routine, the stage's objects and tasks (`q_*.rs`);
-`func_011312` and `func_0114C0` differ as their translation does.  A
+`func_011312` and `func_0114C0` differ as their translation does;
+0xF000-0x11000: kinds' routines, the menus' pads, runs of tiles, the
+menu's pages and their tasks (`o_*.rs`; `func_0100AE`, `func_0101C0`
+and `func_010846` differ as their translation does, from the vertical
+blank during the call, and `func_010764` and `func_0107B6` read VRAM
+back, which the check's state hasn't); 0x13000-0x15000: bosses'
+helpers and pieces, a ring, a walker and a chain (`rr_*.rs`,
+`s_*.rs`).  A
 routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
