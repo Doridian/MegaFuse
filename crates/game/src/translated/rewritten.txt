@@ -1,6 +1,154 @@
 // what tools/recomp makes of the routines rewritten by hand
 // (their signatures are these)
 
+    pub fn r_000200(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x200_u32);
+    }
+
+    pub fn r_000208(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x208_u32);
+    }
+
+    pub fn r_00020c(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x20C_u32);
+    }
+
+    pub fn r_000214(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x214_u32);
+    }
+
+    pub fn r_000218(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x218_u32);
+    }
+
+    pub fn r_000220(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x220_u32);
+    }
+
+    pub fn r_000224(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x224_u32);
+    }
+
+    pub fn r_00022c(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x22C_u32);
+    }
+
+    pub fn r_000230(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x230_u32);
+    }
+
+    pub fn r_000238(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x238_u32);
+    }
+
+    pub fn r_00023c(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x23C_u32);
+    }
+
+    pub fn r_000244(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x244_u32);
+    }
+
+    pub fn r_000248(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x248_u32);
+    }
+
+    pub fn r_000250(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x250_u32);
+    }
+
+    pub fn r_000254(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x254_u32);
+    }
+
+    pub fn r_00025c(&mut self) {
+        panic!("exception: the game crashed (its handler at {:#08X})", 0x25C_u32);
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000260(&mut self) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000260, 4);
+        'l000262: loop {
+            self.insn(0x000262, 10);
+            continue 'l000262;
+        }
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000264(&mut self) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000264, 20);
+        return;
+    }
+
+    #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
+    pub fn r_000266(&mut self) {
+        let mut d0: u32 = 0;
+        let mut d1: u32 = 0;
+        let mut d2: u32 = 0;
+        let mut d3: u32 = 0;
+        let mut d4: u32 = 0;
+        let mut d5: u32 = 0;
+        let mut d6: u32 = 0;
+        let mut d7: u32 = 0;
+        let mut a0: u32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut a3: u32 = 0;
+        let mut a4: u32 = 0;
+        let mut a5: u32 = 0;
+        let mut a6: u32 = 0;
+        let mut x: bool = false;
+        let mut n: bool = false;
+        let mut z: bool = false;
+        let mut v: bool = false;
+        let mut c: bool = false;
+        let mut unw: bool = false;
+        self.insn(0x000266, 20);
+        return;
+    }
+
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000268(&mut self, d0: u32) -> u32 {
         let mut d0: u32 = d0;

@@ -21,6 +21,7 @@ mod d_object;
 mod d_pair;
 mod d_random;
 mod decode;
+mod exceptions;
 mod e_cell;
 mod e_cell_task;
 mod e_follow;

@@ -4,70 +4,87 @@
 use crate::{Game, Regs};
 
 impl Game {
+    #[cfg(feature = "exact")]
     pub fn r_000200(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x200_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000208(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x208_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_00020c(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x20C_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000214(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x214_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000218(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x218_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000220(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x220_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000224(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x224_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_00022c(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x22C_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000230(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x230_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000238(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x238_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_00023c(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x23C_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000244(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x244_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000248(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x248_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000250(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x250_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_000254(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x254_u32);
     }
 
+    #[cfg(feature = "exact")]
     pub fn r_00025c(&mut self) {
         panic!("exception: the game crashed (its handler at {:#08X})", 0x25C_u32);
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000260(&mut self) {
         let mut d0: u32 = 0;
@@ -98,6 +115,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000264(&mut self) {
         let mut d0: u32 = 0;
@@ -125,6 +143,7 @@ impl Game {
         return;
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_000266(&mut self) {
         let mut d0: u32 = 0;
