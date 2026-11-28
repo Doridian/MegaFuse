@@ -136,3 +136,7 @@ mod zd_boss_a;
 mod zd_boss_b;
 mod zd_boss_c;
 mod zd_boss_d;
+mod yc_screen;
+mod yc_squares;
+mod yc_round;
+mod yc_cell;
