@@ -132,3 +132,7 @@ mod y_stage3;
 mod zc_password;
 mod zc_scene_a;
 mod zc_scene_b;
+mod zd_boss_a;
+mod zd_boss_b;
+mod zd_boss_c;
+mod zd_boss_d;
