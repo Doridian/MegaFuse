@@ -176,7 +176,13 @@ and `func_010846` differ as their translation does, from the vertical
 blank during the call, and `func_010764` and `func_0107B6` read VRAM
 back, which the check's state hasn't); 0x13000-0x15000: bosses'
 helpers and pieces, a ring, a walker and a chain (`rr_*.rs`,
-`s_*.rs`).  A
+`s_*.rs`); 0x15000-0x1A000: the boss of area 2 and its tasks
+(`t_*.rs`), the ending's script, tasks and text (`u_*.rs`), a wave,
+sparks, a dissolve and a choice screen (`v_*.rs`), tasks placed by an
+angle and another choice (`w_*.rs`), tasks and an object (`x_*.rs`);
+`func_017B5A`, `func_018D1C` and `func_018D22` differ as their
+translation does (0xFF805B, from the vertical blank during
+`func_0094D8`), and `func_017870` reads VRAM back.  A
 routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
