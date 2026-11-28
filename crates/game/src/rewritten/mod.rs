@@ -40,6 +40,7 @@ mod g_pads;
 mod h_pad;
 mod h_scroll;
 mod h_search;
+mod h_start;
 mod h_vdp;
 mod vdp;
 mod z80;
