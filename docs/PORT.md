@@ -188,7 +188,20 @@ a screen of three choices and its sequence, stage 3's object
 code's digits (`z_*.rs`, `zc_password.rs`) and two of `D_01924E`'s
 scenes (`zc_scene_*.rs`); 0x1D000-0x1E756: the last bosses
 (`zd_boss_*.rs`; `func_01D806` and `func_01D80E` differ as their
-translation does, through `func_0094D8`).  A
+translation does, through `func_0094D8`).  Then the tasks that
+yield (`func_000522`'s resume address a named constant, the resume
+routine rewritten too), checked through the scheduler (`0005C0` with
+the scripts that reach them, up to 24000 calls): the start's task
+(`h_start.rs`), the choice screens' steps and other tasks of
+0xC000-0x18000 (`ya_*.rs`), 0x18000's and 0x1A000's (`yb_*.rs`) and
+0x19000's (`yc_*.rs`); and the routines left at low addresses
+(`lo_*.rs`, with additions to `vdp.rs`, `task.rs` and `sprite.rs`).
+`func_000E9E`, `func_00108C`, `func_001030`, `func_0179EA`,
+`func_018876` and `func_018D80` differ as their translation does.
+What stays translated waits for the frame (`func_007DFA` or a loop on
+0xFF805A): the main loop, the menus' loops through `func_010578`,
+`func_0082FA`; or is entered in another routine's middle
+(`func_0120B4`); and the reset, the interrupts and the pads.  A
 routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check

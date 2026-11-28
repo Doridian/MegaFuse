@@ -8888,6 +8888,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01a202(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -8983,6 +8984,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01a20c(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -9413,6 +9415,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01a30a(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -9508,6 +9511,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01a314(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -13386,6 +13390,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ad66(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -13463,6 +13468,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ad76(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -13600,6 +13606,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01ad90(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
@@ -14097,6 +14104,7 @@ impl Game {
         }
     }
 
+    #[cfg(feature = "exact")]
     #[allow(unused_mut, unused_variables, unused_assignments, unreachable_code, clippy::all)]
     pub fn r_01aee0(&mut self, regs: &mut Regs) {
         let mut d0: u32 = regs.d0;
