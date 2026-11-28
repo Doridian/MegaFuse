@@ -130,6 +130,8 @@ mod y_screen;
 mod y_seq_a;
 mod y_seq_b;
 mod y_stage3;
+mod ya_select;
+mod ya_tasks;
 mod zc_password;
 mod zc_scene_a;
 mod zc_scene_b;
