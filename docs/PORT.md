@@ -182,7 +182,11 @@ sparks, a dissolve and a choice screen (`v_*.rs`), tasks placed by an
 angle and another choice (`w_*.rs`), tasks and an object (`x_*.rs`);
 `func_017B5A`, `func_018D1C` and `func_018D22` differ as their
 translation does (0xFF805B, from the vertical blank during
-`func_0094D8`), and `func_017870` reads VRAM back.  A
+`func_0094D8`), and `func_017870` reads VRAM back; 0x1A000-0x1D000:
+a screen of three choices and its sequence, stage 3's object
+(`y_*.rs`), the title's tasks, the screen when the lives run out, the
+code's digits (`z_*.rs`, `zc_password.rs`) and two of `D_01924E`'s
+scenes (`zc_scene_*.rs`).  A
 routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
