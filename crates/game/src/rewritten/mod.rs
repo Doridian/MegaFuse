@@ -114,3 +114,7 @@ mod u_scene;
 mod u_script;
 mod u_scripted;
 mod u_staff;
+mod v_wave;
+mod v_sparks;
+mod v_dissolve;
+mod v_select;
