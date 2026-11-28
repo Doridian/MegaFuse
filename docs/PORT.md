@@ -165,7 +165,12 @@ translation does (the exact build): the vertical blank's handler
 changes 0xFF805B, and the rest during calls that run for frames.  The
 port's own build (rewrites spend no time) runs a frame ahead of the
 original from frame 153, during the start, and is the same, a frame
-on, to frame 462.  A routine that takes
+on, to frame 462.  0xD000-0xF000: a stage's tasks and makers, the
+push, objects' routines (`m_*.rs`, `n_*.rs`); 0x11000-0x13000: the
+screens of choices, their marks and slide (`p_*.rs`), the steps of
+0xFF80E0's routine, the stage's objects and tasks (`q_*.rs`);
+`func_011312` and `func_0114C0` differ as their translation does.  A
+routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.
