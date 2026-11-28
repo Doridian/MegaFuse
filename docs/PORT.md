@@ -186,7 +186,9 @@ translation does (0xFF805B, from the vertical blank during
 a screen of three choices and its sequence, stage 3's object
 (`y_*.rs`), the title's tasks, the screen when the lives run out, the
 code's digits (`z_*.rs`, `zc_password.rs`) and two of `D_01924E`'s
-scenes (`zc_scene_*.rs`).  A
+scenes (`zc_scene_*.rs`); 0x1D000-0x1E756: the last bosses
+(`zd_boss_*.rs`; `func_01D806` and `func_01D80E` differ as their
+translation does, through `func_0094D8`).  A
 routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
