@@ -55,9 +55,9 @@ const DIGIT_FRAME: u8 = 0x74;
 /// The frame `func_01C212` leaves its sprite with.
 const DONE_FRAME: u8 = 0x81;
 
-/// `func_01C082`'s palette (`func_000776`), its task (`SCREEN_TASK`,
+/// `func_01C082`'s sprites' frames (`func_000776`, set 1), its task (`SCREEN_TASK`,
 /// priority `SCREEN_PRIORITY`) and the arguments of `func_00A506`.
-const PALETTE: u32 = 0x0DC3D8;
+const FRAMES: u32 = 0x0DC3D8;
 const SCREEN_TASK: u32 = 0x0175A4;
 const SCREEN_PRIORITY: u8 = 0x1E;
 
@@ -140,13 +140,13 @@ impl Game {
         r.c = false;
     }
 
-    /// `func_01C082`: the screen's set-up: `func_0002DA`, palette 1 from
-    /// `PALETTE`, the bytes from `CLEARED` and the other words cleared,
+    /// `func_01C082`: the screen's set-up: `func_0002DA`, the frames set 1
+    /// from `FRAMES`, the bytes from `CLEARED` and the other words cleared,
     /// `func_008664`, `func_00A506` (4), and a task `SCREEN_TASK` whose
     /// `TASK_C` is 0xA.  Gives back d0, d6, a0, a1, a6 and X.
     pub fn r_01c082(&mut self, d1: u32, d2: u32, d3: u32, d4: u32, d5: u32, d6: u32, d7: u32, a1: u32, a2: u32, a3: u32, a4: u32, a5: u32, a6: u32, x: bool) -> (u32, u32, u32, u32, u32, bool) {
         self.r_0002da();
-        self.r_000776(1, PALETTE, a1);
+        self.r_000776(1, FRAMES, a1);
         for i in 0..CLEARED_LEN {
             self.write8(CLEARED + i, 0);
         }

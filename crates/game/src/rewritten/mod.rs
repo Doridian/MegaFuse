@@ -130,3 +130,4 @@ mod y_seq_a;
 mod y_seq_b;
 mod y_stage3;
 mod zc_password;
+mod zc_scene_a;
