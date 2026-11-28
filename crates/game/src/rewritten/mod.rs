@@ -61,6 +61,8 @@ mod q_states;
 mod q_tasks;
 mod o_input;
 mod o_kinds;
+mod o_menu;
+mod o_menu_tasks;
 mod o_tiles;
 mod math;
 mod memory;
