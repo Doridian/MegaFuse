@@ -98,3 +98,6 @@ mod rr_spin;
 mod rr_wander;
 mod rr_finale;
 mod rr_drop;
+mod s_walker;
+mod s_pieces;
+mod s_chain;
