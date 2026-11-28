@@ -152,7 +152,20 @@ objects' routines and the pads (`g_*.rs`), the Team Player, the VDP's
 set-up, palette and scroll tables, and the search for an object's way
 (`h_*.rs`); `func_008508` and `func_00846C` give back a VDP status
 word whose bit 11 Genesis Plus GX takes from the open bus (and whose
-HBlank bit depends on the time), which the port's VDP doesn't.  A routine that takes
+HBlank bit depends on the time), which the port's VDP doesn't;
+0x9000-0xD000: the pads' probe, the palette, the VDP queue, loading,
+the intro, the stage's start and the main loop's helpers (`i_*.rs`),
+the colours' fades and cycle, the H-interrupt list, the clock and
+panel (`j_*.rs`), the window plane, the VRAM copy and DMA, the Z80's
+load, the stage's tasks and kinds (`k_*.rs`), and the stage's
+sequence, circle, pieces, makers and drops (`l_*.rs`).  `func_0094D8`,
+`func_0095CE`, `func_009636`-`func_009674`, `func_0098F8`,
+`func_0099E6` and `func_009B0A` differ in the check exactly as their
+translation does (the exact build): the vertical blank's handler
+changes 0xFF805B, and the rest during calls that run for frames.  The
+port's own build (rewrites spend no time) runs a frame ahead of the
+original from frame 153, during the start, and is the same, a frame
+on, to frame 462.  A routine that takes
 arguments on the stack (`func_001222`, `func_0003E8`) is checked
 through its callers: the tasks, run by the scheduler, which the check
 covers.
