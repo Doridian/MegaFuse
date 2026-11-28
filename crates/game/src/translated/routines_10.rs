@@ -1971,14 +1971,6 @@ impl Game {
         let t2: u8 = t1.wrapping_add(1_u8);
         self.write8(0xFFFFAD80_u32, t2);
         self.insn(0x016D8E, 16);
-        regs.d0 = d0;
-        regs.d1 = d1;
-        regs.d2 = d2;
-        regs.d3 = d3;
-        regs.d5 = d5;
-        regs.d6 = d6;
-        regs.a5 = a5;
-        regs.a6 = a6;
         regs.unwound = unw;
         return;
     }

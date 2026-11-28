@@ -313,7 +313,11 @@ class Emitter:
         if self.root:
             return ['return;']
         if self.family:
-            outs = sorted_res(self.f.fam_out[self.f.fam_of[r.entry]])
+            # what it saves and restores (its `movem`s dropped,
+            # dataflow.drop_saves) stays the caller's
+            outs = [x for x in sorted_res(
+                self.f.fam_out[self.f.fam_of[r.entry]])
+                if x not in r.preserved]
             return ['regs.%s = %s;' % (x, x) for x in outs] + [
                 'regs.unwound = %s;' % ('true' if unwound else 'unw'),
                 'return;']

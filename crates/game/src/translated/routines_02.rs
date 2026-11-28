@@ -339,7 +339,6 @@ impl Game {
                     self.insn(0x003F58, 16);
                     regs.d0 = d0;
                     regs.d1 = d1;
-                    regs.a0 = a0;
                     regs.unwound = unw;
                     return;
                 }
@@ -349,7 +348,6 @@ impl Game {
         self.insn(0x003F6E, 16);
         regs.d0 = d0;
         regs.d1 = d1;
-        regs.a0 = a0;
         regs.unwound = unw;
         return;
     }
@@ -672,7 +670,6 @@ impl Game {
         self.skip_refresh();
         self.insn(0x004066, 16);
         regs.d0 = d0;
-        regs.d1 = d1;
         regs.a0 = a0;
         regs.unwound = unw;
         return;
@@ -3411,29 +3408,15 @@ impl Game {
             self.write32(a4.wrapping_add(2_u32), 0x4B26_u32);
             c = false;
             self.insn(0x00498C, 16);
-            regs.d0 = d0;
             regs.d4 = d4;
-            regs.d5 = d5;
-            regs.d6 = d6;
-            regs.a0 = a0;
             regs.a4 = a4;
-            regs.a5 = a5;
-            regs.a6 = a6;
-            regs.x = x;
             regs.c = c;
             regs.unwound = unw;
             return;
         } else {
             self.insn(0x00496C, 16);
-            regs.d0 = d0;
             regs.d4 = d4;
-            regs.d5 = d5;
-            regs.d6 = d6;
-            regs.a0 = a0;
             regs.a4 = a4;
-            regs.a5 = a5;
-            regs.a6 = a6;
-            regs.x = x;
             regs.c = c;
             regs.unwound = unw;
             return;
@@ -6619,22 +6602,6 @@ impl Game {
         self.insn(0x0052EA, 20);
         c = false;
         self.insn(0x0052EE, 16);
-        regs.d0 = d0;
-        regs.d1 = d1;
-        regs.d2 = d2;
-        regs.d3 = d3;
-        regs.d4 = d4;
-        regs.d5 = d5;
-        regs.d6 = d6;
-        regs.d7 = d7;
-        regs.a0 = a0;
-        regs.a1 = a1;
-        regs.a2 = a2;
-        regs.a3 = a3;
-        regs.a4 = a4;
-        regs.a5 = a5;
-        regs.a6 = a6;
-        regs.x = x;
         regs.c = c;
         regs.unwound = unw;
         return;
@@ -6862,21 +6829,6 @@ impl Game {
         c = false;
         self.insn(0x005376, 16);
         regs.d0 = d0;
-        regs.d1 = d1;
-        regs.d2 = d2;
-        regs.d3 = d3;
-        regs.d4 = d4;
-        regs.d5 = d5;
-        regs.d6 = d6;
-        regs.d7 = d7;
-        regs.a0 = a0;
-        regs.a1 = a1;
-        regs.a2 = a2;
-        regs.a3 = a3;
-        regs.a4 = a4;
-        regs.a5 = a5;
-        regs.a6 = a6;
-        regs.x = x;
         regs.c = c;
         regs.unwound = unw;
         return;
@@ -7391,21 +7343,14 @@ impl Game {
         self.extra(56);
         self.skip_refresh();
         self.insn(0x005504, 16);
-        regs.d0 = d0;
         regs.d1 = d1;
         regs.d2 = d2;
         regs.d3 = d3;
-        regs.d4 = d4;
-        regs.d5 = d5;
-        regs.d6 = d6;
         regs.d7 = d7;
         regs.a0 = a0;
         regs.a1 = a1;
         regs.a2 = a2;
         regs.a3 = a3;
-        regs.a4 = a4;
-        regs.a5 = a5;
-        regs.a6 = a6;
         regs.x = x;
         regs.c = c;
         regs.unwound = unw;
@@ -11899,7 +11844,6 @@ impl Game {
         let t2: u32 = t1.wrapping_add(1_u32);
         self.write32(0xFFFF9ED6_u32, t2);
         self.insn(0x006248, 16);
-        regs.d0 = d0;
         regs.unwound = unw;
         return;
     }
@@ -11971,7 +11915,6 @@ impl Game {
         let t2: u32 = t1.wrapping_sub(1_u32);
         self.write32(0xFFFF9ED6_u32, t2);
         self.insn(0x00625A, 16);
-        regs.d0 = d0;
         regs.unwound = unw;
         return;
     }
