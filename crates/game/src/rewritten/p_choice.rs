@@ -150,6 +150,7 @@ impl Game {
     /// records are on its side (`COUNT`) and its place among them
     /// (`PLACE`; d1's low byte as it came if it isn't one of them).
     /// The registers are kept but d0 (which no caller reads).
+    /// No script calls it: reviewed by reading.
     pub fn r_011f1c(&mut self, _d0: u32, d1: u32, _d4: u32) {
         let record = self.read32(RECORD_ADDR);
         let side = self.read8(record + REC_FLAGS);
